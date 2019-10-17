@@ -16,7 +16,7 @@
     </b-row>
 
     <b-row align-h="center" align-v="center" class="query_type-select">
-        Je recherche 
+        Je recherche
       <b-col cols="4">
         <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
       </b-col>
@@ -59,8 +59,9 @@ export default{
   methods:{
     search(){
       console.log("Go")
-      this.$bvToaster.show("toaster-request")
       let url = "http://api.semanticscholar.org/v1/author/38087946"
+      url = "http://localhost:3000/"+this.query_type.code
+      console.log(url);
       this.$.get(url, {request:this.request})
       .then(res => {
         console.log(res.data)

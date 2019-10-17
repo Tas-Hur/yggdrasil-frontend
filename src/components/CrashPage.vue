@@ -16,8 +16,9 @@
     </b-row>
 
     <b-row class="justify-content-md-center">
-      <b-col cols="6">
-      </b-col>
+        <b-checkbox class="checkbox">Author</b-checkbox>
+        <b-checkbox label="checkbox">Key words</b-checkbox>
+        <b-checkbox label="checkbox">Paper id</b-checkbox>
     </b-row>
   </div>
 </template>
@@ -38,6 +39,7 @@ export default{
   methods:{
     search(){
       console.log("Go")
+      this.$bvToaster.show("toaster-request")
       let url = "http://api.semanticscholar.org/v1/author/38087946"
       this.$.get(url, {request:this.request})
       .then(res => {

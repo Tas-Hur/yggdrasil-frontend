@@ -3,7 +3,7 @@
     <b-row class="title align-items-center">
       <b-col>
         <h3>
-            Yggdrasil
+          Yggdrasil
         </h3>
       </b-col>
     </b-row>
@@ -15,10 +15,14 @@
       </b-col>
     </b-row>
 
-    <b-row class="justify-content-md-center">
-        <b-checkbox class="checkbox">Author</b-checkbox>
-        <b-checkbox label="checkbox">Key words</b-checkbox>
-        <b-checkbox label="checkbox">Paper id</b-checkbox>
+    <b-row align-h="center" align-v="center" class="query_type-select">
+        Je recherche 
+      <b-col cols="4">
+        <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
+      </b-col>
+      <!-- <b-checkbox button-variant="info" class="checkbox">Author</b-checkbox>
+      <b-checkbox class="checkbox">Key words</b-checkbox>
+      <b-checkbox class="checkbox">Paper id</b-checkbox> -->
     </b-row>
   </div>
 </template>
@@ -32,6 +36,22 @@ export default{
     return{
       request:"",
       author:false,
+      query_type:{code:'key_words', name:"des mot-clés"},
+      options:
+      [
+        {
+          code:'author',
+          name:'un auteur'
+        },
+        {
+          code:'key_words',
+          name:'des mot-clés'
+        },
+        {
+          code:'paper_id',
+          name:'un papier spécifique'
+        }
+      ]
     }
   },
   components: {
@@ -51,6 +71,14 @@ export default{
 </script>
 
 <style scoped>
+.checkbox{
+  margin-top:1rem;
+  padding: 0 2rem 0 2rem;
+}
+
+.query_type-select{
+  margin-top:1.5rem;
+}
 
 .title{
   height:30%;

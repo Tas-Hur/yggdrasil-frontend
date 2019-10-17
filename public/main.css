@@ -1,6 +1,8 @@
 :root{
   --main-color: #2c3e50;
   --light-color: rgb(150,150,150);
+  --red-color: #ff6a6a;
+  --green-color: #41b883;
 }
 
 .form-control{
@@ -30,4 +32,12 @@
 }
 :-moz-placeholder { /* Firefox 18- */
   font-style: italic !important;
+}
+
+.multiselect__tags{
+  border-radius: 0 !important;
+}
+
+.multiselect__content-wrapper{
+  border-radius:0 !important;
 }

@@ -5,6 +5,25 @@
   --green-color: #41b883;
 }
 
+.b-toast{
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+}
+
+.toast-header{
+  background-color:var(--main-color) !important;
+  color:white !important;
+  font-weight: normal !important;
+}
+
+.b-toast button.close{
+  color:white !important;
+}
+
+.container.max-container{
+  width:90vw;
+  max-width: none;
+}
+
 .form-control{
   border:0;
   border-radius:0;
@@ -40,4 +59,16 @@
 
 .multiselect__content-wrapper{
   border-radius:0 !important;
+}
+
+.link{
+  color:var(--main-color);
+  cursor:pointer;
+  font-weight: bold;
+  transition: all ease-in-out 200ms;
+}
+
+.link:hover{
+  color:var(--light-color);
+  transition: all ease-in-out 200ms;
 }

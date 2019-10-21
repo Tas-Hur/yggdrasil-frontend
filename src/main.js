@@ -5,6 +5,9 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VueMultiselect from 'vue-multiselect'
+import GoJs from 'gojs'
+
+console.log("hey I am here ",GoJs)
 
   // register globally
 

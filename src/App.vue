@@ -1,19 +1,36 @@
 <template>
   <div id="app">
-    <b-container>
-      <crash-page class="content">
-      </crash-page>
-    </b-container>
+
+    <crash-page v-if="step==0" @got_papers="draw_graph" class="content">
+    </crash-page>
+
+    <tree-graph :nodes="data" @search="search" v-if="step == 1">
+    </tree-graph>
   </div>
 </template>
 
 <script>
 import CrashPage from './components/CrashPage.vue'
-
+import TreeGraph from'./components/TreeGraph.vue'
 export default {
   name: 'app',
   components: {
-    CrashPage
+    CrashPage,TreeGraph
+  },
+  data(){
+    return{
+      step:0,
+      data:[],
+    }
+  },
+  methods:{
+    search(){
+      this.step=0
+    },
+    draw_graph(data){
+      this.step = 1
+      this.data=data
+    }
   }
 }
 </script>

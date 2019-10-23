@@ -1,19 +1,27 @@
 <template>
-  <b-container class="max-container">
-    <custom-tooltip v-show="hover_node" id="infoBoxHolder" :node="this.current_node">
+  <div>
+
+    <!-- <b-container class="max-container"> -->
+    <custom-tooltip v-show="hover_node" :position="current_node_location" id="infoBoxHolder" :node="this.current_node">
     </custom-tooltip>
-    <b-row>
+    <!-- <b-row>
       <b-col>
         Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
-        <!-- Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud -->
+        Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
       </b-col>
-    </b-row>
-    <b-row>
-      <b-col id="myDiagramDiv" :style="{height:'80vh'}">
-      </b-col>
-    </b-row>
+    </b-row> -->
+    <!-- <b-row> -->
+      <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
+      </div>
+      <div class="custom-container">
+        <b-row align-h="center">
+          bonjour
+        </b-row>
+      </div>
+    <!-- </b-row> -->
 
-  </b-container>
+    <!-- </b-container> -->
+  </div>
 </template>
 
 <script>
@@ -38,6 +46,7 @@ export default{
   data(){
     return{
       current_node:null,
+      current_node_location:{},
       diagram:null,
       total_width:0,
       hover_node:false,
@@ -99,7 +108,7 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          mouseEnter:(e,obj)=>{this.current_node=obj.part.data;self.hover_node=true},
+          mouseEnter:(e,obj)=>{console.log(obj.position.x,obj.position.y);console.log(myDiagram.transformDocToView(obj.position));this.current_node=obj.part.data;self.hover_node=true},
           mouseLeave:(e,obj)=>{self.hover_node=false}
         }
       );
@@ -152,13 +161,17 @@ export default{
 </script>
 
 <style scoped>
-  #myDiagramDiv{
-    border-color:1px solid red;
-  }
+.custom-container{
+  position:fixed;
+  left:10px;
+  z-index: 500;
+  right:10px;
+  top:10px;
+}
 
-  #infoBoxHolder {
-    z-index: 300;
-    position: absolute;
-    left: 5px;
-  }
+#infoBoxHolder {
+  z-index: 300;
+  position: absolute;
+  left: 5px;
+}
 </style>

@@ -42,8 +42,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: var(--main-color);
-  margin-top: 60px;
-  height:90vh;
+  /* margin-top: 60px; */
+  /* height:90vh; */
 }
 
 .content{

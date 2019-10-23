@@ -7,23 +7,26 @@
         </h3>
       </b-col>
     </b-row>
+    <b-row align-h="center">
+      <b-col sm="8">
+        <b-row align-v="center" align-h="center">
+          <font-awesome-icon class="custom-btn" icon="search" @click="search"/>
+          <b-col cols="10">
+            <b-input @keyup.enter="search" placeholder="rechercher par DOI, mot-clés, auteur..." class="input-request" icon="search" label="mots-clés, DOI, auteur..." v-model="request" />
+          </b-col>
+        </b-row>
 
-    <b-row align-v="center" align-h="center">
-      <font-awesome-icon class="custom-btn" icon="search" @click="search"/>
-      <b-col cols="6">
-        <b-input @keyup.enter="search" placeholder="rechercher par DOI, mot-clés, auteur..." class="input-request" icon="search" label="mots-clés, DOI, auteur..." v-model="request" />
+        <b-row align-h="center" align-v="center" class="query_type-select">
+          Je recherche
+          <b-col cols="6">
+            <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
+          </b-col>
+        </b-row>
+
+        <b-row v-if="loading" class="req_spinner" align-h="center">
+          <b-spinner></b-spinner>
+        </b-row>
       </b-col>
-    </b-row>
-
-    <b-row align-h="center" align-v="center" class="query_type-select">
-      Je recherche
-      <b-col cols="4">
-        <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
-      </b-col>
-    </b-row>
-
-    <b-row v-if="loading" class="req_spinner" align-h="center">
-      <b-spinner></b-spinner>
     </b-row>
 
   </b-container>
@@ -105,6 +108,7 @@ export default{
 }
 
 .title{
+  margin:15vh;
   height:30%;
 }
 .input-request{

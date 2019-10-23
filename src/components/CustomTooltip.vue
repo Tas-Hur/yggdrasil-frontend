@@ -33,12 +33,12 @@ export default{
 <style scoped>
 
 #infoBox {
-  border: 1px solid var(--main-color);
   padding: 8px;
-  background-color: white;
+  background-color: var(--main-color);
   text-align:justify;
   display: block;
   width:40vw;
+  color:'white' !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

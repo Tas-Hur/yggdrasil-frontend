@@ -1,26 +1,19 @@
 <template>
   <div>
 
-    <!-- <b-container class="max-container"> -->
-    <custom-tooltip v-show="hover_node" :position="current_node_location" id="infoBoxHolder" :node="this.current_node">
+    <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="current_node_location" id="infoBoxHolder" :node="this.current_node">
     </custom-tooltip>
-    <!-- <b-row>
-      <b-col>
-        Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
-        Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
-      </b-col>
-    </b-row> -->
-    <!-- <b-row> -->
-      <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
-      </div>
-      <div class="custom-container">
-        <b-row align-h="center">
-          bonjour
-        </b-row>
-      </div>
-    <!-- </b-row> -->
-
-    <!-- </b-container> -->
+    <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
+    </div>
+    <div class="custom-container">
+      <b-row align-h="center">
+        <b-col>
+          Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
+          <br  />
+          Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
+        </b-col>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -37,11 +30,6 @@ export default{
   mounted(){
     console.log("Launching stuff")
     this.init()
-    var self=this;
-    this.total_width = window.innerWidth
-    window.addEventListener('resize', ()=>{this.total_width=window.innerWidth});
-    var infoBoxH = document.getElementById("infoBoxHolder");
-    document.addEventListener("mousemove", self.moveTooltip, false);
   },
   data(){
     return{
@@ -54,9 +42,15 @@ export default{
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
       greenColor: "#41b883",
+      nodeDiameter:200
     }
   },
   computed:{
+    node_settings(){
+      return{
+        diameter:this.nodeDiameter
+      }
+    },
     data_links(){
       let res = []
       this.data.forEach(paper => {
@@ -66,17 +60,6 @@ export default{
     }
   },
   methods:{
-    moveTooltip(e) {
-      var box = document.getElementById("infoBoxHolder");
-      if(box !== null){
-        if(e.clientX > this.total_width/2){
-          box.style.left= e.clientX - (30+0.4*this.total_width)+"px";
-        }else{
-          box.style.left = e.clientX + 30 + "px";
-        }
-        box.style.top = e.clientY + "px";
-      }
-    },
     search(){
       this.$emit('search')
     },
@@ -84,7 +67,7 @@ export default{
       var nodeColor='white'
       var nodeTextColor=this.mainColor
       var nodeStrokeColor= this.mainColor
-      var linkColor="gray"
+      var linkColor=this.mainColor;
       var linkShape='Triangle'
       var $ = go.GraphObject.make;  // for conciseness in defining templates
       var self = this
@@ -98,7 +81,7 @@ export default{
 
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
-      { desiredSize: new go.Size(200,200), selectionAdorned:false }, // the Shape will go around the TextBlock
+      { desiredSize: new go.Size(self.nodeDiameter,200), selectionAdorned:false }, // the Shape will go around the TextBlock
       $(go.Shape, "Circle",
       { strokeWidth: 1, stroke: nodeStrokeColor },  // default fill is white
       // Shape.fill is bound to Node.data.color
@@ -108,7 +91,7 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          mouseEnter:(e,obj)=>{console.log(obj.position.x,obj.position.y);console.log(myDiagram.transformDocToView(obj.position));this.current_node=obj.part.data;self.hover_node=true},
+          mouseEnter:(e,obj)=>{this.current_node_location = myDiagram.transformDocToView(obj.position);this.current_node=obj.part.data;self.hover_node=true},
           mouseLeave:(e,obj)=>{self.hover_node=false}
         }
       );
@@ -171,7 +154,6 @@ export default{
 
 #infoBoxHolder {
   z-index: 300;
-  position: absolute;
-  left: 5px;
+  position: fixed;
 }
 </style>

@@ -31,7 +31,7 @@ export default {
       this.step = 1
       this.data=data
     }
-  }
+  },
 }
 </script>
 

@@ -26,11 +26,6 @@ export default{
   components:{
     CustomTooltip
   },
-  watch:{
-    total_width(){
-      console.log("width changing")
-    }
-  },
   mounted(){
     console.log("Launching stuff")
     this.init()
@@ -77,8 +72,14 @@ export default{
       this.$emit('search')
     },
     init() {
+      var nodeColor='white'
+      var nodeTextColor=this.mainColor
+      var nodeStrokeColor= this.mainColor
+      var linkColor="gray"
+      var linkShape='Triangle'
       var $ = go.GraphObject.make;  // for conciseness in defining templates
       var self = this
+
       var myDiagram =
       $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
       { // enable undo & redo
@@ -88,13 +89,13 @@ export default{
 
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
-      { desiredSize: new go.Size(200,200) }, // the Shape will go around the TextBlock
+      { desiredSize: new go.Size(200,200), selectionAdorned:false }, // the Shape will go around the TextBlock
       $(go.Shape, "Circle",
-      { strokeWidth: 1, fill: self.mainColor },  // default fill is white
+      { strokeWidth: 1, stroke: nodeStrokeColor },  // default fill is white
       // Shape.fill is bound to Node.data.color
       new go.Binding("fill", "color")),
       $(go.TextBlock,
-        { margin: 3, stroke:"white" },  // some room around the text
+        { margin: 3, stroke:nodeTextColor },  // some room around the text
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
@@ -105,19 +106,21 @@ export default{
       // but use the default Link template, by not setting Diagram.linkTemplate
       myDiagram.linkTemplate =
       $(go.Link,
-        $(go.Shape),  // the link shape
+        $(go.Shape,
+          { strokeWidth: 1, stroke: linkColor }
+        ),  // the link shape
         $(go.Shape,   // the arrowhead
-          { toArrow: "Triangle", fill: self.mainColor }
+
+          { toArrow: linkShape,strokeWidth:0, stroke:linkColor, fill: linkColor }
         )
       );
-      let node_color=self.mainColor;
       // create the model data that will be represented by Nodes and Links
       myDiagram.model = new go.GraphLinksModel(
         [
-          { title: "Alpha", key:"Alpha", color: node_color },
-          { title: "Beta", key:"Beta", color: node_color },
-          { title: "Gamma", key:"Gamma", color: node_color },
-          { title: "Delta", key:"Delta", color: node_color }
+          { title: "Alpha", key:"Alpha", color: nodeColor },
+          { title: "Beta", key:"Beta", color: nodeColor },
+          { title: "Gamma", key:"Gamma", color: nodeColor },
+          { title: "Delta", key:"Delta", color: nodeColor }
         ],
         [
           { from: "Alpha", to: "Beta" },
@@ -130,7 +133,7 @@ export default{
         ]
       );
       self.nodes.forEach(node=>{
-        node.color = node_color
+        node.color = nodeColor
         node.key=node.paperId
         myDiagram.model.addNodeData(node);
       })
@@ -149,13 +152,13 @@ export default{
 </script>
 
 <style scoped>
-#myDiagramDiv{
-  border-color:1px solid red;
-}
+  #myDiagramDiv{
+    border-color:1px solid red;
+  }
 
-#infoBoxHolder {
-  z-index: 300;
-  position: absolute;
-  left: 5px;
-}
+  #infoBoxHolder {
+    z-index: 300;
+    position: absolute;
+    left: 5px;
+  }
 </style>

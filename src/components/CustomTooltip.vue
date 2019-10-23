@@ -12,8 +12,8 @@
         Year :
         {{node.year}}
         <br  />
+        Cited by :
         <template v-if="'citations' in node">
-          Cited by :
           {{node.citations.length}}
         </template>
       </div>
@@ -44,9 +44,9 @@ export default{
 
     arrowStyle(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
-        return{left:0.2*this.total_width-10+'px'}
+        return{left:0.2*this.total_width-15+'px'}
       }else{
-        return{left:'-10px'}
+        return{left:'-5px'}
       }
 
     },
@@ -74,6 +74,7 @@ export default{
 .arrow-tooltip{
   transform: rotate(45deg);
   background-color: var(--main-color);
+  /* background-color: red; */
   position:relative;
   top:50px;
   z-index:250;
@@ -84,14 +85,16 @@ export default{
 
 #infoBox {
   padding: 15px;
+  border-radius:5px;
   background-color: var(--main-color);
   text-align:justify;
   position: fixed;
-  color:white;
+  color:rgba(255,255,255,0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size:80%;
+  z-index: 300;
   box-shadow: 0 0 3px 0.1px var(--main-color);
 }
 /* this is known as the "clearfix" hack to allow

@@ -63,17 +63,37 @@ export default{
           toolTip:  // define a tooltip for each node that displays the color as text
           $("ToolTip",
           $(go.TextBlock, { margin: 4 },
-            new go.Binding("text", "title"))
-          )  // end of Adornment
+            new go.Binding("text", "", (data) => {
+              let authors = ""
+              let abstract =""
+              let title = data.title
+              "authors" in data ? authors = data.authors.map(obj=>obj.name) : authors =""
+              "abstract" in data ? abstract = data.abstract : abstract=""
+              return ""+
+              "title : \n"+
+              data.title+
+              "\n\nauthors : \n"+
+              authors+
+              "\n\nabstract : \n"+
+              abstract+
+              data.color})
+            )
+          )
         }
       );
       function diagramInfo(model) {
         return "Model:\n" + model.nodeDataArray.length + " nodes, " +
         model.linkDataArray.length + " links";
       }
+
       myDiagram.toolTip =
       $("ToolTip",
-      $(go.TextBlock, { margin: 4 },
+      $(go.TextBlock,
+        {
+          overflow: go.TextBlock.OverflowClip /* the default value */,
+          margin: 4,
+          width:"50px",
+        },
         // use a converter to display information about the diagram model
         new go.Binding("text", "", diagramInfo))
       );
@@ -83,47 +103,48 @@ export default{
       $(go.Link,
         $(go.Shape),  // the link shape
         $(go.Shape,   // the arrowhead
-          { toArrow: "Triangle", fill: self.mainColor })
-        );
-        // create the model data that will be represented by Nodes and Links
-        myDiagram.model = new go.GraphLinksModel(
-          [
-            { title: "Alpha", key:"Alpha", color: "lightblue" },
-            { title: "Beta", key:"Beta", color: "orange" },
-            { title: "Gamma", key:"Gamma", color: "lightgreen" },
-            { title: "Delta", key:"Delta", color: "pink" }
-          ],
-          [
-            { from: "Alpha", to: "Beta" },
-            { from: "Alpha", to: "Gamma" },
-            { from: "Beta", to: "Beta" },
-            { from: "Gamma", to: "Delta" },
-            { from: "Delta", to: "Alpha" },
-            { from: "Gamma", to: self.nodes[0].paperId},
-            { from: "Epsilon", to: "Alpha"}
-          ]
-        );
-        self.nodes.forEach(node=>{
-          node.color = "lightblue"
-          node.key=node.paperId
-          myDiagram.model.addNodeData(node);
-        })
-        self.diagram = myDiagram;
-      },
-      addNode(){
-        var self = this
-        console.log("new node")
-        self.nodes.forEach(node=>{
-          self.diagram.model.addNodeData({title:'Epsilon', key:'Epsilon', color:'orange'});
-        })
-        console.log(self.diagram.model)
-      }
+          { toArrow: "Triangle", fill: self.mainColor }
+        )
+      );
+      // create the model data that will be represented by Nodes and Links
+      myDiagram.model = new go.GraphLinksModel(
+        [
+          { title: "Alpha", key:"Alpha", color: "lightblue" },
+          { title: "Beta", key:"Beta", color: "orange" },
+          { title: "Gamma", key:"Gamma", color: "lightgreen" },
+          { title: "Delta", key:"Delta", color: "pink" }
+        ],
+        [
+          { from: "Alpha", to: "Beta" },
+          { from: "Alpha", to: "Gamma" },
+          { from: "Beta", to: "Beta" },
+          { from: "Gamma", to: "Delta" },
+          { from: "Delta", to: "Alpha" },
+          { from: "Gamma", to: self.nodes[0].paperId},
+          { from: "Epsilon", to: "Alpha"}
+        ]
+      );
+      self.nodes.forEach(node=>{
+        node.color = "lightblue"
+        node.key=node.paperId
+        myDiagram.model.addNodeData(node);
+      })
+      self.diagram = myDiagram;
+    },
+    addNode(){
+      var self = this
+      console.log("new node")
+      self.nodes.forEach(node=>{
+        self.diagram.model.addNodeData({title:'Epsilon', key:'Epsilon', color:'orange'});
+      })
+      console.log(self.diagram.model)
     }
   }
-  </script>
+}
+</script>
 
-  <style scoped>
-  #myDiagramDiv{
-    border-color:1px solid red;
-  }
-  </style>
+<style scoped>
+#myDiagramDiv{
+  border-color:1px solid red;
+}
+</style>

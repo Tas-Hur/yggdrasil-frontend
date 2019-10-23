@@ -8,7 +8,7 @@
       </b-col>
     </b-row>
     <b-row align-h="center">
-      <b-col sm="8">
+      <b-col sm="7">
         <b-row align-v="center" align-h="center">
           <font-awesome-icon class="custom-btn" icon="search" @click="search"/>
           <b-col cols="10">
@@ -18,7 +18,7 @@
 
         <b-row align-h="center" align-v="center" class="query_type-select">
           Je recherche
-          <b-col cols="6">
+          <b-col cols="7">
             <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
           </b-col>
         </b-row>
@@ -108,7 +108,8 @@ export default{
 }
 
 .title{
-  margin:15vh;
+  margin-top:17vh;
+  margin-bottom:13vh;
   height:30%;
 }
 .input-request{

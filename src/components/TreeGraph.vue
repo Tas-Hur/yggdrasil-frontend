@@ -1,5 +1,7 @@
 <template>
   <b-container class="max-container">
+    <div v-if="hover_node" id="infoBoxHolder">
+    </div>
     <b-row>
       <b-col>
         Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
@@ -22,10 +24,17 @@ export default{
   mounted(){
     console.log("Launching stuff")
     this.init()
+    var infoBoxH = document.getElementById("infoBoxHolder");
+    document.addEventListener("mousemove", function(e) {
+      var box = document.getElementById("infoBoxHolder");
+      box.style.left = e.clientX + "px";
+      box.style.top = e.clientY + 30 + "px";
+    }, false);
   },
   data(){
     return{
       diagram:null,
+      hover_node:false,
       mainColor: "#2c3e50",
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
@@ -45,14 +54,25 @@ export default{
         hoverDelay:100,
         "undoManager.isEnabled": true
       });
-
+      var myToolTip = $(go.HTMLInfo, {
+        show: self.showToolTip,
+        // hide: self.hideToolTip,
+        // do nothing on hide: This tooltip doesn't hide unless the mouse leaves the diagram
+      })
       // define a simple Node template
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
+      {
+        toolTip: myToolTip
+      },
+      new go.Binding("location", "", function(nothing, elt) {
+        return new go.Point(elt.data[myLocation.x] * 200,
+          elt.data[myLocation.y] * 200)
+        }
+      ),
       { desiredSize: new go.Size(100,100) }, // the Shape will go around the TextBlock
       $(go.Shape, "Circle",
       { strokeWidth: 0, fill: "white" },  // default fill is white
-
       // Shape.fill is bound to Node.data.color
       new go.Binding("fill", "color")),
       $(go.TextBlock,
@@ -60,42 +80,9 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          toolTip:  // define a tooltip for each node that displays the color as text
-          $("ToolTip",
-          $(go.TextBlock, { margin: 4 },
-            new go.Binding("text", "", (data) => {
-              let authors = ""
-              let abstract =""
-              let title = data.title
-              "authors" in data ? authors = data.authors.map(obj=>obj.name) : authors =""
-              "abstract" in data ? abstract = data.abstract : abstract=""
-              return ""+
-              "title : \n"+
-              data.title+
-              "\n\nauthors : \n"+
-              authors+
-              "\n\nabstract : \n"+
-              abstract+
-              data.color})
-            )
-          )
+          mouseEnter:()=>{self.hover_node=true},
+          mouseLeave:()=>{self.hover_node=false}
         }
-      );
-      function diagramInfo(model) {
-        return "Model:\n" + model.nodeDataArray.length + " nodes, " +
-        model.linkDataArray.length + " links";
-      }
-
-      myDiagram.toolTip =
-      $("ToolTip",
-      $(go.TextBlock,
-        {
-          overflow: go.TextBlock.OverflowClip /* the default value */,
-          margin: 4,
-          width:"50px",
-        },
-        // use a converter to display information about the diagram model
-        new go.Binding("text", "", diagramInfo))
       );
 
       // but use the default Link template, by not setting Diagram.linkTemplate
@@ -106,6 +93,7 @@ export default{
           { toArrow: "Triangle", fill: self.mainColor }
         )
       );
+
       // create the model data that will be represented by Nodes and Links
       myDiagram.model = new go.GraphLinksModel(
         [
@@ -131,6 +119,31 @@ export default{
       })
       self.diagram = myDiagram;
     },
+    updateInfoBox(mousePt, data) {
+      var box = document.getElementById("infoBoxHolder");
+      box.innerHTML = "";
+      var infobox = document.createElement("div");
+      infobox.id = "infoBox";
+      box.appendChild(infobox);
+      var child = document.createElement("div");
+      child.className = "infoTitle";
+      child.textContent = data.abstract;
+      infobox.appendChild(child);
+    },
+    hideToolTip(obj,diagram){
+      document.getElementById("infoBoxHolder").innerHTML = "";
+    },
+    showToolTip(obj, diagram) {
+      if (obj !== null) {
+        var node = obj.part;
+        var e = diagram.lastInput;
+        this.updateInfoBox(e.viewPoint, node.data);
+      } else {
+        if (lastStroked !== null) lastStroked.stroke = null;
+        lastStroked = null;
+        document.getElementById("infoBoxHolder").innerHTML = "";
+      }
+    },
     addNode(){
       var self = this
       console.log("new node")
@@ -147,4 +160,5 @@ export default{
 #myDiagramDiv{
   border-color:1px solid red;
 }
+
 </style>

@@ -6,6 +6,9 @@ import VueAxios from 'vue-axios'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VueMultiselect from 'vue-multiselect'
 import GoJs from 'gojs'
+// import io from 'socket.io'
+//
+// console.log(io)
 
 console.log("hey I am here ",GoJs)
 

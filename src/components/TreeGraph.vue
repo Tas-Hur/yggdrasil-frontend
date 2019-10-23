@@ -42,13 +42,14 @@ export default{
       var myDiagram =
       $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
       { // enable undo & redo
+        hoverDelay:100,
         "undoManager.isEnabled": true
       });
 
       // define a simple Node template
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
-      { desiredSize: new go.Size(200,200) }, // the Shape will go around the TextBlock
+      { desiredSize: new go.Size(100,100) }, // the Shape will go around the TextBlock
       $(go.Shape, "Circle",
       { strokeWidth: 0, fill: "white" },  // default fill is white
 
@@ -57,7 +58,24 @@ export default{
       $(go.TextBlock,
         { margin: 8, stroke:'white' },  // some room around the text
         // TextBlock.text is bound to Node.data.title
-        new go.Binding("text", "title"))
+        new go.Binding("text", "title")),
+        {
+          toolTip:  // define a tooltip for each node that displays the color as text
+          $("ToolTip",
+          $(go.TextBlock, { margin: 4 },
+            new go.Binding("text", "title"))
+          )  // end of Adornment
+        }
+      );
+      function diagramInfo(model) {
+        return "Model:\n" + model.nodeDataArray.length + " nodes, " +
+        model.linkDataArray.length + " links";
+      }
+      myDiagram.toolTip =
+      $("ToolTip",
+      $(go.TextBlock, { margin: 4 },
+        // use a converter to display information about the diagram model
+        new go.Binding("text", "", diagramInfo))
       );
 
       // but use the default Link template, by not setting Diagram.linkTemplate
@@ -65,49 +83,47 @@ export default{
       $(go.Link,
         $(go.Shape),  // the link shape
         $(go.Shape,   // the arrowhead
-          { toArrow: "Triangle", fill: self.mainColor }
-        )
-      );
-      // create the model data that will be represented by Nodes and Links
-      myDiagram.model = new go.GraphLinksModel(
-        [
-          { title: "Alpha", key:"Alpha", color: "lightblue" },
-          { title: "Beta", key:"Beta", color: "orange" },
-          { title: "Gamma", key:"Gamma", color: "lightgreen" },
-          { title: "Delta", key:"Delta", color: "pink" }
-        ],
-        [
-          { from: "Alpha", to: "Beta" },
-          { from: "Alpha", to: "Gamma" },
-          { from: "Beta", to: "Beta" },
-          { from: "Gamma", to: "Delta" },
-          { from: "Delta", to: "Alpha" },
-          { from: "Gamma", to: self.nodes[0].paperId},
-          { from: "Epsilon", to: "Alpha"}
-        ]
-      );
-      console.log(myDiagram.model)
-      self.nodes.forEach(node=>{
-        node.color = "lightblue"
-        node.key=node.paperId
-        myDiagram.model.addNodeData(node);
-      })
-      self.diagram = myDiagram;
-    },
-    addNode(){
-      var self = this
-      console.log("new node")
-      self.nodes.forEach(node=>{
-        self.diagram.model.addNodeData({title:'Epsilon', key:'Epsilon', color:'orange'});
-      })
-      console.log(self.diagram.model)
+          { toArrow: "Triangle", fill: self.mainColor })
+        );
+        // create the model data that will be represented by Nodes and Links
+        myDiagram.model = new go.GraphLinksModel(
+          [
+            { title: "Alpha", key:"Alpha", color: "lightblue" },
+            { title: "Beta", key:"Beta", color: "orange" },
+            { title: "Gamma", key:"Gamma", color: "lightgreen" },
+            { title: "Delta", key:"Delta", color: "pink" }
+          ],
+          [
+            { from: "Alpha", to: "Beta" },
+            { from: "Alpha", to: "Gamma" },
+            { from: "Beta", to: "Beta" },
+            { from: "Gamma", to: "Delta" },
+            { from: "Delta", to: "Alpha" },
+            { from: "Gamma", to: self.nodes[0].paperId},
+            { from: "Epsilon", to: "Alpha"}
+          ]
+        );
+        self.nodes.forEach(node=>{
+          node.color = "lightblue"
+          node.key=node.paperId
+          myDiagram.model.addNodeData(node);
+        })
+        self.diagram = myDiagram;
+      },
+      addNode(){
+        var self = this
+        console.log("new node")
+        self.nodes.forEach(node=>{
+          self.diagram.model.addNodeData({title:'Epsilon', key:'Epsilon', color:'orange'});
+        })
+        console.log(self.diagram.model)
+      }
     }
   }
-}
-</script>
+  </script>
 
-<style scoped>
-#myDiagramDiv{
-  border-color:1px solid red;
-}
-</style>
+  <style scoped>
+  #myDiagramDiv{
+    border-color:1px solid red;
+  }
+  </style>

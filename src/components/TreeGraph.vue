@@ -78,7 +78,6 @@ export default{
       { // enable undo & redo
         hoverDelay:100,
         "undoManager.isEnabled": true,
-        SelectionMoved:(e,d,c)=>{console.log("moving",e.C)}
       });
 
       myDiagram.nodeTemplate =
@@ -93,10 +92,10 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          click: (e, obj) => {this.current_node = this.hovered_node=obj.part.data},
-          mouseEnter:(e,obj)=>{this.hovered_node_location = myDiagram.transformDocToView(obj.position);this.hovered_node=obj.part.data;self.hover_node=true},
+          click: (e, obj) => {this.current_node = this.hovered_node=obj.part.data;this.hover_node=false;},
+          mouseOver:(e,obj)=>{this.hovered_node_location = myDiagram.transformDocToView(obj.position);this.hovered_node=obj.part.data;self.hover_node=true},
           mouseLeave:(e,obj)=>{self.hover_node=false},
-          actionMove:(e,obj)=>{console.log("event : ",myDiagram.transformDocToView(obj.position))}
+          actionDown:(e,obj)=>{console.log("event : ",myDiagram.transformDocToView(obj.position))}
         }
       );
       // but use the default Link template, by not setting Diagram.linkTemplate

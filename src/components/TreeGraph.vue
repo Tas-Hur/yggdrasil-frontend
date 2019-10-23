@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="current_node_location" id="infoBoxHolder" :node="this.current_node">
+    <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
     </custom-tooltip>
     <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
     </div>
@@ -33,8 +33,8 @@ export default{
   },
   data(){
     return{
-      current_node:null,
-      current_node_location:{},
+      hovered_node:null,
+      hovered_node_location:{},
       diagram:null,
       total_width:0,
       hover_node:false,
@@ -42,7 +42,8 @@ export default{
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
       greenColor: "#41b883",
-      nodeDiameter:200
+      nodeDiameter:200,
+      current_node:null,
     }
   },
   computed:{
@@ -76,7 +77,8 @@ export default{
       $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
       { // enable undo & redo
         hoverDelay:100,
-        "undoManager.isEnabled": true
+        "undoManager.isEnabled": true,
+        SelectionMoved:(e,d,c)=>{console.log("moving",e.C)}
       });
 
       myDiagram.nodeTemplate =
@@ -91,8 +93,10 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          mouseEnter:(e,obj)=>{this.current_node_location = myDiagram.transformDocToView(obj.position);this.current_node=obj.part.data;self.hover_node=true},
-          mouseLeave:(e,obj)=>{self.hover_node=false}
+          click: (e, obj) => {this.current_node = this.hovered_node=obj.part.data},
+          mouseEnter:(e,obj)=>{this.hovered_node_location = myDiagram.transformDocToView(obj.position);this.hovered_node=obj.part.data;self.hover_node=true},
+          mouseLeave:(e,obj)=>{self.hover_node=false},
+          actionMove:(e,obj)=>{console.log("event : ",myDiagram.transformDocToView(obj.position))}
         }
       );
       // but use the default Link template, by not setting Diagram.linkTemplate

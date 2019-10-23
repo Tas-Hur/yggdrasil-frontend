@@ -29,9 +29,7 @@
   </b-container>
 </template>
 
-<script scoped>
-
-
+<script>
 export default{
   name:'crash-page',
   data(){

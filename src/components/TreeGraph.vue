@@ -1,7 +1,7 @@
 <template>
   <b-container class="max-container">
-    <div v-if="hover_node" id="infoBoxHolder">
-    </div>
+    <custom-tooltip v-show="hover_node" id="infoBoxHolder" :node="this.current_node">
+    </custom-tooltip>
     <b-row>
       <b-col>
         Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
@@ -12,14 +12,19 @@
       <b-col id="myDiagramDiv" :style="{height:'80vh'}">
       </b-col>
     </b-row>
+
   </b-container>
 </template>
 
 <script>
+import CustomTooltip from './CustomTooltip.vue'
 export default{
   name:"tree-graph",
   props:{
     nodes:Array
+  },
+  components:{
+    CustomTooltip
   },
   mounted(){
     console.log("Launching stuff")
@@ -27,12 +32,15 @@ export default{
     var infoBoxH = document.getElementById("infoBoxHolder");
     document.addEventListener("mousemove", function(e) {
       var box = document.getElementById("infoBoxHolder");
-      box.style.left = e.clientX + "px";
-      box.style.top = e.clientY + 30 + "px";
+      if(box !== null){
+        box.style.left = e.clientX + 30 + "px";
+        box.style.top = e.clientY + "px";
+      }
     }, false);
   },
   data(){
     return{
+      current_node:null,
       diagram:null,
       hover_node:false,
       mainColor: "#2c3e50",
@@ -54,17 +62,9 @@ export default{
         hoverDelay:100,
         "undoManager.isEnabled": true
       });
-      var myToolTip = $(go.HTMLInfo, {
-        show: self.showToolTip,
-        // hide: self.hideToolTip,
-        // do nothing on hide: This tooltip doesn't hide unless the mouse leaves the diagram
-      })
-      // define a simple Node template
+
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
-      {
-        toolTip: myToolTip
-      },
       new go.Binding("location", "", function(nothing, elt) {
         return new go.Point(elt.data[myLocation.x] * 200,
           elt.data[myLocation.y] * 200)
@@ -80,11 +80,10 @@ export default{
         // TextBlock.text is bound to Node.data.title
         new go.Binding("text", "title")),
         {
-          mouseEnter:()=>{self.hover_node=true},
-          mouseLeave:()=>{self.hover_node=false}
+          mouseEnter:(e,obj)=>{this.current_node=obj.part.data;self.hover_node=true},
+          mouseLeave:(e,obj)=>{self.hover_node=false}
         }
       );
-
       // but use the default Link template, by not setting Diagram.linkTemplate
       myDiagram.linkTemplate =
       $(go.Link,
@@ -119,31 +118,6 @@ export default{
       })
       self.diagram = myDiagram;
     },
-    updateInfoBox(mousePt, data) {
-      var box = document.getElementById("infoBoxHolder");
-      box.innerHTML = "";
-      var infobox = document.createElement("div");
-      infobox.id = "infoBox";
-      box.appendChild(infobox);
-      var child = document.createElement("div");
-      child.className = "infoTitle";
-      child.textContent = data.abstract;
-      infobox.appendChild(child);
-    },
-    hideToolTip(obj,diagram){
-      document.getElementById("infoBoxHolder").innerHTML = "";
-    },
-    showToolTip(obj, diagram) {
-      if (obj !== null) {
-        var node = obj.part;
-        var e = diagram.lastInput;
-        this.updateInfoBox(e.viewPoint, node.data);
-      } else {
-        if (lastStroked !== null) lastStroked.stroke = null;
-        lastStroked = null;
-        document.getElementById("infoBoxHolder").innerHTML = "";
-      }
-    },
     addNode(){
       var self = this
       console.log("new node")
@@ -161,4 +135,9 @@ export default{
   border-color:1px solid red;
 }
 
+#infoBoxHolder {
+  z-index: 300;
+  position: absolute;
+  left: 5px;
+}
 </style>

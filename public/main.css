@@ -72,31 +72,3 @@
   color:var(--light-color);
   transition: all ease-in-out 200ms;
 }
-
-#infoBoxHolder {
-  z-index: 300;
-  position: absolute;
-  left: 5px;
-}
-#infoBox {
-  border: 1px solid #999;
-  padding: 8px;
-  background-color: whitesmoke;
-  opacity: 0.9;
-  position: relative;
-  text-align: justify;
-  width: 40vw;
-  font-family: arial, helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 11px;
-}
-/* this is known as the "clearfix" hack to allow
-floated objects to add to the height of a div */
-#infoBox:after {
-  visibility: hidden;
-  display: block;
-  font-size: 0;
-  content: " ";
-  clear: both;
-  height: 0;
-}

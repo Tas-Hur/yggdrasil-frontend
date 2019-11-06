@@ -1,23 +1,23 @@
 <template>
-    <div v-if="node !== null"  :style="positionStyle">
-      <div class="arrow-tooltip" :style="arrowStyle">
-      </div>
-      <div id="infoBox" :style="sizingStyle">
-        Title :
-        {{node.title}}
-        <br  />
-        Abstract :
-        {{node.abstract}}
-        <br  />
-        Year :
-        {{node.year}}
-        <br  />
-        Cited by :
-        <template v-if="'citations' in node">
-          {{node.citations.length}}
-        </template>
-      </div>
+  <div v-if="node !== null"  :style="positionStyleCursor">
+    <div class="arrow-tooltip" :style="arrowStyle">
     </div>
+    <div id="infoBox" :style="sizingStyle">
+      Title :
+      {{node.title}}
+      <br  />
+      Abstract :
+      {{node.abstract}}
+      <br  />
+      Year :
+      {{node.year}}
+      <br  />
+      Cited by :
+      <template v-if="'citations' in node">
+        {{node.citations.length}}
+      </template>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -37,23 +37,36 @@ export default{
   },
   data(){
     return{
-        total_width:0
+      total_width:0
     }
   },
   computed:{
 
     arrowStyle(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
-        return{left:0.2*this.total_width-15+'px'}
+        return{
+          boxShadow: '5px -5px 10px 0.1px rgba(10,10,10,0.1)',
+          left:0.2*this.total_width-10+'px'
+        }
       }else{
-        return{left:'-5px'}
+        return{
+          boxShadow: '-5px 5px 10px 0.1px rgba(10,10,10,0.1)',
+          left:'-10px'
+        }
       }
 
     },
     sizingStyle(){
       return{width:this.tooltipWidth}
     },
-    positionStyle(){
+    positionStyleCursor(){
+      if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
+        return{left:this.position.F-0.2*this.total_width-50+"px",top:this.position.G-65+"px"}
+      }else{
+        return{left:this.position.F+50+"px",top:this.position.G-65+"px"}
+      }
+    },
+    positionStyleNode(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
         return{left:this.position.F-0.2*this.total_width-30+"px",top:this.position.G+"px"}
       }else{
@@ -72,30 +85,28 @@ export default{
 <style scoped>
 
 .arrow-tooltip{
+  z-index:350;
   transform: rotate(45deg);
-  background-color: var(--main-color);
-  /* background-color: red; */
+  background-color: white;
   position:relative;
   top:50px;
-  z-index:250;
   height:20px;
   width:20px;
-  box-shadow: 0 0 3px 0.1px var(--main-color);
 }
 
 #infoBox {
+  z-index: 300;
   padding: 15px;
   border-radius:5px;
-  background-color: var(--main-color);
+  background-color: white;
   text-align:justify;
   position: fixed;
-  color:rgba(255,255,255,0.9);
   white-space: nowrap;
+  color:gray;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size:80%;
-  z-index: 300;
-  box-shadow: 0 0 3px 0.1px var(--main-color);
+  font-size:90%;
+  box-shadow: 0 0 10px 1px rgba(10,10,10,0.1);
 }
 /* this is known as the "clearfix" hack to allow
 floated objects to add to the height of a div */

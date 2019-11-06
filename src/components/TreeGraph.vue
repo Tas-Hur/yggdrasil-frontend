@@ -93,9 +93,14 @@ export default{
         new go.Binding("text", "title")),
         {
           click: (e, obj) => {this.current_node = this.hovered_node=obj.part.data;this.hover_node=false;},
-          mouseOver:(e,obj)=>{this.hovered_node_location = myDiagram.transformDocToView(obj.position);this.hovered_node=obj.part.data;self.hover_node=true},
+          mouseOver:(e,obj)=>
+          {
+            // this.hovered_node_location = myDiagram.transformDocToView(obj.position);
+            this.hovered_node_location = {F:e.event.clientX, G:e.event.clientY};
+            this.hovered_node=obj.part.data;
+            self.hover_node=true
+          },
           mouseLeave:(e,obj)=>{self.hover_node=false},
-          actionDown:(e,obj)=>{console.log("event : ",myDiagram.transformDocToView(obj.position))}
         }
       );
       // but use the default Link template, by not setting Diagram.linkTemplate

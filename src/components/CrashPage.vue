@@ -37,6 +37,7 @@ export default{
   name:'crash-page',
   data(){
     return{
+      socket:null,
       loading:false,
       request:"",
       author:false,
@@ -61,17 +62,21 @@ export default{
   components: {
   },
   methods:{
+    connect(){
+      this.socket = Vue.prototype.$socketIO.connect("http://localhost:3000")
+      this.socket.on('connect', () => {
+        console.log("connected")
+      })
+    },
     search(){
-      console.log("Go")
-      console.log(Vue.prototype.$socketIO)
-      Vue.prototype.$socketIO.connect("http://localhost:3000")
+      var self = this;
       this.loading=true
       let url = "http://api.semanticscholar.org/v1/author/38087946"
       url = "http://localhost:3000/"+this.query_type.code
-      console.log(url);
       this.$.get(url, {
         params: {
-          paper_id: this.request
+          paper_id: self.request,
+          socket_id: self.socket.id
         }
       })
       .then(res => {
@@ -84,13 +89,16 @@ export default{
           })
           throw "Paper not found";
         }
-        this.$emit("got_papers", res.data)
+        this.$emit("got_papers", {data: res.data, socket: this.socket})
       })
       .catch(err => {
         console.log(err)
         this.loading=false;
       })
     }
+  },
+  mounted(){
+    this.connect();
   }
 }
 </script>

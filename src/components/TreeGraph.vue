@@ -22,13 +22,18 @@ import CustomTooltip from './CustomTooltip.vue'
 export default{
   name:"tree-graph",
   props:{
-    nodes:Array
+    nodes:Array,
+    socket:Object
   },
   components:{
     CustomTooltip
   },
   mounted(){
     console.log("Launching stuff")
+    this.socket.on('new_node', (data)=>{
+      console.log("receive new node : ", data)
+      this.addNode(data);
+    })
     this.init()
   },
   data(){
@@ -139,12 +144,12 @@ export default{
       })
       self.diagram = myDiagram;
     },
-    addNode(){
+    addNode(node){
       var self = this
       console.log("new node")
-      self.nodes.forEach(node=>{
-        self.diagram.model.addNodeData({title:'Epsilon', key:'Epsilon', color:'white'});
-      })
+      node.key=node.paperId
+      node.color='white'
+      self.diagram.model.addNodeData(node);
       console.log(self.diagram.model)
     }
   }

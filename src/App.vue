@@ -4,7 +4,7 @@
     <crash-page v-if="step==0" @got_papers="draw_graph" class="content">
     </crash-page>
 
-    <tree-graph :nodes="data" @search="search" v-if="step == 1">
+    <tree-graph :socket="socket" :nodes="data" @search="search" v-if="step == 1">
     </tree-graph>
   </div>
 </template>
@@ -20,6 +20,7 @@ export default {
   data(){
     return{
       step:0,
+      socket:null,
       data:[],
     }
   },
@@ -27,9 +28,10 @@ export default {
     search(){
       this.step=0
     },
-    draw_graph(data){
+    draw_graph(session){
       this.step = 1
-      this.data=data
+      this.data=session.data
+      this.socket=session.socket
     }
   },
 }

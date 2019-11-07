@@ -11,6 +11,8 @@
           Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
           <br  />
           Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
+          <br  />
+          Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
         </b-col>
       </b-row>
     </div>
@@ -29,20 +31,26 @@ export default{
     CustomTooltip
   },
   mounted(){
+    var self = this;
     console.log("Launching stuff")
     this.socket.on('new_node', (data)=>{
-      console.log("receive new node : ", data)
-      this.addNode(data);
+      if(self.total_nodes.length < self.nodes_limit ){
+        self.addNode(data);
+        self.total_nodes.push(data);
+      }
     })
     this.init()
   },
   data(){
     return{
+      total_nodes:[],
+      total_links:[],
       hovered_node:null,
       hovered_node_location:{},
       diagram:null,
       total_width:0,
       hover_node:false,
+      nodes_limit:1000,
       mainColor: "#2c3e50",
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
@@ -78,12 +86,16 @@ export default{
       var $ = go.GraphObject.make;  // for conciseness in defining templates
       var self = this
 
+
+
       var myDiagram =
       $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
       { // enable undo & redo
         hoverDelay:100,
+        layout: $(go.ForceDirectedLayout  ),
         "undoManager.isEnabled": true,
       });
+
 
       myDiagram.nodeTemplate =
       $(go.Node, "Auto",
@@ -120,37 +132,40 @@ export default{
         )
       );
       // create the model data that will be represented by Nodes and Links
-      myDiagram.model = new go.GraphLinksModel(
-        [
-          { title: "Alpha", key:"Alpha", color: nodeColor },
-          { title: "Beta", key:"Beta", color: nodeColor },
-          { title: "Gamma", key:"Gamma", color: nodeColor },
-          { title: "Delta", key:"Delta", color: nodeColor }
-        ],
-        [
-          { from: "Alpha", to: "Beta" },
-          { from: "Alpha", to: "Gamma" },
-          { from: "Beta", to: "Beta" },
-          { from: "Gamma", to: "Delta" },
-          { from: "Delta", to: "Alpha" },
-          { from: "Gamma", to: self.nodes[0].paperId},
-          { from: "Epsilon", to: "Alpha"}
-        ]
-      );
       self.nodes.forEach(node=>{
         node.color = nodeColor
         node.key=node.paperId
+        self.total_nodes.push(node);
         myDiagram.model.addNodeData(node);
       })
       self.diagram = myDiagram;
     },
     addNode(node){
       var self = this
-      console.log("new node")
       node.key=node.paperId
       node.color='white'
-      self.diagram.model.addNodeData(node);
+
+      node.references.filter(ref => ref.isInfluential).forEach(ref => {
+        let link={from:ref.paperId, to:node.paperId}
+        if(!(link in self.total_links)){
+          self.diagram.model.addLinkData(link)
+          self.total_links.push(link)
+        }
+      })
+      node.citations.filter(cit => cit.isInfluential).forEach(cit => {
+        let link={from:node.paperId, to:cit.paperId}
+        if(!(link in self.total_links)){
+          self.diagram.model.addLinkData(link)
+          self.total_links.push(link)
+        }
+      })
+      if(!(node in self.total_nodes)){
+        self.total_nodes.push(node);
+        self.diagram.model.addNodeData(node);
+      }
       console.log(self.diagram.model)
+    },
+    doLayout(){
     }
   }
 }

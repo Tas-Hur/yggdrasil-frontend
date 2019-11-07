@@ -8,10 +8,7 @@ import VueMultiselect from 'vue-multiselect'
 import GoJs from 'gojs'
 import io from 'socket.io-client'
 
-console.log("Hey here i am ", io)
-
-console.log("hey I am here ",GoJs)
-
+Vue.prototype.$socketIO = io;
   // register globally
 
 import { library } from '@fortawesome/fontawesome-svg-core'

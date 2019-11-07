@@ -28,11 +28,11 @@
         </b-row>
       </b-col>
     </b-row>
-
   </b-container>
 </template>
 
 <script>
+import Vue from 'vue'
 export default{
   name:'crash-page',
   data(){
@@ -63,6 +63,8 @@ export default{
   methods:{
     search(){
       console.log("Go")
+      console.log(Vue.prototype.$socketIO)
+      Vue.prototype.$socketIO.connect("http://localhost:3000")
       this.loading=true
       let url = "http://api.semanticscholar.org/v1/author/38087946"
       url = "http://localhost:3000/"+this.query_type.code

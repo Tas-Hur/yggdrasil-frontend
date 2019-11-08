@@ -33,16 +33,18 @@ export default{
   mounted(){
     var self = this;
     console.log("Launching stuff")
+    this.init()
+    self.slowAddNode(100);
     this.socket.on('new_node', (data)=>{
-      if(self.total_nodes.length < self.nodes_limit ){
-        self.addNode(data);
+      if(!(data in self.total_nodes)){
+        console.log("receiving")
         self.total_nodes.push(data);
       }
     })
-    this.init()
   },
   data(){
     return{
+      cursor:0,
       total_nodes:[],
       total_links:[],
       hovered_node:null,
@@ -50,7 +52,7 @@ export default{
       diagram:null,
       total_width:0,
       hover_node:false,
-      nodes_limit:1000,
+      nodes_limit:50,
       mainColor: "#2c3e50",
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
@@ -74,6 +76,17 @@ export default{
     }
   },
   methods:{
+    slowAddNode(delay){
+      var self=this;
+      if(this.cursor < this.total_nodes.length){
+        this.addNode(this.total_nodes[this.cursor])
+      }
+      this.cursor+=1;
+      if(this.cursor < this.nodes_limit){
+        setTimeout(self.slowAddNode.bind(null, delay), delay)
+      }
+
+    },
     search(){
       this.$emit('search')
     },
@@ -127,7 +140,6 @@ export default{
           { strokeWidth: 1, stroke: linkColor }
         ),  // the link shape
         $(go.Shape,   // the arrowhead
-
           { toArrow: linkShape,strokeWidth:0, stroke:linkColor, fill: linkColor }
         )
       );
@@ -144,29 +156,28 @@ export default{
       var self = this
       node.key=node.paperId
       node.color='white'
-
-      node.references.filter(ref => ref.isInfluential).forEach(ref => {
-        let link={from:ref.paperId, to:node.paperId}
-        if(!(link in self.total_links)){
-          self.diagram.model.addLinkData(link)
-          self.total_links.push(link)
-        }
+      node.references.forEach(ref => {
+        // if(ref.paperId in self.total_nodes.map(node => node.key)){
+          let link={from:ref.paperId, to:node.paperId}
+          if(!(link in self.total_links)){
+            self.diagram.model.addLinkData(link)
+            self.total_links.push(link)
+          }
+        // }
       })
-      node.citations.filter(cit => cit.isInfluential).forEach(cit => {
-        let link={from:node.paperId, to:cit.paperId}
-        if(!(link in self.total_links)){
-          self.diagram.model.addLinkData(link)
-          self.total_links.push(link)
-        }
+      node.citations.forEach(cit => {
+        // if(cit.paperId in self.total_nodes.map(node => node.key)){
+          let link={from:node.paperId, to:cit.paperId}
+          if(!(link in self.total_links)){
+            self.diagram.model.addLinkData(link)
+            self.total_links.push(link)
+          }
+        // }
       })
-      if(!(node in self.total_nodes)){
-        self.total_nodes.push(node);
+      // if(!(node in self.total_nodes)){
         self.diagram.model.addNodeData(node);
-      }
-      console.log(self.diagram.model)
+      // }
     },
-    doLayout(){
-    }
   }
 }
 </script>

@@ -14,6 +14,8 @@
         Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
         <br  />
         Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
+
+        <input type="range" min="-20000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
       </b-col>
     </b-row>
   </div>
@@ -51,6 +53,7 @@ export default{
   },
   data(){
     return{
+      node_charge:-5000,
       cursor:0,
       total_nodes:[],
       total_links:[],
@@ -85,6 +88,11 @@ export default{
       return res;
     }
   },
+  watch:{
+    node_charge(){
+      console.log("force changed")
+    }
+  },
   methods:{
     slowAddNode(delay){
       console.log("Adding ", this.cursor)
@@ -105,6 +113,7 @@ export default{
       this.$emit('search')
     },
     init() {
+      var self = this;
       var svg = d3.select("svg"),
       width = 1920,
       height = 1080;
@@ -138,7 +147,7 @@ export default{
       .force("link", d3.forceLink(label.links).distance(0).strength(2));
 
       var graphLayout = d3.forceSimulation(graph.nodes)
-      .force("charge", d3.forceManyBody().strength(-5000))
+      .force("charge", d3.forceManyBody().strength(self.node_charge))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("x", d3.forceX(width / 2).strength(1))
       .force("y", d3.forceY(height / 2).strength(1))
@@ -226,7 +235,7 @@ export default{
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);
-
+        graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
         labelLayout.alphaTarget(0.3).restart();
         labelNode.each(function(d, i) {
           if(i % 2 == 0) {

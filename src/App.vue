@@ -4,18 +4,21 @@
     <crash-page v-if="step==0" @got_papers="draw_graph" class="content">
     </crash-page>
 
-    <tree-graph :socket="socket" :nodes="data" @search="search" v-if="step == 1">
-    </tree-graph>
+    <tree-d3 :socket="socket" :nodes="data" @search="search" v-if="step == 1">
+    </tree-d3>
+
   </div>
 </template>
 
 <script>
 import CrashPage from './components/CrashPage.vue'
 import TreeGraph from'./components/TreeGraph.vue'
+import TreeD3 from './components/TreeD3.vue'
+
 export default {
   name: 'app',
   components: {
-    CrashPage,TreeGraph
+    CrashPage,TreeGraph,TreeD3
   },
   data(){
     return{

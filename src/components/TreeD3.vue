@@ -22,7 +22,7 @@
 <script>
 import CustomTooltip from './CustomTooltip.vue'
 export default{
-  name:"tree-graph",
+  name:"tree-d3",
   props:{
     nodes:Array,
     socket:Object
@@ -91,73 +91,7 @@ export default{
       this.$emit('search')
     },
     init() {
-      var nodeColor='white'
-      var nodeTextColor=this.mainColor
-      var nodeStrokeColor= this.mainColor
-      var linkColor=this.mainColor;
-      var linkShape='Triangle'
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
-      var self = this
-
-
-
-      var myDiagram =
-      $(
-        go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
-        { // enable undo & redo
-          hoverDelay:100,
-          layout: $(go.ForceDirectedLayout  ),
-          "undoManager.isEnabled": true,
-        }
-      );
-
-
-      myDiagram.nodeTemplate =
-      $(
-        go.Node, "Auto",
-        { desiredSize: new go.Size(self.nodeDiameter,200), selectionAdorned:false }, // the Shape will go around the TextBlock
-        $(go.Shape, "Circle",
-        { strokeWidth: 1, stroke: nodeStrokeColor },  // default fill is white
-        // Shape.fill is bound to Node.data.color
-        new go.Binding("fill", "color")
-      ),
-      $(go.TextBlock,
-        { margin: 3, stroke:nodeTextColor },  // some room around the text
-        // TextBlock.text is bound to Node.data.title
-        new go.Binding("text", "title")),
-        {
-          click: (e, obj) => {this.current_node = this.hovered_node=obj.part.data;this.hover_node=false;},
-          mouseOver:(e,obj)=>
-          {
-            // this.hovered_node_location = myDiagram.transformDocToView(obj.position);
-            this.hovered_node_location = {F:e.event.clientX, G:e.event.clientY};
-            this.hovered_node=obj.part.data;
-            self.hover_node=true
-          },
-          mouseLeave:(e,obj)=>{self.hover_node=false},
-        }
-      );
-      // but use the default Link template, by not setting Diagram.linkTemplate
-      myDiagram.linkTemplate =
-      $(
-        go.Link,
-        $(
-          go.Shape,
-          { strokeWidth: 1, stroke: linkColor }
-        ),  // the link shape
-        $(
-          go.Shape,   // the arrowhead
-          { toArrow: linkShape,strokeWidth:0, stroke:linkColor, fill: linkColor }
-        )
-      );
-      // create the model data that will be represented by Nodes and Links
-      self.nodes.forEach(node=>{
-        node.color = nodeColor
-        node.key=node.paperId
-        self.total_nodes.push(node);
-        myDiagram.model.addNodeData(node);
-      })
-      self.diagram = myDiagram;
+      
     },
     addNode(node){
       var self = this

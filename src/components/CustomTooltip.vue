@@ -20,6 +20,9 @@
         {{node.citations.length}}
       </template>
       <br  />
+      CdP Score :
+      {{node.cdpScore}}
+      <br  />
       Appeared in :
       <template v-if="node.venue !== ''">
         {{node.venue}}

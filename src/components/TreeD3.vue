@@ -6,7 +6,17 @@
     <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
   </div> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
+    <defs>
+      <marker id='head' orient="auto" markerWidth='2' markerHeight='4' refX='0.1' refY='2'>
+        <!-- triangle pointing right (+x) -->
+        <path d='M0,0 V4 L2,2 Z' fill="red"/>
+      </marker>
+    </defs>
     <g id='container'>
+      <g class="links">
+        <line stroke="#aaa" stroke-width="1px" v-for="d in graph.links">
+        </line>
+      </g>
     </g>
   </svg>
   <div class="custom-container">
@@ -18,7 +28,8 @@
         <br  />
         Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
 
-        <input type="range" min="-20000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
+        <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
+        <input @change="refresh" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
       </b-col>
     </b-row>
   </div>
@@ -46,10 +57,10 @@ export default{
     this.nodes.forEach(node => {
       this.addNode(node);
     })
-    setTimeout(this.init,5000)
+    setTimeout(this.init,10000)
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
-        this.init()
+      this.init()
     })
     this.socket.on('new_node', (data)=>{
       this.addNode(data)
@@ -74,11 +85,12 @@ export default{
       greenColor: "#41b883",
       nodeDiameter:200,
       current_node:null,
+      cdpScore_threshold:5
     }
   },
   computed:{
     graph(){
-      return {nodes: [...this.total_nodes], links:[...this.total_links]}
+      return {nodes: [...this.eventual_nodes], links:[...this.eventual_links]}
     },
     node_settings(){
       return{
@@ -91,14 +103,27 @@ export default{
         res.push({from:paper.key,to:paper.cites})
       })
       return res;
+    },
+    eventual_nodes(){
+      return this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
+    },
+    eventual_links(){
+      var self = this;
+      return this.total_links.filter(link => self.eventual_nodes.map(node => node.paperId).includes(link.source) && self.eventual_nodes.map(node=> node.paperId).includes(link.target))
     }
   },
   watch:{
     node_charge(){
+      d3.select("svg").remove();
+      var svg = d3.select("body").append("svg").attr("width","960").attr("height", "600"),
+      inner = svg.append("g");
       console.log("force changed")
     }
   },
   methods:{
+    refresh(){
+      console.log("CDP CONSTRAINT CHANGED")
+    },
     slowAddNode(delay){
       console.log("Adding ", this.cursor)
       var self=this;
@@ -191,7 +216,9 @@ export default{
       .enter()
       .append("line")
       .attr("stroke", "#aaa")
-      .attr("stroke-width", "1px");
+      .attr("stroke-width", "1px")
+      // .attr('d','M0,0 90,0')
+      // .attr('marker-end', 'url(#head)');
 
 
       var pseudo_node = container.append("g").attr("class", "nodes")
@@ -201,7 +228,7 @@ export default{
 
       var node = pseudo_node
       .append("circle")
-      .attr("r", 35)
+      .attr("r", (d) => { return 3*Math.pow(d.cdpScore,1/2)})
       .attr("fill", "white")
       .attr("stroke", function(d) { return color(d.group); })
 
@@ -243,6 +270,7 @@ export default{
       }).on("mouseout", unfocus);
 
       function ticked() {
+        pseudo_node.enter();
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);

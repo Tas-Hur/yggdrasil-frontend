@@ -207,10 +207,6 @@ export default{
       .style("font-size", '5px')
       .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
-
-
-      node.on("mouseover", focus).on("mouseout", unfocus);
-
       node.call(
         d3.drag()
         .on("start", dragstarted)
@@ -229,7 +225,12 @@ export default{
       .style("font-size", 12)
       .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
-      node.on("mouseover", focus).on("mouseout", unfocus);
+      node.on("mouseover", (node)=>{
+        console.log("Hover")
+        focus(node);
+        self.hover_node = true;
+        self.hovered_node = node;
+      }).on("mouseout", unfocus);
 
       function ticked() {
         circle_text.call(updateCircleText)

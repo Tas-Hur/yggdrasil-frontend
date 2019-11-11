@@ -5,7 +5,10 @@
     </custom-tooltip>
     <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
   </div> -->
-  <svg id='viz' :style="{height:'100vh',width:'100vw'}"></svg>
+  <svg id='viz' :style="{height:'100vh',width:'100vw'}">
+    <g id='container'>
+    </g>
+  </svg>
   <div class="custom-container">
     <b-row align-h="center">
       <b-col>
@@ -60,7 +63,7 @@ export default{
       total_nodes:[],
       total_links:[],
       hovered_node:null,
-      hovered_node_location:{},
+      hovered_node_location:{F:-25,G:100},
       diagram:null,
       total_width:0,
       hover_node:false,
@@ -174,6 +177,7 @@ export default{
 
       var svg = d3.select("#viz").attr("width", width).attr("height", height);
       var container = svg.append("g");
+      console.log("Container ", container)
 
       svg.call(
         d3.zoom()
@@ -197,7 +201,7 @@ export default{
 
       var node = pseudo_node
       .append("circle")
-      .attr("r", 30)
+      .attr("r", 35)
       .attr("fill", "white")
       .attr("stroke", function(d) { return color(d.group); })
 

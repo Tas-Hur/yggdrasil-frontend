@@ -1,13 +1,16 @@
 <template>
   <div v-if="node !== null"  :style="positionStyleCursor">
-    <div class="arrow-tooltip" :style="arrowStyle">
-    </div>
+    <!-- <div class="arrow-tooltip" :style="arrowStyle">
+    </div> -->
     <div id="infoBox" :style="sizingStyle">
-      Title :
-      {{node.title}}
+      <b>
+        {{node.title}}
+      </b>
       <br  />
-      Abstract :
-      {{node.abstract}}
+      <span class="full_text">
+        Abstract :
+        {{node.abstract}}
+      </span>
       <br  />
       Year :
       {{node.year}}
@@ -16,6 +19,17 @@
       <template v-if="'citations' in node">
         {{node.citations.length}}
       </template>
+      <br  />
+      Appeared in :
+      <template v-if="node.venue !== ''">
+        {{node.venue}}
+      </template>
+      <template v-else>
+        N/A
+      </template>
+      <br  />
+      URL:
+      <a :href="node.url">{{node.url}}</a>
     </div>
   </div>
 </template>
@@ -24,11 +38,14 @@
 export default{
   name:"custom-tooltip",
   props:{
-    position:Object,
+    position:{
+      type:Object,
+      default:{F:-25,G:75},
+    },
     node_settings:Object,
     tooltipWidth:{
       type:String,
-      default:'20vw'
+      default:'25vw',
     },
     node:{
       type:Object,
@@ -101,7 +118,7 @@ export default{
   background-color: white;
   text-align:justify;
   position: fixed;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   color:gray;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -117,5 +134,11 @@ floated objects to add to the height of a div */
   content: " ";
   clear: both;
   height: 0;
+}
+
+.full_text{
+  white-space: normal;
+  height:2em;
+  overflow: hidden;
 }
 </style>

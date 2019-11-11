@@ -43,7 +43,7 @@ export default{
     this.nodes.forEach(node => {
       this.addNode(node);
     })
-    setTimeout(this.init,3000)
+    setTimeout(this.init,5000)
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
         this.init()
@@ -205,7 +205,7 @@ export default{
       .append("text")
       .attr("class", "text_circle")
       .attr("text-anchor", "middle")
-      .text(function(d, i) { return d.title })
+      .text(function(d, i) { return d.title + "\n"+d.group })
       .style("fill", function(d) { return color(d.group); })
       .style("white-space", "nowrap")
       .style("overflow", "hidden")
@@ -351,7 +351,7 @@ export default{
         }
       })
       node.id = node.paperId
-      node.group=Math.round(node.citations.length/1000)
+      node.group=Math.round(node.citations.length/100)
       if(!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined){
         self.total_nodes.push(node);
       }

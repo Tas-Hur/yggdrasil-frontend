@@ -46,9 +46,7 @@ export default{
     setTimeout(this.init,3000)
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
-      if(!this.drawn){
         this.init()
-      }
     })
     this.socket.on('new_node', (data)=>{
       this.addNode(data)
@@ -117,6 +115,9 @@ export default{
       this.$emit('search')
     },
     init() {
+      if(this.drawn){
+        return;
+      }
       this.drawn = true;
       var self = this;
       var svg = d3.select("svg"),
@@ -350,7 +351,7 @@ export default{
         }
       })
       node.id = node.paperId
-      node.group=1
+      node.group=Math.round(node.citations.length/1000)
       if(!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined){
         self.total_nodes.push(node);
       }

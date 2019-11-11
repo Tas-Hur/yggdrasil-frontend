@@ -43,9 +43,12 @@ export default{
     this.nodes.forEach(node => {
       this.addNode(node);
     })
+    setTimeout(this.init,3000)
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
-      this.init()
+      if(!this.drawn){
+        this.init()
+      }
     })
     this.socket.on('new_node', (data)=>{
       this.addNode(data)
@@ -54,6 +57,7 @@ export default{
   data(){
     return{
       node_charge:-5000,
+      drawn:false,
       cursor:0,
       total_nodes:[],
       total_links:[],
@@ -113,6 +117,7 @@ export default{
       this.$emit('search')
     },
     init() {
+      this.drawn = true;
       var self = this;
       var svg = d3.select("svg"),
       width = 1920,

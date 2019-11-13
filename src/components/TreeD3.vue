@@ -114,9 +114,6 @@ export default{
   },
   watch:{
     node_charge(){
-      d3.select("svg").remove();
-      var svg = d3.select("body").append("svg").attr("width","960").attr("height", "600"),
-      inner = svg.append("g");
       console.log("force changed")
     }
   },

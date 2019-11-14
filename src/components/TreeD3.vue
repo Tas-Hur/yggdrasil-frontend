@@ -28,8 +28,8 @@
         <br  />
         Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
 
-        <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
-        <input @change="refresh" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
+        <!-- <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
+        <input @change="refresh" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}} -->
       </b-col>
     </b-row>
   </div>
@@ -225,7 +225,7 @@ export default{
 
       var node = pseudo_node
       .append("circle")
-      .attr("r", (d) => { return 3*Math.pow(d.cdpScore,1/2)})
+      .attr("r", (d) => { return 10*Math.pow(d.cdpScore,1/4)})
       .attr("fill", "white")
       .attr("stroke", function(d) { return color(d.group); })
 

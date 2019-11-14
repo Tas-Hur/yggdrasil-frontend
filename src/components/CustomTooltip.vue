@@ -121,6 +121,8 @@ export default{
   background-color: white;
   text-align:justify;
   position: fixed;
+  max-height:90vh;
+
   /* white-space: nowrap; */
   color:gray;
   overflow: hidden;

@@ -67,6 +67,7 @@ export default {
   },
   data() {
     return {
+      current_x : 0,
       node_charge: -5000,
       drawn: false,
       cursor: 0,
@@ -340,8 +341,7 @@ export default {
       var graphLayout = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("x", d3.forceX(width / 2).strength(1))
-        .force("y", d3.forceY(height / 2).strength(1))
+        .force("collide",d3.forceCollide().radius(d => d.r * -100))
         .force("link", d3.forceLink(links).id(d => d.id)
           .distance(self.distance_nodes).strength(1))
         .on("tick", ticked);
@@ -442,11 +442,11 @@ export default {
       }).on("mouseout", unfocus);
 
       function ticked() {
+        console.log("ticked")
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);
         graphLayout.nodes(self.graph.nodes)
-        console.log(self.graph.links[0].target.paperId, self.graph.links[0].target.x, self.graph.links[0].target.y)
         graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
           .force("link", d3.forceLink(graph.links).id(function(d) {
             return d.id;
@@ -471,6 +471,7 @@ export default {
         //   }
         // });
         // labelNode.call(updateNode);
+        self.current_x -= 10
       }
 
       function fixna(x) {

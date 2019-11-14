@@ -5,10 +5,10 @@
   </custom-tooltip>
   <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
   </div> -->
-  <!-- <template v-if="graph !== null && graph.nodes[0] !== undefined">
+  <template v-if="graph !== null && graph.nodes[0] !== undefined">
     {{graph.nodes[0].x}}
     {{graph.nodes[0].y}}
-  </template> -->
+  </template>
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
@@ -19,7 +19,7 @@
       </g>
       <g class="nodes" id="g_nodes">
         <template v-if="graph !== null">
-          <circle class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :r="20+5*Math.pow(node.citations.length,1/4)" :cx="node.x" :cy="node.y" v-for="node in graph.nodes"></circle>
+          <circle class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="20+5*Math.pow(node.citations.length,1/4)" :cx="node.x" :cy="node.y" v-for="node in graph.nodes"></circle>
           <!-- <text color="red" :x="node.x" :y="node.y" v-for="node in graph.nodes">{{node.title}}</text> -->
         </template>
       </g>
@@ -37,12 +37,16 @@
       <b-col cols="auto" class="text-left">
         Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
         <br />
-        <!-- Cdp threshold : <input @change="updateNodes" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}} -->
-        <br />
-        Distance : <input @change="refresh" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
+        Distance : <input type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
 
         <br />
-        CdP score : <input @change="refresh" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
+        CdP score : <input @change="updateNodes" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
+
+        <br />
+        <b-button @click="addCircle">
+          Add Node
+        </b-button>
+
       </b-col>
     </b-row>
   </div>
@@ -82,12 +86,14 @@ export default {
   },
   data() {
     return {
+      center_x: 950,
+      center_y: 500,
       graph: null,
       node_charge: -5000,
       drawn: false,
       cursor: 0,
       total_nodes: [],
-      distance_nodes: 5500,
+      distance_nodes: 50,
       total_links: [],
       total_links_2: [],
       hovered_node: null,
@@ -139,10 +145,18 @@ export default {
   },
   watch: {
     node_charge() {
-      console.log("force changed")
+      this.graphLayout.alpha(0.01).restart()
+      // this.graphLayout = this.graphLayout.alpha(0.5)
     }
   },
   methods: {
+    correctPos(pos) {
+      if (pos < 0 || !isFinite(pos)) {
+        return 800
+      } else {
+        return pos
+      }
+    },
     computeEventual_nodes() {
       var self = this
       return this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
@@ -200,8 +214,6 @@ export default {
       this.graphLayout = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("x", d3.forceX(width / 2).strength(1))
-        .force("y", d3.forceY(height / 2).strength(1))
         .force("link", d3.forceLink(links).id(d => d.id)
           .distance(self.distance_nodes).strength(1))
         .on("tick", self.ticked);
@@ -273,34 +285,37 @@ export default {
       }
     },
     ticked() {
-      console.log("tick")
       var self = this;
+
       function dragstarted(d) {
-        console.log("Dragging : ",d)
+        console.log("Dragging : ", d)
         d3.event.sourceEvent.stopPropagation();
-        if (!d3.event.active) self.graphLayout.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
+        self.graphLayout.alpha(0.3)
+        // d.fx = d.x;
+        // d.fy = d.y;
       }
 
       function dragged(d) {
-        console.log("Dragging")
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
+        console.log("Dragging : ", d3.event.x)
+        self.graph.nodes.find(node => node.id == d.id).x = d3.event.x
+        self.graph.nodes.find(node => node.id == d.id).y = d3.event.y
+        // d.x = d3.event.x;
+        // d.y = d3.event.y;
+        // d3.select('[id="'+d.paperId+'"]').attr("transform","translate(" + d3.event.x + "," + d3.event.y + ")")
       }
 
       function dragended(d) {
-        console.log("Dragging")
-        if (!d3.event.active) self.graphLayout.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
+        self.graphLayout.alpha(0.03)
+        // if (!d3.event.active) self.graphLayout.alphaTarget(0);
+        // d.fx = null;
+        // d.fy = null;
       }
       this.graphLayout.nodes(self.graph.nodes)
 
       this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("link", d3.forceLink(self.graph.links).id(function(d) {
+        .force("link", d3.forceLink(this.graph.links).id(function(d) {
           return d.id;
-        }).distance(self.distance_nodes).strength(1))
+        }).distance(self.distance_nodes).strength(0))
 
       this.graph.links.forEach((link, i) => {
         Vue.set(self.graph.links, i, Object.assign({}, link))
@@ -310,7 +325,7 @@ export default {
       this.graph.nodes.forEach((node, i) => {
         Vue.set(self.graph.nodes, i, Object.assign({}, node))
       })
-      var node = d3.selectAll(".circle").data(this.graphLayout.nodes()).call(
+      var node = d3.selectAll(".circle").data(this.graph.nodes).call(
         d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
@@ -348,11 +363,12 @@ export default {
       nodes = [...graph.nodes]
       this.graphLayout = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("center", d3.forceCenter(width / 2, height / 2))
         .force("x", d3.forceX(width / 2).strength(1))
         .force("y", d3.forceY(height / 2).strength(1))
+        .force("center", d3.forceCenter(width / 2, height / 2))
         .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(1))
-        .on("tick", self.ticked);
+        .on("tick", self.ticked)
+        .alphaDecay(0.001)
 
 
       var adjlist = [];
@@ -410,9 +426,44 @@ export default {
         node.style("opacity", 1);
         link.style("opacity", 1);
       }
-
-
     },
+    // unfreeze(nextStep){
+    //   if(nextStep !== null && nextStep !== undefined){
+    //     nextStep()
+    //     .then(()=>{
+    //       this.graphLayout.alpha(0.001).restart()
+    //     })
+    //   }
+    //   this.graphLayout.alpha(0.001).restart()
+    // },
+    addCircle() {
+      this.graph.nodes.push({
+        id: '45454545454',
+        'cdpScore': 124,
+        x: this.graph.nodes[0].x,
+        y: this.graph.nodes[0].y,
+        citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      })
+      this.graphLayout.alpha(0.01).restart()
+      // this.graphLayout.alpha(1).restart();
+    },
+    updateNodes() {
+      this.graphLayout.alpha(0.03)
+      this.total_links_2.forEach((link, i) => {
+        this.total_links[i] = Object.assign({}, link)
+      })
+      var nodes = [...this.computeEventual_nodes()]
+      var links = [...this.computeEventual_links(nodes)]
+      // nodes.forEach(node => {
+      //   node.x = this.center_x
+      //   node.y = this.center_y
+      // })
+
+      this.graph = {
+        nodes: nodes,
+        links: links
+      }
+    }
   }
 }
 </script>

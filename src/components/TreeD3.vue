@@ -3,15 +3,7 @@
 
     <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
     </custom-tooltip>
-    <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
-  </div> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
-    <defs>
-      <marker id='head' orient="auto" markerWidth='2' markerHeight='4' refX='0.1' refY='2'>
-        <!-- triangle pointing right (+x) -->
-        <path d='M0,0 V4 L2,2 Z' fill="red"/>
-      </marker>
-    </defs>
     <g id='container'>
       <g class="links">
         <line stroke="#aaa" stroke-width="1px" v-for="d in graph.links">
@@ -19,6 +11,7 @@
       </g>
     </g>
   </svg>
+  
   <div class="custom-container">
     <b-row align-h="center">
       <b-col>

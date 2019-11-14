@@ -8,12 +8,8 @@
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
-        <!-- <line stroke="#aaa" stroke-width="1px" >
-        </line>
-        <circle r="30" :transform="'translate('+node.x+','+node.y+')'" v-for="node in graph.nodes"></circle> -->
       </g>
       <g class="nodes" id="g_nodes">
-        <circle :id="node.paperId" :r="30" :transform="'translate('+node.x+','+node.y+')'" v-for="node in graph.nodes"></circle>
       </g>
     </g>
   </svg>
@@ -76,6 +72,7 @@ export default {
       cursor: 0,
       total_nodes: [],
       distance_nodes: 50,
+      graphLayout:null,
       total_links: [],
       total_links_2: [],
       hovered_node: null,
@@ -139,7 +136,6 @@ export default {
     //   return (self.total_nodes).filter(node => node.cdpScore >= this.cdpScore_threshold)
     // },
     // eventual_links() {
-    //   var self = this;
     //   return this.copyNestedObject((self.total_links)).filter(link => self.eventual_nodes.map(node => node.paperId).includes(link.source) && self.eventual_nodes.map(node => node.paperId).includes(link.target))
     // },
   },
@@ -335,9 +331,9 @@ export default {
       });
 
 
-      var labelLayout = d3.forceSimulation(label.nodes)
-        .force("charge", d3.forceManyBody().strength(-50))
-        .force("link", d3.forceLink(label.links).distance(0).strength(2));
+      // var labelLayout = d3.forceSimulation(label.nodes)
+      //   .force("charge", d3.forceManyBody().strength(-50))
+      //   .force("link", d3.forceLink(label.links).distance(0).strength(2));
 
       let links = [...graph.links]
       let nodes = [...graph.nodes]
@@ -349,7 +345,7 @@ export default {
         .force("link", d3.forceLink(links).id(d => d.id)
           .distance(self.distance_nodes).strength(1))
         .on("tick", ticked);
-
+      this.graphLayout=graphLayout
 
       var adjlist = [];
 
@@ -450,11 +446,12 @@ export default {
         node.call(updateNode);
         link.call(updateLink);
         graphLayout.nodes(self.graph.nodes)
+        console.log(self.graph.links[0].target.paperId, self.graph.links[0].target.x, self.graph.links[0].target.y)
         graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
           .force("link", d3.forceLink(graph.links).id(function(d) {
             return d.id;
           }).distance(self.distance_nodes).strength(1))
-        labelLayout.alphaTarget(0.3).restart();
+        // labelLayout.alphaTarget(0.3).restart();
         // labelNode.each(function(d, i) {
         //   if (i % 2 == 0) {
         //     d.x = d.node.x;

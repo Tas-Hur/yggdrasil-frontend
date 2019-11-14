@@ -415,12 +415,12 @@ export default {
         .style("font-size", '5px')
         .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
-      node.call(
-        d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-      );
+      // node.call(
+      //   d3.drag()
+      //   .on("start", dragstarted)
+      //   .on("drag", dragged)
+      //   .on("end", dragended)
+      // );
 
       // var labelNode = container.append("g").attr("class", "labelNodes")
       //   .selectAll("text")

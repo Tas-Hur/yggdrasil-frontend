@@ -5,10 +5,10 @@
   </custom-tooltip>
   <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
   </div> -->
-  <template v-if="graph !== null && graph.nodes[0] !== undefined">
+  <!-- <template v-if="graph !== null && graph.nodes[0] !== undefined">
     {{graph.nodes[0].x}}
     {{graph.nodes[0].y}}
-  </template>
+  </template> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
@@ -284,32 +284,32 @@ export default {
         self.total_nodes.push(node);
       }
     },
+    dragstarted(d) {
+      var self = this;
+      console.log("Dragging : ", d)
+      if(!d3.event.active) self.graphLayout.alphaTarget(0.1).restart()
+      // d3.event.sourceEvent.stopPropagation();
+      // d.fx = d.x;
+      // d.fy = d.y;
+    },
+    dragged(d) {
+      var self = this;
+      console.log("Dragging : ", d3.event.x)
+      self.graph.nodes.find(node => node.id == d.id).x = d3.event.x
+      self.graph.nodes.find(node => node.id == d.id).y = d3.event.y
+      // d.x = d3.event.x;
+      // d.y = d3.event.y;
+      // d3.select('[id="'+d.paperId+'"]').attr("transform","translate(" + d3.event.x + "," + d3.event.y + ")")
+    },
+    dragended(d) {
+      var self = this;
+      // if (!d3.event.active) self.graphLayout.alphaTarget(0);
+      // d.fx = null;
+      // d.fy = null;
+    },
     ticked() {
       var self = this;
-
-      function dragstarted(d) {
-        console.log("Dragging : ", d)
-        d3.event.sourceEvent.stopPropagation();
-        self.graphLayout.alpha(0.3)
-        // d.fx = d.x;
-        // d.fy = d.y;
-      }
-
-      function dragged(d) {
-        console.log("Dragging : ", d3.event.x)
-        self.graph.nodes.find(node => node.id == d.id).x = d3.event.x
-        self.graph.nodes.find(node => node.id == d.id).y = d3.event.y
-        // d.x = d3.event.x;
-        // d.y = d3.event.y;
-        // d3.select('[id="'+d.paperId+'"]').attr("transform","translate(" + d3.event.x + "," + d3.event.y + ")")
-      }
-
-      function dragended(d) {
-        self.graphLayout.alpha(0.03)
-        // if (!d3.event.active) self.graphLayout.alphaTarget(0);
-        // d.fx = null;
-        // d.fy = null;
-      }
+      console.log("tick")
       this.graphLayout.nodes(self.graph.nodes)
 
       this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
@@ -325,11 +325,12 @@ export default {
       this.graph.nodes.forEach((node, i) => {
         Vue.set(self.graph.nodes, i, Object.assign({}, node))
       })
+
       var node = d3.selectAll(".circle").data(this.graph.nodes).call(
         d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
+        .on("start", self.dragstarted)
+        .on("drag", self.dragged)
+        .on("end", self.dragended)
       );
     },
     fixna(x) {
@@ -368,7 +369,9 @@ export default {
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(1))
         .on("tick", self.ticked)
-        .alphaDecay(0.001)
+        .alphaTarget(0.1)
+        .alphaDecay(0.02)
+        .alpha(0.001)
 
 
       var adjlist = [];

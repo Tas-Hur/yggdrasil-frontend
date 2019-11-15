@@ -3,8 +3,6 @@
 
   <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
-  <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
-  </div> -->
   <!-- <template v-if="graph !== null && graph.nodes[0] !== undefined">
     {{graph.nodes[0].x}}
     {{graph.nodes[0].y}}
@@ -19,7 +17,8 @@
       </g>
       <g class="nodes" id="g_nodes">
         <template v-if="graph !== null">
-          <circle class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="20+5*Math.pow(node.citations.length,1/4)" :cx="node.x" :cy="node.y" v-for="node in graph.nodes"></circle>
+          <circle class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="20+5*Math.pow(node.citations.length,1/4)" :cx="'fx' in node && node.fx !== null ? node.fx : node.x"
+            :cy="'fy' in node && node.fy !== null ? node.fy : node.y" v-for="node in graph.nodes"></circle>
           <!-- <text color="red" :x="node.x" :y="node.y" v-for="node in graph.nodes">{{node.title}}</text> -->
         </template>
       </g>
@@ -94,6 +93,7 @@ export default {
       cursor: 0,
       total_nodes: [],
       distance_nodes: 50,
+      dragging: false,
       total_links: [],
       total_links_2: [],
       hovered_node: null,
@@ -145,8 +145,7 @@ export default {
   },
   watch: {
     node_charge() {
-      this.graphLayout.alpha(0.01).restart()
-      // this.graphLayout = this.graphLayout.alpha(0.5)
+      this.graphLayout.alpha(0.03).restart()
     }
   },
   methods: {
@@ -159,7 +158,8 @@ export default {
     },
     computeEventual_nodes() {
       var self = this
-      return this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
+      var nodes = this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
+      return nodes
     },
     computeEventual_links(nodes) {
       var self = this;
@@ -196,29 +196,6 @@ export default {
           return obj
           break;
       }
-    },
-    refresh() {
-      var self = this;
-      console.log("refreshing")
-      this.total_links_2.forEach((link, i) => {
-        this.total_links[i] = Object.assign({}, link)
-      })
-      var nodes = [...this.computeEventual_nodes()]
-      var links = [...this.computeEventual_links(nodes)]
-      this.graph = {
-        nodes: nodes,
-        links: links
-      }
-      let width = 1920;
-      let height = 1080;
-      this.graphLayout = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("link", d3.forceLink(links).id(d => d.id)
-          .distance(self.distance_nodes).strength(1))
-        .on("tick", self.ticked);
-      // this.graphLayout = this.graphLayout.restart()
-      // this.ticked();
     },
     slowAddNode(delay) {
       console.log("Adding ", this.cursor)
@@ -310,6 +287,24 @@ export default {
     ticked() {
       var self = this;
       console.log("tick")
+
+      function dragstarted(d) {
+        self.dragging = true;
+        d3.event.sourceEvent.stopPropagation();
+        self.graphLayout.alpha(0.03).restart()
+      }
+
+      function dragged(d) {
+        self.graph.nodes.find(node => node.id == d.id).fx = d3.event.x
+        self.graph.nodes.find(node => node.id == d.id).fy = d3.event.y
+      }
+
+      function dragended(d) {
+        self.graph.nodes.find(node => node.id == d.id).fx = null
+        self.graph.nodes.find(node => node.id == d.id).fy = null
+        self.dragging = false;
+      }
+
       this.graphLayout.nodes(self.graph.nodes)
 
       this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
@@ -367,7 +362,7 @@ export default {
         .force("x", d3.forceX(width / 2).strength(1))
         .force("y", d3.forceY(height / 2).strength(1))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(1))
+        .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(0))
         .on("tick", self.ticked)
         .alphaTarget(0.1)
         .alphaDecay(0.02)
@@ -430,15 +425,6 @@ export default {
         link.style("opacity", 1);
       }
     },
-    // unfreeze(nextStep){
-    //   if(nextStep !== null && nextStep !== undefined){
-    //     nextStep()
-    //     .then(()=>{
-    //       this.graphLayout.alpha(0.001).restart()
-    //     })
-    //   }
-    //   this.graphLayout.alpha(0.001).restart()
-    // },
     addCircle() {
       this.graph.nodes.push({
         id: '45454545454',
@@ -447,20 +433,14 @@ export default {
         y: this.graph.nodes[0].y,
         citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       })
-      this.graphLayout.alpha(0.01).restart()
-      // this.graphLayout.alpha(1).restart();
+      this.graphLayout.alpha(0.03).restart()
     },
     updateNodes() {
-      this.graphLayout.alpha(0.03)
       this.total_links_2.forEach((link, i) => {
         this.total_links[i] = Object.assign({}, link)
       })
       var nodes = [...this.computeEventual_nodes()]
       var links = [...this.computeEventual_links(nodes)]
-      // nodes.forEach(node => {
-      //   node.x = this.center_x
-      //   node.y = this.center_y
-      // })
 
       this.graph = {
         nodes: nodes,

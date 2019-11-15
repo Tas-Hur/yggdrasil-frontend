@@ -3,6 +3,8 @@
 
   <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
+  <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
+  </div> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
@@ -11,7 +13,6 @@
       </g>
     </g>
   </svg>
-
   <div class="custom-container">
     <b-row align-h="center">
       <b-col cols="auto">
@@ -19,7 +20,7 @@
         <br />
         Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
         <br />
-        Il y a {{graph.nodes.length}} noeuds et {{graph.links.length}} liens
+        Il y a {{eventual_nodes.length}} noeuds et {{eventual_links.length}} liens
       </b-col>
       <b-col cols="auto" class="text-left">
         Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
@@ -28,6 +29,9 @@
         <br />
         Distance : <input @change="refresh" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
       </b-col>
+      <template v-if="graphLayout !== null">
+        "{{graphLayout.force('link')}}
+      </template>
     </b-row>
   </div>
 </div>
@@ -66,7 +70,6 @@ export default {
   },
   data() {
     return {
-      graphLayout: null,
       current_x : 0,
       node_charge: -5000,
       drawn: false,
@@ -141,7 +144,9 @@ export default {
     // },
   },
   watch: {
-    node_charge() {}
+    node_charge() {
+      console.log("force changed")
+    }
   },
   methods: {
     computeEventual_nodes() {
@@ -413,12 +418,12 @@ export default {
         .style("font-size", '5px')
         .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
-      node.call(
-        d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-      );
+      // node.call(
+      //   d3.drag()
+      //   .on("start", dragstarted)
+      //   .on("drag", dragged)
+      //   .on("end", dragended)
+      // );
 
       // var labelNode = container.append("g").attr("class", "labelNodes")
       //   .selectAll("text")

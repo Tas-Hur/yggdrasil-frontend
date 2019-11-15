@@ -309,14 +309,14 @@ export default {
       return 0;
     },
     init() {
+      if (this.drawn) {
+        return;
+      }
       var nodes = this.computeEventual_nodes()
       var links = [...this.computeEventual_links(nodes)]
       this.graph = {
         nodes: nodes,
         links: links
-      }
-      if (this.drawn) {
-        return;
       }
       this.drawn = true;
       var self = this;

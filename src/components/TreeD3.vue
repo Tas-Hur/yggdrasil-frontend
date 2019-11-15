@@ -6,12 +6,8 @@
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
-        <!-- <line stroke="#aaa" stroke-width="1px" >
-        </line>
-        <circle r="30" :transform="'translate('+node.x+','+node.y+')'" v-for="node in graph.nodes"></circle> -->
       </g>
       <g class="nodes" id="g_nodes">
-        <!-- <circle :id="node.paperId" v-for="node in graph.nodes"></circle> -->
       </g>
     </g>
   </svg>
@@ -23,8 +19,9 @@
         <br />
         Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
         <br />
-        Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
-
+        Il y a {{graph.nodes.length}} noeuds et {{graph.links.length}} liens
+      </b-col>
+      <b-col cols="auto" class="text-left">
         Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
         <br />
         Cdp threshold : <input @change="updateNodes" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
@@ -39,6 +36,7 @@
 <script>
 import CustomTooltip from './CustomTooltip.vue'
 import * as d3 from 'd3'
+import Vue from 'vue'
 
 export default {
   name: "tree-d3",
@@ -69,12 +67,15 @@ export default {
   data() {
     return {
       graphLayout: null,
+      current_x : 0,
       node_charge: -5000,
       drawn: false,
       cursor: 0,
       total_nodes: [],
       distance_nodes: 50,
+      graphLayout:null,
       total_links: [],
+      total_links_2: [],
       hovered_node: null,
       hovered_node_location: {
         F: -25,
@@ -90,7 +91,9 @@ export default {
       greenColor: "#41b883",
       nodeDiameter: 200,
       current_node: null,
-      cdpScore_threshold: 5
+      cdpScore_threshold: 5,
+      eventual_links: [],
+      eventual_nodes: [],
     }
   },
   computed: {
@@ -124,38 +127,90 @@ export default {
         diameter: this.nodeDiameter
       }
     },
-    eventual_nodes() {
-      return this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
-    },
-    eventual_links() {
-      var self = this;
-      return this.total_links.filter(link => self.eventual_nodes.map(node => node.paperId).includes(link.source) && self.eventual_nodes.map(node => node.paperId).includes(link.target))
-    },
+    links_checker() {
+      return this.total_links.filter(link => {
+        return link.source.constructor === String && link.target.constructor === String
+      }).length
+    }
+    // eventual_nodes() {
+    //   var self = this;
+    //   return (self.total_nodes).filter(node => node.cdpScore >= this.cdpScore_threshold)
+    // },
+    // eventual_links() {
+    //   return this.copyNestedObject((self.total_links)).filter(link => self.eventual_nodes.map(node => node.paperId).includes(link.source) && self.eventual_nodes.map(node => node.paperId).includes(link.target))
+    // },
   },
   watch: {
     node_charge() {}
   },
   methods: {
-    updateNodes() {
+    computeEventual_nodes() {
       var self = this
-      var node = d3.selectAll("circle.node")
-        .data(self.graph.nodes)
+      this.eventual_nodes = (self.total_nodes).filter(node => node.cdpScore >= this.cdpScore_threshold)
+    },
+    computeEventual_links() {
+      var self = this;
+      this.eventual_links = this.copyNestedObject(self.total_links).filter(link => self.eventual_nodes.map(node => node.paperId).includes(link.source) && self.eventual_nodes.map(node => node.paperId).includes(link.target))
+    },
+    copyNestedObject: function pf(obj) {
+      switch (obj) {
+        case null:
+          return null;
+          break;
+        case undefined:
+          return undefined;
+          break
+      }
+      var self = this;
+      let type = obj.constructor
+      switch (type) {
+        case Number:
+          return obj;
+          break;
+        case Boolean:
+          return obj;
+          break;
+        case String:
+          return obj;
+          break;
+        case Array:
+          return obj.map(cell => pf(cell))
+          break;
+        case Object:
+          Object.keys(obj).map(key => {
+            obj[key] = pf(obj[key])
+          })
+          return obj
+          break;
+      }
+    },
+    updateNodes() {
+      this.drawn = false;
 
-      node.enter().append("circle")
-        .attr("class", "node")
-        .attr("cx", (d) => 200)
-        .attr("cy", (d) => 200)
-        .attr("r", (d) => {
-          return 3 * Math.pow(d.cdpScore, 1 / 2)
-        })
-        .style("fill", "white")
-        .style("stroke", "gray")
-        .style("stroke-width", 1.0)
-
-      node.exit().remove()
-      self.updateLinks()
+      this.init();
+      // this.computeEventual_nodes()
+      // console.log("Update Nodes")
+      // var self = this
+      // var node = d3.selectAll("circle.node")
+      //   .data(self.graph.nodes)
+      //
+      // console.log(node)
+      // node.enter().append("circle")
+      //   .attr("class", "node")
+      //   .attr("cx", (d) => 800)
+      //   .attr("cy", (d) => 200)
+      //   .attr("r", (d) => {
+      //     return 3 * Math.pow(d.cdpScore, 1 / 2)
+      //   })
+      //   .style("fill", "white")
+      //   .style("stroke", "gray")
+      //   .style("stroke-width", 1.0)
+      //
+      // node.exit().remove()
+      // self.updateLinks()
     },
     updateLinks() {
+      this.computeEventual_links()
       var self = this;
       var link = d3.selectAll("line.link")
         .data(self.graph.links)
@@ -169,6 +224,7 @@ export default {
         .attr("y2", (d) => d.target.y)
 
       link.exit().remove()
+      this.total_links = [...this.total_links_2]
     },
     refresh() {
       console.log("CDP CONSTRAINT CHANGED")
@@ -191,6 +247,52 @@ export default {
     search() {
       this.$emit('search')
     },
+    addNode(node) {
+      var self = this
+      node.id = node.paperId
+      node.color = 'white'
+      node.references.forEach(ref => {
+        if (self.total_nodes.map(node => node.id).includes(ref.paperId)) {
+          let link = {
+            source: ref.paperId,
+            target: node.paperId,
+            value: 1
+          }
+          let link_2 = {
+            source: ref.paperId,
+            target: node.paperId,
+            value: 1
+          }
+          if (!self.total_links.includes(link)) {
+            self.total_links.push(link)
+            self.total_links_2.push(link_2)
+          }
+        }
+      })
+      node.citations.forEach(cit => {
+        if (self.total_nodes.map(node => node.key).includes(cit.paperId)) {
+          let link = {
+            source: node.paperId,
+            target: cit.paperId,
+            value: 1
+          }
+          let link_2 = {
+            source: node.paperId,
+            target: cit.paperId,
+            value: 1
+          }
+          if (!self.total_links.includes(link)) {
+            self.total_links.push(link)
+            self.total_links_2.push(link_2)
+          }
+        }
+      })
+      node.id = node.paperId
+      node.group = Math.round(node.citations.length / 100)
+      if (!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined) {
+        self.total_nodes.push(node);
+      }
+    },
     init() {
       console.log("Hey")
       if (this.drawn) {
@@ -202,9 +304,13 @@ export default {
         width = 1920,
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
-
-
+      this.computeEventual_nodes();
+      this.computeEventual_links();
+      console.log("links : ", this.eventual_links)
+      console.log("nodes : ", this.eventual_nodes)
       var graph = this.graph
+
+      console.log(graph);
       var label = {
         'nodes': [],
         'links': []
@@ -224,22 +330,21 @@ export default {
       });
 
 
-      var labelLayout = d3.forceSimulation(label.nodes)
-        .force("charge", d3.forceManyBody().strength(-50))
-        .force("link", d3.forceLink(label.links).distance(0).strength(2));
+      // var labelLayout = d3.forceSimulation(label.nodes)
+      //   .force("charge", d3.forceManyBody().strength(-50))
+      //   .force("link", d3.forceLink(label.links).distance(0).strength(2));
 
-
-      var graphLayout = d3.forceSimulation(graph.nodes)
+      let links = [...graph.links]
+      let nodes = [...graph.nodes]
+      var graphLayout = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("x", d3.forceX(width / 2).strength(1))
-        .force("y", d3.forceY(height / 2).strength(1))
-        .force("link", d3.forceLink(graph.links).id(function(d) {
-          return d.id;
-        }).distance(self.distance_nodes).strength(1))
+        .force("collide",d3.forceCollide().radius(d => d.r * -100))
+        .force("link", d3.forceLink(links).id(d => d.id)
+          .distance(self.distance_nodes).strength(1))
         .on("tick", ticked);
+      this.graphLayout=graphLayout
 
-      this.graphLayout = graphLayout
       var adjlist = [];
 
       graph.links.forEach(function(d) {
@@ -268,6 +373,8 @@ export default {
         .data(self.graph.nodes)
         .enter()
 
+      this.total_links = [...this.total_links_2]
+
       var node = pseudo_node
         .append("circle")
         .attr("class", "node")
@@ -278,10 +385,12 @@ export default {
         .attr("stroke", function(d) {
           return color(d.group);
         })
-
+      let n = node
+      console.log(n)
+      // .append("circle")
       var link = d3.select("#g_links")
         .selectAll("line")
-        .data(graph.links)
+        .data([...graph.links])
         .enter()
         .append("line")
         .attr("class", "link")
@@ -311,57 +420,56 @@ export default {
         .on("end", dragended)
       );
 
-      var labelNode = container.append("g").attr("class", "labelNodes")
-        .selectAll("text")
-        .data(label.nodes)
-        .enter()
-        .append("text")
-        .text(function(d, i) {
-          return i % 2 == 0 ? "" : d.node.title;
-        })
-        .style("fill", "transparent")
-        .style("font-family", "Arial")
-        .style("font-size", 12)
-        .style("pointer-events", "none"); // to prevent mouseover/drag capture
+      // var labelNode = container.append("g").attr("class", "labelNodes")
+      //   .selectAll("text")
+      //   .data(label.nodes)
+      //   .enter()
+      //   .append("text")
+      //   .text(function(d, i) {
+      //     return i % 2 == 0 ? "" : d.node.title;
+      //   })
+      //   .style("fill", "transparent")
+      //   .style("font-family", "Arial")
+      //   .style("font-size", 12)
+      //   .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
       node.on("mouseover", (node) => {
-        console.log("Hover")
         focus(node);
         self.hover_node = true;
         self.hovered_node = node;
       }).on("mouseout", unfocus);
 
       function ticked() {
+        console.log("ticked")
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);
         graphLayout.nodes(self.graph.nodes)
-        console.log(graphLayout.nodes())
         graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
           .force("link", d3.forceLink(graph.links).id(function(d) {
             return d.id;
           }).distance(self.distance_nodes).strength(1))
-        labelLayout.alphaTarget(0.3).restart();
-        labelNode.each(function(d, i) {
-          if (i % 2 == 0) {
-            d.x = d.node.x;
-            d.y = d.node.y;
-          } else {
-            var b = this.getBBox();
-
-            var diffX = d.x - d.node.x;
-            var diffY = d.y - d.node.y;
-
-            var dist = Math.sqrt(diffX * diffX + diffY * diffY);
-
-            var shiftX = b.width * (diffX - dist) / (dist * 2);
-            shiftX = Math.max(-b.width, Math.min(0, shiftX));
-            var shiftY = 16;
-            this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
-          }
-        });
-        labelNode.call(updateNode);
-        circle_text.call(updateCircleText)
+        // labelLayout.alphaTarget(0.3).restart();
+        // labelNode.each(function(d, i) {
+        //   if (i % 2 == 0) {
+        //     d.x = d.node.x;
+        //     d.y = d.node.y;
+        //   } else {
+        //     var b = this.getBBox();
+        //
+        //     var diffX = d.x - d.node.x;
+        //     var diffY = d.y - d.node.y;
+        //
+        //     var dist = Math.sqrt(diffX * diffX + diffY * diffY);
+        //
+        //     var shiftX = b.width * (diffX - dist) / (dist * 2);
+        //     shiftX = Math.max(-b.width, Math.min(0, shiftX));
+        //     var shiftY = 16;
+        //     this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+        //   }
+        // });
+        // labelNode.call(updateNode);
+        self.current_x -= 10
       }
 
       function fixna(x) {
@@ -374,16 +482,16 @@ export default {
         node.style("opacity", function(o) {
           return neigh(index, o.index) ? 1 : 0.1;
         });
-        labelNode.attr("display", function(o) {
-          return neigh(index, o.node.index) ? "block" : "none";
-        });
+        // labelNode.attr("display", function(o) {
+        //   return neigh(index, o.node.index) ? "block" : "none";
+        // });
         link.style("opacity", function(o) {
           return o.source.index == index || o.target.index == index ? 1 : 0.1;
         });
       }
 
       function unfocus() {
-        labelNode.attr("display", "block");
+        // labelNode.attr("display", "block");
         node.style("opacity", 1);
         link.style("opacity", 1);
       }
@@ -431,42 +539,6 @@ export default {
         if (!d3.event.active) graphLayout.alphaTarget(0);
         d.fx = null;
         d.fy = null;
-      }
-    },
-    addNode(node) {
-      var self = this
-      node.id = node.paperId
-      node.color = 'white'
-      node.references.forEach(ref => {
-        if (self.total_nodes.map(node => node.id).includes(ref.paperId)) {
-          let link = {
-            source: ref.paperId,
-            target: node.paperId,
-            value: 1
-          }
-          if (!self.total_links.includes(link)) {
-            // self.diagram.model.addLinkData(link)
-            self.total_links.push(link)
-          }
-        }
-      })
-      node.citations.forEach(cit => {
-        if (self.total_nodes.map(node => node.key).includes(cit.paperId)) {
-          let link = {
-            source: node.paperId,
-            target: cit.paperId,
-            value: 1
-          }
-          if (!self.total_links.includes(link)) {
-            // self.diagram.model.addLinkData(link)
-            self.total_links.push(link)
-          }
-        }
-      })
-      node.id = node.paperId
-      node.group = Math.round(node.citations.length / 100)
-      if (!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined) {
-        self.total_nodes.push(node);
       }
     },
   }

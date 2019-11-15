@@ -3,8 +3,6 @@
 
   <custom-tooltip v-show="hover_node" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
-  <!-- <div id="myDiagramDiv" :style="{height:'100vh',width:'100vw'}">
-  </div> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
@@ -17,6 +15,7 @@
       </g>
     </g>
   </svg>
+
   <div class="custom-container">
     <b-row align-h="center">
       <b-col cols="auto">
@@ -26,8 +25,6 @@
         <br />
         Il y a {{total_nodes.length}} noeuds et {{total_links.length}} liens
 
-      </b-col>
-      <b-col cols="auto" class="text-left">
         Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
         <br />
         Cdp threshold : <input @change="updateNodes" type="range" min="0" max="400" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
@@ -71,7 +68,7 @@ export default {
   },
   data() {
     return {
-      graphLayout:null,
+      graphLayout: null,
       node_charge: -5000,
       drawn: false,
       cursor: 0,
@@ -136,9 +133,7 @@ export default {
     },
   },
   watch: {
-    node_charge() {
-      console.log("force changed")
-    }
+    node_charge() {}
   },
   methods: {
     updateNodes() {
@@ -150,7 +145,9 @@ export default {
         .attr("class", "node")
         .attr("cx", (d) => 200)
         .attr("cy", (d) => 200)
-        .attr("r", (d) => {return 3 * Math.pow(d.cdpScore,1/2)})
+        .attr("r", (d) => {
+          return 3 * Math.pow(d.cdpScore, 1 / 2)
+        })
         .style("fill", "white")
         .style("stroke", "gray")
         .style("stroke-width", 1.0)
@@ -271,7 +268,6 @@ export default {
         .data(self.graph.nodes)
         .enter()
 
-
       var node = pseudo_node
         .append("circle")
         .attr("class", "node")
@@ -282,13 +278,13 @@ export default {
         .attr("stroke", function(d) {
           return color(d.group);
         })
-      console.log(pseudo_node, node);
+
       var link = d3.select("#g_links")
         .selectAll("line")
         .data(graph.links)
         .enter()
         .append("line")
-        .attr("class","link")
+        .attr("class", "link")
         .attr("stroke", "#aaa")
         .attr("stroke-width", "1px")
 

@@ -1,24 +1,33 @@
 <template>
 <div>
+  <div class="inputs_group">
+    <b-col class="custom-btn text-right" cols="12">
+      <font-awesome-icon icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+    </b-col>
+    <b-col class="sliders" cols="auto">
+      Charge <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />
+      <br />
+      Distance <input @change="$emit('distance', distance_nodes)" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />
+      <br />
+      <!-- <b-button @click="addCircle">
+        Add Node
+      </b-button> -->
+    </b-col>
+  </div>
 
-  <font-awesome-icon class="custom-btn" icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
-  <transition name="inflate">
-    <div id="display-settings" @mouseleave="reduceSettings">
-      <b-row v-if="hovered" align-h="center">
-        <b-col cols="auto" class="sliders">
-          Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
-          <br />
-          Distance : <input type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
-          <br />
-          CdP score : <input @change="updateNodes" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
-          <br />
-          <!-- <b-button @click="addCircle">
-            Add Node
-          </b-button> -->
-        </b-col>
-      </b-row>
-    </div>
-  </transition>
+  <div class="inputs_group">
+    <b-col class="custom-btn text-right" cols="12">
+      <font-awesome-icon icon="filter" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+    </b-col>
+    <b-col class="sliders" cols="auto">
+      Cdp Score mini <input @change="$emit('cdp', cdpScore_threshold)" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />
+      <br />
+      <!-- <b-button @click="addCircle">
+        Add Node
+      </b-button> -->
+    </b-col>
+  </div>
+
 </div>
 </template>
 
@@ -62,6 +71,12 @@ export default {
       cdpScore_threshold: 5,
       distance_nodes: 150,
     }
+  },
+  watch:{
+    node_charge(){
+      console.log("noe_chage mj")
+      this.$emit('charge', this.node_charge)
+    }
   }
 }
 </script>
@@ -69,43 +84,33 @@ export default {
 <style scoped>
 .custom-btn {
   height: 100%;
+  width:100%;
   vertical-align: middle;
 }
 
-/* .sliders {
+.sliders {
+  /* background-color: white; */
   opacity: 0;
   width: 0;
   height: 0;
-} */
-
-
-.inflate-enter {
-  opacity: 0;
+  transition: all ease-in-out .2s;
 }
 
-.inflate-leave-active {
-  opacity: 0;
+.sliders:hover {
+  opacity: 1;
+  width: 230px;
+  height: 5em;
+  transition: all ease-in-out .2s;
 }
 
-.inflate-enter .sliders,
-.inflate-leave-active .sliders {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+.inputs_group{
+  margin-bottom:2em;
 }
 
-#display-settings {
-  padding: 0;
-  height:20px;
-  width:20px;
-  margin-right: 20px;
-  border: 1px solid var(--main-color);
-  margin-top: 20px;
-}
-
-#display-settings:hover {
-  width:200px;
-  /* -webkit-transform: scale(2);
-  transform: scale(2); */
-  transition:width ease-in-out .5s;
+.custom-btn:hover+.sliders {
+  opacity: 1;
+  width: 230px;
+  height: 5em;
+  transition: all ease-in-out .2s;
 }
 </style>

@@ -19,7 +19,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings></display-settings>
+        <display-settings @charge="setCharge"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -212,6 +212,9 @@ export default {
       //   nodes: nodes,
       //   links: links
       // }
+    },
+    setCharge(charge){
+      this.node_charge = charge;
     }
   },
   mounted() {
@@ -238,8 +241,8 @@ export default {
 .custom-container {
   position: fixed;
   z-index: 500;
-  right: 10px;
-  top: 10px;
+  right: 50px;
+  top: 50px;
   width:auto;
 }
 

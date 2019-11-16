@@ -224,5 +224,17 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.custom-container {
+  position: fixed;
+  left: 10px;
+  z-index: 500;
+  right: 10px;
+  top: 10px;
+}
+
+#infoBoxHolder {
+  z-index: 300;
+  position: fixed;
+}
 </style>

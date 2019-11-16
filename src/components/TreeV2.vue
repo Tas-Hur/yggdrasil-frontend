@@ -307,18 +307,6 @@ export default {
 </script>
 
 <style scoped>
-.nodes_title {
-  display: block;
-  position: absolute;
-}
-
-.custom-container {
-  position: fixed;
-  left: 10px;
-  z-index: 500;
-  right: 10px;
-  top: 10px;
-}
 
 svg {
   /* background-color: var(--main-color); */

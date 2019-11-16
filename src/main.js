@@ -13,34 +13,7 @@ import io from 'socket.io-client'
 Vue.prototype.$socketIO = io;
 // register globally
 
-Vue.prototype.copyNestedObject =  function pf(obj) {
-  var self = this;
-  let type = obj.constructor
-  switch (type) {
-    case Number:
-      return obj;
-      break;
-    case Boolean:
-      return obj;
-      break;
-    case String:
-      return obj;
-      break;
-    case Array:
-      return obj.map(cell => pf(cell))
-      break;
-    case Object:
-      Object.keys(obj).map(key => {
-        obj[key] = pf(obj[key])
-      })
-			return obj
-      break;
-  }
-}
-
-import {
-  library
-} from '@fortawesome/fontawesome-svg-core'
+import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faSearch
 } from '@fortawesome/free-solid-svg-icons'

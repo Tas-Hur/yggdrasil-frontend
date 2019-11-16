@@ -61,7 +61,6 @@ export default{
     }
   },
   computed:{
-
     arrowStyle(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
         return{

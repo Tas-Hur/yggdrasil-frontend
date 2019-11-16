@@ -76,7 +76,7 @@ export default {
     node_charge(){
       console.log("noe_chage mj")
       this.$emit('charge', this.node_charge)
-    }
+    },
   }
 }
 </script>

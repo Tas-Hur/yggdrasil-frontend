@@ -3,11 +3,11 @@
   <custom-tooltip v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
 
-  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
+  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
   </tree-v2>
 
 
-  <div class="custom-container" >
+  <div class="custom-container">
     <b-row align-h="end">
       <!-- <b-col cols="8">
         Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
@@ -19,7 +19,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge"></display-settings>
+        <display-settings @charge="setCharge" @cdp="setCdp"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -34,7 +34,9 @@ import Vue from 'vue'
 export default {
   name: 'graph-overlay',
   components: {
-    TreeV2, CustomTooltip, DisplaySettings
+    TreeV2,
+    CustomTooltip,
+    DisplaySettings
   },
   props: {
     nodes: Array,
@@ -42,21 +44,24 @@ export default {
   },
   data() {
     return {
-      draw:false,
+      draw: false,
       total_nodes: [],
       total_links: [],
-      graph:null,
+      graph: null,
       total_links_2: [],
       adjlist: {},
       hovered_node_location: {
         F: -25,
         G: 100
       },
-      node_settings:{
-        diameter:20
+      node_settings: {
+        diameter: 20
       },
       hovered_node: null,
-      graph: {nodes:[], links:[]},
+      graph: {
+        nodes: [],
+        links: []
+      },
       total_width: 0,
       node_charge: -6000,
       distance_nodes: 100,
@@ -71,7 +76,7 @@ export default {
     },
   },
   methods: {
-    setHoveredNode(d){
+    setHoveredNode(d) {
       console.log(d);
       this.hovered_node = d;
     },
@@ -190,7 +195,7 @@ export default {
       this.graph.nodes.push({
         id: '45454545454',
         'cdpScore': 124,
-        title:"qsdmlkj",
+        title: "qsdmlkj",
         x: this.graph.nodes[0].x,
         y: this.graph.nodes[0].y,
         citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -206,20 +211,27 @@ export default {
       console.log("Updated nodes")
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
-      Vue.set(self.graph,'nodes',nodes)
-      Vue.set(self.graph,'links',links)
+      Vue.set(self.graph, 'nodes', nodes)
+      Vue.set(self.graph, 'links', links)
       // this.graph = {
       //   nodes: nodes,
       //   links: links
       // }
     },
-    setCharge(charge){
+    setCharge(charge) {
       this.node_charge = charge;
+    },
+    setCdp(cdp) {
+      this.cdpScore_threshold = cdp;
+      this.updateNodes()
     }
   },
   mounted() {
     var self = this;
-    setTimeout(()=>{self.updateNodes();self.draw = true},3000)
+    setTimeout(() => {
+      self.updateNodes();
+      self.draw = true
+    }, 3000)
     var self = this;
     console.log("Launching stuff")
     this.nodes.forEach(node => {
@@ -237,13 +249,12 @@ export default {
 </script>
 
 <style scoped>
-
 .custom-container {
   position: fixed;
   z-index: 500;
   right: 50px;
   top: 50px;
-  width:auto;
+  width: auto;
 }
 
 #infoBoxHolder {

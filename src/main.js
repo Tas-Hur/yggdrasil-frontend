@@ -15,7 +15,8 @@ Vue.prototype.$socketIO = io;
 
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {
-  faSearch
+  faSearch,
+  faCog
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -25,6 +26,7 @@ import "vue-multiselect/dist/vue-multiselect.min.css"
 
 
 library.add(faSearch)
+library.add(faCog)
 
 
 Vue.component('vue-multiselect', VueMultiselect)

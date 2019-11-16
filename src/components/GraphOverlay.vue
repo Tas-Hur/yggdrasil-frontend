@@ -1,10 +1,15 @@
 <template>
 <div>
-  <tree-v2 v-if="draw" :node_charge="parseInt(node_charge)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
+  <custom-tooltip v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
+  </custom-tooltip>
+
+  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
   </tree-v2>
-  <div class="custom-container">
-    <b-row align-h="center">
-      <b-col cols="auto">
+
+
+  <div class="custom-container" >
+    <b-row align-h="end">
+      <!-- <b-col cols="8">
         Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
         <br />
         Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
@@ -12,20 +17,9 @@
         <template v-if="graph !== null">
           Il y a {{graph.nodes.length}} noeuds et {{graph.links.length}} liens
         </template>
-      </b-col>
-      <b-col cols="auto" class="text-left">
-        Charge : <input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />{{node_charge}}
-        <br />
-        Distance : <input type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
-
-        <br />
-        CdP score : <input @change="updateNodes" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />{{cdpScore_threshold}}
-
-        <br />
-        <b-button @click="addCircle">
-          Add Node
-        </b-button>
-
+      </b-col> -->
+      <b-col cols="auto">
+        <display-settings></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -33,12 +27,14 @@
 </template>
 
 <script>
+import DisplaySettings from './DisplaySettings.vue'
+import CustomTooltip from './CustomTooltip.vue'
 import TreeV2 from './TreeV2.vue'
 import Vue from 'vue'
 export default {
   name: 'graph-overlay',
   components: {
-    TreeV2
+    TreeV2, CustomTooltip, DisplaySettings
   },
   props: {
     nodes: Array,
@@ -52,6 +48,14 @@ export default {
       graph:null,
       total_links_2: [],
       adjlist: {},
+      hovered_node_location: {
+        F: -25,
+        G: 100
+      },
+      node_settings:{
+        diameter:20
+      },
+      hovered_node: null,
       graph: {nodes:[], links:[]},
       total_width: 0,
       node_charge: -6000,
@@ -67,6 +71,10 @@ export default {
     },
   },
   methods: {
+    setHoveredNode(d){
+      console.log(d);
+      this.hovered_node = d;
+    },
     copyNestedObject(obj) {
       var self = this;
       switch (obj) {
@@ -182,6 +190,7 @@ export default {
       this.graph.nodes.push({
         id: '45454545454',
         'cdpScore': 124,
+        title:"qsdmlkj",
         x: this.graph.nodes[0].x,
         y: this.graph.nodes[0].y,
         citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -225,12 +234,13 @@ export default {
 </script>
 
 <style scoped>
+
 .custom-container {
   position: fixed;
-  left: 10px;
   z-index: 500;
   right: 10px;
   top: 10px;
+  width:auto;
 }
 
 #infoBoxHolder {

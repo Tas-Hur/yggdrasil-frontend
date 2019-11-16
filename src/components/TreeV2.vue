@@ -1,11 +1,4 @@
 <template>
-
-  <!-- <custom-tooltip v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
-  </custom-tooltip> -->
-  <!-- <template v-if="graph !== null && graph.nodes[0] !== undefined">
-    {{graph.nodes[0].x}}
-    {{graph.nodes[0].y}}
-  </template> -->
   <svg id='viz' :style="{height:'100vh',width:'100vw'}">
     <g id='container'>
       <g class="links" id="g_links">
@@ -31,7 +24,6 @@
 </template>
 
 <script>
-import CustomTooltip from './CustomTooltip.vue'
 import * as d3 from 'd3'
 import Vue from 'vue'
 
@@ -54,7 +46,7 @@ export default {
     adjlist:Object,
   },
   components: {
-    CustomTooltip
+
   },
   mounted() {
     this.graph = this.copyNestedObject(this.graph_original)
@@ -66,11 +58,6 @@ export default {
       center_x: 950,
       center_y: 500,
       drawn: false,
-      hovered_node: null,
-      hovered_node_location: {
-        F: -25,
-        G: 100
-      },
       graphLayout: null,
       graph:null,
       nodeDiameter: 200,
@@ -91,10 +78,15 @@ export default {
     graph(){
       var self = this;
       console.log("Graph refreshed")
-      this.graph = this.copyNestedObject(this.graph_original)
-      if(this.graphLayout !== null){
-        this.graphLayout.nodes(self.graph.nodes)
-      }
+      // let graph_tmp = this.copyNestedObject(this.graph_original)
+      // graph_tmp.nodes.forEach(node => {
+      //   if(!self.graph.nodes.map(n => n.id).includes(node.id)){
+      //     self.graph.nodes.push(node)
+      //   }
+      // })
+      // if(this.graphLayout !== null){
+      //   this.graphLayout.alpha(0.03).restart()
+      // }
       // this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
       //   .force("collide", d3.forceCollide(self.distance_nodes))
       //   .force("link", d3.forceLink(this.graph.links).id(function(d) {
@@ -269,6 +261,7 @@ export default {
       return a == b || this.adjlist[a + "-" + b];
     },
     focus(d) {
+      this.$emit("hover_node", d)
       this.hover_node = true
       this.hovered_node = d
       var self = this

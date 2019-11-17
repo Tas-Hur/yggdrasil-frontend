@@ -4,7 +4,7 @@
     <b-col class="custom-btn text-right" cols="12">
       <font-awesome-icon class="svg_icon" icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
-    <b-col class="sliders" cols="auto">
+    <b-col class="sliders display" cols="auto">
       Charge : {{node_charge}}<input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />
       <br />
       Distance : {{distance_nodes}}<input @change="$emit('distance', distance_nodes)" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />
@@ -22,7 +22,7 @@
     <b-col class="custom-btn text-right" cols="12">
       <font-awesome-icon class="svg_icon" icon="filter" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
-    <b-col class="sliders" cols="auto">
+    <b-col class="sliders filters" cols="auto">
       Cdp Score mini : {{cdpScore_threshold}}<input @change="$emit('cdp', cdpScore_threshold)" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />
       <br />
       Favoris seulement :
@@ -136,10 +136,17 @@ export default {
   transition: all ease-in-out .2s;
 }
 
-.sliders:hover {
+.sliders.display:hover {
   opacity: 1;
   width: 230px;
-  max-height:100em;
+  max-height:10em;
+  transition: all ease-in-out .2s;
+}
+
+.sliders.filters:hover {
+  opacity: 1;
+  width: 230px;
+  max-height:5em;
   transition: all ease-in-out .2s;
 }
 
@@ -151,7 +158,7 @@ export default {
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 230px;
-  max-height: 100em;
+  max-height: 10em;
   transition: all ease-in-out .2s;
 }
 </style>

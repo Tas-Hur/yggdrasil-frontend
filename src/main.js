@@ -19,7 +19,8 @@ import {
   faCog,
   faFilter,
   faStar,
-  faBriefcase
+  faBriefcase,
+  faTrash
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -27,12 +28,18 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '../public/main.css'
 import "vue-multiselect/dist/vue-multiselect.min.css"
 
+Vue.prototype.mainColor= "#2c3e50",
+Vue.prototype.interestColor= '#FDDC17',
+Vue.prototype.lightColor= "rgb(150,150,150)",
+Vue.prototype.redColor= "#ff6a6a",
+Vue.prototype.greenColor= "#41B883",
 
 library.add(faSearch)
 library.add(faCog)
 library.add(faFilter)
 library.add(faStar)
 library.add(faBriefcase)
+library.add(faTrash)
 
 
 Vue.component('vue-multiselect', VueMultiselect)

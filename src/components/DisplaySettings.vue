@@ -28,6 +28,8 @@
       Favoris seulement :
       <input @change="$emit('favorites', favorites)" type="checkbox" v-model="favorites" />
       <br />
+      Mots clés :
+      <input @change="sendKeyWords" type="text" value=""/>
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -45,6 +47,13 @@
           {{n.title}}
         </li>
       </ul>
+
+      <ul>
+        Corbeille
+        <li v-for="n in trash_nodes">
+          {{n.title}}
+        </li>
+      </ul>
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -58,7 +67,9 @@
 export default {
   name: 'display-settings',
   props:{
-    fav_nodes:Array
+    fav_nodes:Array,
+    trash_nodes:Array,
+    key_word:String
   },
   data() {
     return {
@@ -98,6 +109,10 @@ export default {
     hover() {
       console.log("HOVER")
       this.hovered = !this.hovered
+    },
+    sendKeyWords(e){
+      console.log(e.target.value)
+      this.$emit('key_words', e.target.value)
     }
   },
   watch: {
@@ -146,7 +161,7 @@ export default {
 .sliders.filters:hover {
   opacity: 1;
   width: 230px;
-  max-height:5em;
+  max-height:10em;
   transition: all ease-in-out .2s;
 }
 

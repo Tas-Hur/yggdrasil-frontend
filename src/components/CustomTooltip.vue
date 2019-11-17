@@ -7,6 +7,8 @@
         <font-awesome-icon @click="setFavorite" class="svg_icon star" :style="star_style" icon="star"/>
         {{node.title}}
       </h5>
+        <font-awesome-icon @click="trashNode" class="svg_icon star" :color="redColor" icon="trash"/>
+        supprimer ce noeud du graph
       <br  />
       <span class="full_text">
         <b>
@@ -56,14 +58,6 @@
 export default{
   name:"custom-tooltip",
   props:{
-    mainColor:{
-      type:String,
-      default:"#2c3e50",
-    },
-    greenColor:{
-      type:String,
-      default:"#41B883"
-    },
     position:{
       type:Object,
       default:{F:-25,G:75},
@@ -122,6 +116,9 @@ export default{
     }
   },
   methods:{
+    trashNode(){
+      this.$emit('trash')
+    },
     setFavorite(){
       this.$emit('favorite', !this.node.favorite)
     }

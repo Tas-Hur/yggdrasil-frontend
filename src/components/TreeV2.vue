@@ -19,8 +19,8 @@
         <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? greenColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
           :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
         </circle>
-        <text v-if="disp_titles" :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="node.favorite ? greenColor : mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
-          v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
+        <text v-if="disp_titles" :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="node.favorite ? greenColor : mainColor" :x="node.x - 2*computeRadius(node.citations.length)"
+          :y="node.y+computeRadius(node.citations.length)+25" v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
         <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
       </template>
     </g>
@@ -49,7 +49,7 @@ export default {
     },
     graph_original: Object,
     adjlist: Object,
-    disp_titles:Boolean,
+    disp_titles: Boolean,
   },
   components: {
 
@@ -68,11 +68,6 @@ export default {
       graphLayout: null,
       graph: null,
       nodeDiameter: 200,
-      mainColor: "#2c3e50",
-      interestColor: '#FDDC17',
-      lightColor: "rgb(150,150,150)",
-      redColor: "#ff6a6a",
-      greenColor: "#41B883",
     }
   },
   computed: {
@@ -312,14 +307,16 @@ svg {
   /* color: rgb(200, 200, 200); */
 }
 
-circle{
-  transition: ease-in-out opacity .5s;
+circle {
+  transition: ease-in-out opacity .3s;
 }
-line{
-  transition: ease-in-out opacity .5s;
+
+line {
+  transition: ease-in-out opacity .3s;
 }
-text{
-  transition: ease-in-out opacity .5s;
+
+text {
+  transition: ease-in-out opacity .3s;
 }
 
 #infoBoxHolder {

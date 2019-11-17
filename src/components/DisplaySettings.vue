@@ -34,12 +34,52 @@
     </b-col>
   </div>
 
+  <div class="inputs_group">
+    <b-col class="custom-btn text-right" cols="12">
+      <font-awesome-icon class="svg_icon" icon="briefcase" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+    </b-col>
+    <b-col class="sliders lists" cols="auto">
+      <ul>
+        Favoris
+        <li v-for="n in fav_nodes">
+          {{n.title}}
+        </li>
+      </ul>
+      <!-- <b-button @click="addCircle">
+        Add Node
+      </b-button> -->
+    </b-col>
+  </div>
+
 </div>
 </template>
 
 <script>
 export default {
   name: 'display-settings',
+  props:{
+    fav_nodes:Array
+  },
+  data() {
+    return {
+      width: '2em',
+      height: '2em',
+      hovered: false,
+      node_charge: -6000,
+      cdpScore_threshold: 5,
+      distance_nodes: 150,
+      favorites: false,
+      disp_titles: true,
+    }
+  },
+  computed: {
+    computed_style() {
+      return {
+        width: this.width,
+        height: this.height
+      }
+    }
+  },
   methods: {
     reduceSettings() {
       // this.width = "2em";
@@ -58,26 +98,6 @@ export default {
     hover() {
       console.log("HOVER")
       this.hovered = !this.hovered
-    }
-  },
-  computed: {
-    computed_style() {
-      return {
-        width: this.width,
-        height: this.height
-      }
-    }
-  },
-  data() {
-    return {
-      width: '2em',
-      height: '2em',
-      hovered: false,
-      node_charge: -6000,
-      cdpScore_threshold: 5,
-      distance_nodes: 150,
-      favorites: false,
-      disp_titles: true,
     }
   },
   watch: {
@@ -119,7 +139,7 @@ export default {
 .sliders:hover {
   opacity: 1;
   width: 230px;
-  max-height: 10em;
+  max-height:100em;
   transition: all ease-in-out .2s;
 }
 
@@ -127,10 +147,11 @@ export default {
   margin-bottom: 2em;
 }
 
+
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 230px;
-  max-height: 10em;
+  max-height: 100em;
   transition: all ease-in-out .2s;
 }
 </style>

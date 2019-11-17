@@ -19,6 +19,7 @@ import {
   faCog,
   faFilter,
   faStar,
+  faBriefcase
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -31,6 +32,7 @@ library.add(faSearch)
 library.add(faCog)
 library.add(faFilter)
 library.add(faStar)
+library.add(faBriefcase)
 
 
 Vue.component('vue-multiselect', VueMultiselect)

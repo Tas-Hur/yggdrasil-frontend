@@ -3,9 +3,9 @@
   <g id='container'>
     <g class="links" id="g_links">
       <template v-if="graph !== null">
-        <linearGradient :id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+        <linearGradient :id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
           <stop stop-color="white" offset="0" />
-          <stop :stop-color="link.target.favorite ? greenColor : mainColor" offset="1" />
+          <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
         </linearGradient>
         <line :stroke="'url(#gradient_'+link.index+')'" stroke-width="2px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
         </line>
@@ -83,10 +83,6 @@ export default {
     },
   },
   watch: {
-    graph_original(newVal) {
-      var self = this;
-      console.log("Graph refreshed")
-    },
     adjlist() {
       console.log("adjlist refreshed");
     },

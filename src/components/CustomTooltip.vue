@@ -15,18 +15,26 @@
         {{node.abstract}}
       </span>
       <br  />
-      Year :
+      <b>
+        Year :
+      </b>
       {{node.year}}
       <br  />
-      Cited by :
+      <b>
+        Cited by :
+      </b>
       <template v-if="'citations' in node">
         {{node.citations.length}}
       </template>
       <br  />
-      CdP Score :
+      <b>
+        CdP Score :
+      </b>
       {{node.cdpScore}}
       <br  />
-      Appeared in :
+      <b>
+        Appeared in :
+      </b>
       <template v-if="node.venue !== ''">
         {{node.venue}}
       </template>
@@ -34,8 +42,12 @@
         N/A
       </template>
       <br  />
-      URL:
-      <a :href="node.url">{{node.url}}</a>
+      <p class="url">
+        <b>
+          URL :
+        </b>
+        <a :href="node.url">{{node.url}}</a>
+      </p>
     </div>
   </div>
 </template>
@@ -153,7 +165,8 @@ export default{
   overflow: hidden;
   text-overflow: ellipsis;
   font-size:90%;
-  box-shadow: 0 0 10px 1px rgba(10,10,10,0.1);
+  /* box-shadow: 0 0 10px 1px rgba(10,10,10,0.1); */
+  overflow-y:scroll;
 }
 /* this is known as the "clearfix" hack to allow
 floated objects to add to the height of a div */
@@ -164,6 +177,10 @@ floated objects to add to the height of a div */
   content: " ";
   clear: both;
   height: 0;
+}
+
+.url{
+  text-align: left;
 }
 
 .svg_icon.star{

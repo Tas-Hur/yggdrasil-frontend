@@ -18,7 +18,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
+        <display-settings :fav_nodes="favorites" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -43,6 +43,7 @@ export default {
   },
   data() {
     return {
+      favorites:[],
       draw: false,
       total_nodes: [],
       total_links: [],
@@ -78,6 +79,12 @@ export default {
   methods: {
     setFavorite(bool) {
       var self = this;
+      if(bool){
+        this.favorites.push(this.hovered_node)
+      }else{
+        let i = this.favorites.findIndex(n => this.hovered_node.id == n.id)
+        this.favorites.splice(i, 1)
+      }
       this.hovered_node.favorite = bool;
       this.hovered_node = Object.assign({}, this.hovered_node)
       let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
@@ -219,10 +226,6 @@ export default {
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
 
-      // this.graph = {
-      //   nodes: nodes,
-      //   links: links
-      // }
       Vue.set(self.graph, 'nodes', nodes)
       Vue.set(self.graph, 'links', links)
     },

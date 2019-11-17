@@ -17,7 +17,8 @@ import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faSearch,
   faCog,
-  faFilter
+  faFilter,
+  faStar,
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -29,6 +30,7 @@ import "vue-multiselect/dist/vue-multiselect.min.css"
 library.add(faSearch)
 library.add(faCog)
 library.add(faFilter)
+library.add(faStar)
 
 
 Vue.component('vue-multiselect', VueMultiselect)

@@ -1,26 +1,27 @@
 <template>
-  <svg id='viz' :style="{height:'100vh',width:'100vw'}">
-    <g id='container'>
-      <g class="links" id="g_links">
-        <template v-if="graph !== null">
-          <line :stroke="mainColor" stroke-width="1px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
-          </line>
-          <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="'white'" stroke-width="1px" :stroke="mainColor" r="5" :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
-            :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" v-for="link in graph.links"></circle>
-        </template>
-      </g>
-      <g class="nodes" id="g_nodes">
-        <template v-if="graph !== null">
-          <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
-            :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
-          </circle>
-          <text :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
-            v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
-            <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
-        </template>
-      </g>
+<svg id='viz' :style="{height:'100vh',width:'100vw'}">
+  <g id='container'>
+    <g class="links" id="g_links">
+      <template v-if="graph !== null">
+        <line :stroke="mainColor" stroke-width="1px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
+        </line>
+        <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="'white'" stroke-width="1px" :stroke="mainColor" r="5"
+          :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
+          v-for="link in graph.links"></circle>
+      </template>
     </g>
-  </svg>
+    <g class="nodes" id="g_nodes">
+      <template v-if="graph !== null">
+        <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? interestColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
+          :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
+        </circle>
+        <text :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
+          v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
+        <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
+      </template>
+    </g>
+  </g>
+</svg>
 </template>
 
 <script>
@@ -31,19 +32,19 @@ export default {
   name: "tree-v2",
   props: {
     cdpScore_threshold: {
-      type:Number,
-      default:5,
+      type: Number,
+      default: 5,
     },
     distance_nodes: {
-      type:Number,
-      default:100,
+      type: Number,
+      default: 100,
     },
     node_charge: {
-      type:Number,
-      default:-6000,
+      type: Number,
+      default: -6000,
     },
     graph_original: Object,
-    adjlist:Object,
+    adjlist: Object,
   },
   components: {
 
@@ -55,13 +56,15 @@ export default {
   },
   data() {
     return {
+      current_node: null,
       center_x: 950,
       center_y: 500,
       drawn: false,
       graphLayout: null,
-      graph:null,
+      graph: null,
       nodeDiameter: 200,
       mainColor: "#2c3e50",
+      interestColor:'#FDDC17',
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
       greenColor: "#41b883",
@@ -75,11 +78,11 @@ export default {
     },
   },
   watch: {
-    graph_original(newVal){
+    graph_original(newVal) {
       var self = this;
       console.log("Graph refreshed")
     },
-    adjlist(){
+    adjlist() {
       console.log("adjlist refreshed");
     },
     node_charge() {
@@ -138,7 +141,7 @@ export default {
           break;
         case Array:
           ret = []
-          for(let i = 0; i<obj.length;i++){
+          for (let i = 0; i < obj.length; i++) {
             ret.push(self.copyNestedObject(obj[i]))
           }
           return ret
@@ -146,7 +149,7 @@ export default {
         case Object:
           ret = {}
           var keys = Object.keys(obj)
-          for(let i = 0; i<keys.length;i++){
+          for (let i = 0; i < keys.length; i++) {
             ret[keys[i]] = self.copyNestedObject(obj[keys[i]])
           }
           return ret
@@ -160,10 +163,12 @@ export default {
         d3.event.sourceEvent.stopPropagation();
         self.graphLayout.alpha(0.03).restart()
       }
+
       function dragged(d) {
         self.graph.nodes.find(node => node.id == d.id).fx = d3.event.x
         self.graph.nodes.find(node => node.id == d.id).fy = d3.event.y
       }
+
       function dragended(d) {
         self.graph.nodes.find(node => node.id == d.id).fx = null
         self.graph.nodes.find(node => node.id == d.id).fy = null
@@ -258,8 +263,7 @@ export default {
     },
     focus(d) {
       this.$emit("hover_node", d)
-      this.hover_node = true
-      this.hovered_node = d
+      this.current_node = d
       var self = this
       var node = d3.selectAll(".circle").data(self.graph.nodes)
       var link = d3.selectAll("line").data(self.graph.links)
@@ -281,6 +285,7 @@ export default {
       });
     },
     unfocus() {
+      this.current_node = null
       var self = this;
       var node = d3.selectAll(".circle")
       var link = d3.selectAll("line")
@@ -296,10 +301,9 @@ export default {
 </script>
 
 <style scoped>
-
-text{
+text {
   background-color: var(--main-color);
-  color:white;
+  color: white;
 }
 
 svg {

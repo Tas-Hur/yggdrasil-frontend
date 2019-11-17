@@ -1,11 +1,10 @@
 <template>
 <div>
-  <custom-tooltip v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
+  <custom-tooltip @favorite="setFavorite" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
 
   <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
   </tree-v2>
-
 
   <div class="custom-container">
     <b-row align-h="end">
@@ -75,6 +74,15 @@ export default {
     },
   },
   methods: {
+    setFavorite(bool){
+      var self = this;
+      this.hovered_node.favorite = bool;
+      this.hovered_node = Object.assign({}, this.hovered_node)
+      let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.total_nodes[index].favorite = bool;
+      index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.graph.nodes[index].favorite = bool
+    },
     setHoveredNode(d) {
       this.hovered_node = d;
     },

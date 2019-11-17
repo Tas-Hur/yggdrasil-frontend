@@ -3,12 +3,15 @@
     <!-- <div class="arrow-tooltip" :style="arrowStyle">
     </div> -->
     <div id="infoBox" :style="sizingStyle">
-      <b>
+      <h5>
+        <font-awesome-icon @click="setFavorite" class="svg_icon star" :style="star_style" icon="star"/>
         {{node.title}}
-      </b>
+      </h5>
       <br  />
       <span class="full_text">
-        Abstract :
+        <b>
+          Abstract :
+        </b>
         {{node.abstract}}
       </span>
       <br  />
@@ -41,6 +44,14 @@
 export default{
   name:"custom-tooltip",
   props:{
+    mainColor:{
+      type:String,
+      default:"#2c3e50",
+    },
+    interestColor:{
+      type:String,
+      default:"#FDDC17"
+    },
     position:{
       type:Object,
       default:{F:-25,G:75},
@@ -57,10 +68,15 @@ export default{
   },
   data(){
     return{
-      total_width:0
+      total_width:0,
     }
   },
   computed:{
+    star_style(){
+      let style = {}
+      this.node.favorite ? style={color:this.interestColor} : style={opacity:0.2}
+      return style
+    },
     arrowStyle(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
         return{
@@ -93,10 +109,20 @@ export default{
       }
     }
   },
+  methods:{
+    setFavorite(){
+      this.$emit('favorite', !this.node.favorite)
+    }
+  },
   mounted(){
     var self=this;
     this.total_width = window.innerWidth
     window.addEventListener('resize', ()=>{this.total_width=window.innerWidth});
+  },
+  watch:{
+    node(){
+      console.log("node refreshed");
+    }
   }
 }
 </script>
@@ -138,6 +164,10 @@ floated objects to add to the height of a div */
   content: " ";
   clear: both;
   height: 0;
+}
+
+.svg_icon.star{
+  cursor:pointer;
 }
 
 .full_text{

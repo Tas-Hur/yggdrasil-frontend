@@ -48,9 +48,9 @@ export default{
       type:String,
       default:"#2c3e50",
     },
-    interestColor:{
+    greenColor:{
       type:String,
-      default:"#FDDC17"
+      default:"#41B883"
     },
     position:{
       type:Object,
@@ -74,7 +74,7 @@ export default{
   computed:{
     star_style(){
       let style = {}
-      this.node.favorite ? style={color:this.interestColor} : style={opacity:0.2}
+      this.node.favorite ? style={color:this.greenColor} : style={opacity:0.2}
       return style
     },
     arrowStyle(){

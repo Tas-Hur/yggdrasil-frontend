@@ -3,19 +3,23 @@
   <g id='container'>
     <g class="links" id="g_links">
       <template v-if="graph !== null">
-        <line :stroke="mainColor" stroke-width="1px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
+        <linearGradient :id="'gradient_'+link.index" :key="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+          <stop stop-color="white" offset="0" />
+          <stop :stop-color="mainColor" offset="1" />
+        </linearGradient>
+        <line :stroke="'url(#gradient_'+link.index+')'" stroke-width="2px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
         </line>
-        <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="'white'" stroke-width="1px" :stroke="mainColor" r="5"
+        <!-- <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="mainColor" stroke-width="1px" :stroke="mainColor" r="5"
           :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
-          v-for="link in graph.links"></circle>
+          v-for="link in graph.links"></circle> -->
       </template>
     </g>
     <g class="nodes" id="g_nodes">
       <template v-if="graph !== null">
-        <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? interestColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
+        <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? greenColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
           :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
         </circle>
-        <text :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
+        <text v-if="disp_titles" :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="node.favorite ? greenColor : mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
           v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
         <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
       </template>
@@ -45,6 +49,7 @@ export default {
     },
     graph_original: Object,
     adjlist: Object,
+    disp_titles:Boolean,
   },
   components: {
 
@@ -64,10 +69,10 @@ export default {
       graph: null,
       nodeDiameter: 200,
       mainColor: "#2c3e50",
-      interestColor:'#FDDC17',
+      interestColor: '#FDDC17',
       lightColor: "rgb(150,150,150)",
       redColor: "#ff6a6a",
-      greenColor: "#41b883",
+      greenColor: "#41B883",
     }
   },
   computed: {
@@ -103,11 +108,11 @@ export default {
     },
     computeArrowX(target_coord, source_coord, quotes) {
       let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[0] - (this.computeRadius(quotes) * res.vector[0] / res.d)
+      return target_coord[0] - ((this.computeRadius(quotes) + 5) * res.vector[0] / res.d)
     },
     computeArrowY(target_coord, source_coord, quotes) {
       let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[1] - (this.computeRadius(quotes) * res.vector[1] / res.d)
+      return target_coord[1] - ((this.computeRadius(quotes) + 5) * res.vector[1] / res.d)
     },
     correctPos(pos) {
       if (pos < 0 || !isFinite(pos)) {

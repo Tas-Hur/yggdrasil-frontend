@@ -3,7 +3,7 @@
   <custom-tooltip @favorite="setFavorite" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
   </custom-tooltip>
 
-  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
+  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
   </tree-v2>
 
   <div class="custom-container">
@@ -18,7 +18,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
+        <display-settings @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -61,6 +61,7 @@ export default {
         links: []
       },
       total_width: 0,
+      disp_titles:true,
       node_charge: -6000,
       distance_nodes: 100,
       cdpScore_threshold: 5,
@@ -239,6 +240,9 @@ export default {
       console.log("Je veux set les favoris : ",fav)
       this.favorites_only = fav
       this.updateNodes();
+    },
+    setDispTitles(disp_titles){
+      this.disp_titles = disp_titles
     }
   },
   mounted() {

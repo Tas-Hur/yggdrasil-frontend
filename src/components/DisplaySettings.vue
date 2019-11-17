@@ -9,6 +9,9 @@
       <br />
       Distance : {{distance_nodes}}<input @change="$emit('distance', distance_nodes)" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />
       <br />
+      Afficher les titres :
+      <input @change="$emit('disp_titles', disp_titles)" type="checkbox" v-model="disp_titles" />
+      <br />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -22,7 +25,7 @@
     <b-col class="sliders" cols="auto">
       Cdp Score mini : {{cdpScore_threshold}}<input @change="$emit('cdp', cdpScore_threshold)" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />
       <br />
-      Favoris seulement : 
+      Favoris seulement :
       <input @change="$emit('favorites', favorites)" type="checkbox" v-model="favorites" />
       <br />
       <!-- <b-button @click="addCircle">
@@ -74,6 +77,7 @@ export default {
       cdpScore_threshold: 5,
       distance_nodes: 150,
       favorites: false,
+      disp_titles: true,
     }
   },
   watch: {

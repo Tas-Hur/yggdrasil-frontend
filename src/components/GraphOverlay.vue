@@ -18,7 +18,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge" @distance="setDistance" @cdp="setCdp"></display-settings>
+        <display-settings @charge="setCharge" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -63,7 +63,8 @@ export default {
       total_width: 0,
       node_charge: -6000,
       distance_nodes: 100,
-      cdpScore_threshold: 5
+      cdpScore_threshold: 5,
+      favorites_only: false,
     }
   },
   computed: {
@@ -74,7 +75,7 @@ export default {
     },
   },
   methods: {
-    setFavorite(bool){
+    setFavorite(bool) {
       var self = this;
       this.hovered_node.favorite = bool;
       this.hovered_node = Object.assign({}, this.hovered_node)
@@ -111,7 +112,7 @@ export default {
           break;
         case Array:
           ret = []
-          for(let i = 0; i<obj.length;i++){
+          for (let i = 0; i < obj.length; i++) {
             ret.push(self.copyNestedObject(obj[i]))
           }
           return ret
@@ -119,7 +120,7 @@ export default {
         case Object:
           ret = {}
           var keys = Object.keys(obj)
-          for(let i = 0; i<keys.length;i++){
+          for (let i = 0; i < keys.length; i++) {
             ret[keys[i]] = self.copyNestedObject(obj[keys[i]])
           }
           return ret
@@ -179,7 +180,13 @@ export default {
     },
     computeEventual_nodes() {
       var self = this
-      var nodes = this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
+      var nodes = this.total_nodes.filter(node => {
+        var filt = true
+        if(this.favorites_only && !node.favorite){
+          filt = false
+        }
+        return filt && node.cdpScore >= this.cdpScore_threshold
+      })
       return nodes
     },
     computeEventual_links(nodes) {
@@ -190,7 +197,7 @@ export default {
         self.adjlist[links[i].source + "-" + links[i].target] = true;
         self.adjlist[links[i].target + "-" + links[i].source] = true;
       }
-      Vue.set(self,'adjlist', self.adjlist);
+      Vue.set(self, 'adjlist', self.adjlist);
       return links
     },
     addCircle() {
@@ -225,8 +232,13 @@ export default {
       this.cdpScore_threshold = cdp;
       this.updateNodes()
     },
-    setDistance(distance){
+    setDistance(distance) {
       this.distance_nodes = distance;
+    },
+    setFavorites(fav) {
+      console.log("Je veux set les favoris : ",fav)
+      this.favorites_only = fav
+      this.updateNodes();
     }
   },
   mounted() {

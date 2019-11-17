@@ -22,6 +22,9 @@
     <b-col class="sliders" cols="auto">
       Cdp Score mini : {{cdpScore_threshold}}<input @change="$emit('cdp', cdpScore_threshold)" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />
       <br />
+      Favoris seulement : 
+      <input @change="$emit('favorites', favorites)" type="checkbox" v-model="favorites" />
+      <br />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -70,13 +73,14 @@ export default {
       node_charge: -6000,
       cdpScore_threshold: 5,
       distance_nodes: 150,
+      favorites: false,
     }
   },
-  watch:{
-    node_charge(){
+  watch: {
+    node_charge() {
       this.$emit('charge', this.node_charge)
     },
-    distance_nodes(){
+    distance_nodes() {
       this.$emit('distance', this.distance_nodes)
     }
   }
@@ -84,19 +88,18 @@ export default {
 </script>
 
 <style scoped>
-
-.svg_icon{
-  height:2em;
-  width:2em;
-  padding:0.5em;
-  border:1px solid var(--main-color);
+.svg_icon {
+  height: 2em;
+  width: 2em;
+  padding: 0.5em;
+  border: 1px solid var(--main-color);
   border-radius: 100px;
 }
 
 .custom-btn {
   height: 100%;
-  padding:0;
-  width:100%;
+  padding: 0;
+  width: 100%;
   vertical-align: middle;
 }
 
@@ -116,8 +119,8 @@ export default {
   transition: all ease-in-out .2s;
 }
 
-.inputs_group{
-  margin-bottom:2em;
+.inputs_group {
+  margin-bottom: 2em;
 }
 
 .custom-btn:hover+.sliders {

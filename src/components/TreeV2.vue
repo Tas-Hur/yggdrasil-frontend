@@ -14,9 +14,9 @@
           <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
             :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
           </circle>
-          <text :id="'title_'+node.id" :fill="mainColor" :x="node.x - computeRadius(node.citations.length)*3.5" :y="node.y+computeRadius(node.citations.length)+25"
-            v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length-1, computeRadius(node.citations.length)))}}...</text>
-
+          <text :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="mainColor" :x="node.x - 2*computeRadius(node.citations.length)" :y="node.y+computeRadius(node.citations.length)+25"
+            v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
+            <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
         </template>
       </g>
     </g>
@@ -49,7 +49,7 @@ export default {
 
   },
   mounted() {
-    this.graph = this.copyNestedObject(this.graph_original)
+    this.graph = this.graph_original
     setTimeout(this.init, 1000)
     // this.init();
   },
@@ -75,23 +75,12 @@ export default {
     },
   },
   watch: {
-    graph(){
+    graph_original(newVal){
       var self = this;
       console.log("Graph refreshed")
-      // let graph_tmp = this.copyNestedObject(this.graph_original)
-      // graph_tmp.nodes.forEach(node => {
-      //   if(!self.graph.nodes.map(n => n.id).includes(node.id)){
-      //     self.graph.nodes.push(node)
-      //   }
-      // })
-      // if(this.graphLayout !== null){
-      //   this.graphLayout.alpha(0.03).restart()
-      // }
-      // this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-      //   .force("collide", d3.forceCollide(self.distance_nodes))
-      //   .force("link", d3.forceLink(this.graph.links).id(function(d) {
-      //     return d.id;
-      //   }).distance(self.distance_nodes).strength(1))
+    },
+    adjlist(){
+      console.log("adjlist refreshed");
     },
     node_charge() {
       this.graphLayout.alpha(0.03).restart()
@@ -126,6 +115,7 @@ export default {
     },
     copyNestedObject(obj) {
       var self = this;
+      var ret
       switch (obj) {
         case null:
           return null;
@@ -147,19 +137,25 @@ export default {
           return obj;
           break;
         case Array:
-          return obj.map(cell => self.copyNestedObject(cell))
+          ret = []
+          for(let i = 0; i<obj.length;i++){
+            ret.push(self.copyNestedObject(obj[i]))
+          }
+          return ret
           break;
         case Object:
-          Object.keys(obj).map(key => {
-            obj[key] = self.copyNestedObject(obj[key])
-          })
-          return obj
+          ret = {}
+          var keys = Object.keys(obj)
+          for(let i = 0; i<keys.length;i++){
+            ret[keys[i]] = self.copyNestedObject(obj[keys[i]])
+          }
+          return ret
           break;
       }
     },
     ticked() {
       var self = this;
-      console.log("tick")
+      // console.log("tick")
       function dragstarted(d) {
         d3.event.sourceEvent.stopPropagation();
         self.graphLayout.alpha(0.03).restart()
@@ -300,6 +296,11 @@ export default {
 </script>
 
 <style scoped>
+
+text{
+  background-color: var(--main-color);
+  color:white;
+}
 
 svg {
   /* background-color: var(--main-color); */

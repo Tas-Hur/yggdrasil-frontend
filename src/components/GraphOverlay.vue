@@ -19,7 +19,7 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge" @cdp="setCdp"></display-settings>
+        <display-settings @charge="setCharge" @distance="setDistance" @cdp="setCdp"></display-settings>
       </b-col>
     </b-row>
   </div>
@@ -48,7 +48,6 @@ export default {
       total_nodes: [],
       total_links: [],
       graph: null,
-      total_links_2: [],
       adjlist: {},
       hovered_node_location: {
         F: -25,
@@ -77,11 +76,11 @@ export default {
   },
   methods: {
     setHoveredNode(d) {
-      console.log(d);
       this.hovered_node = d;
     },
     copyNestedObject(obj) {
       var self = this;
+      var ret
       switch (obj) {
         case null:
           return null;
@@ -103,18 +102,23 @@ export default {
           return obj;
           break;
         case Array:
-          return obj.map(cell => self.copyNestedObject(cell))
+          ret = []
+          for(let i = 0; i<obj.length;i++){
+            ret.push(self.copyNestedObject(obj[i]))
+          }
+          return ret
           break;
         case Object:
-          Object.keys(obj).map(key => {
-            obj[key] = self.copyNestedObject(obj[key])
-          })
-          return obj
+          ret = {}
+          var keys = Object.keys(obj)
+          for(let i = 0; i<keys.length;i++){
+            ret[keys[i]] = self.copyNestedObject(obj[keys[i]])
+          }
+          return ret
           break;
       }
     },
     slowAddNode(delay) {
-      console.log("Adding ", this.cursor)
       var self = this;
       if (this.cursor == 100) {
         this.init();
@@ -142,14 +146,8 @@ export default {
             target: node.paperId,
             value: 1
           }
-          let link_2 = {
-            source: ref.paperId,
-            target: node.paperId,
-            value: 1
-          }
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
-            self.total_links_2.push(link_2)
           }
         }
       })
@@ -160,14 +158,8 @@ export default {
             target: cit.paperId,
             value: 1
           }
-          let link_2 = {
-            source: node.paperId,
-            target: cit.paperId,
-            value: 1
-          }
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
-            self.total_links_2.push(link_2)
           }
         }
       })
@@ -184,11 +176,13 @@ export default {
     },
     computeEventual_links(nodes) {
       var self = this;
+
       var links = this.copyNestedObject(self.total_links).filter(link => nodes.map(node => node.paperId).includes(link.source) && nodes.map(node => node.paperId).includes(link.target))
       for (let i = 0; i < links.length; i++) {
         self.adjlist[links[i].source + "-" + links[i].target] = true;
         self.adjlist[links[i].target + "-" + links[i].source] = true;
       }
+      Vue.set(self,'adjlist', self.adjlist);
       return links
     },
     addCircle() {
@@ -204,19 +198,17 @@ export default {
     updateNodes() {
       console.log("Update nodes")
       var self = this
-      this.total_links_2.forEach((link, i) => {
-        this.total_links[i] = Object.assign({}, link)
-      })
       var nodes = [...this.computeEventual_nodes()]
       console.log("Updated nodes")
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
-      Vue.set(self.graph, 'nodes', nodes)
-      Vue.set(self.graph, 'links', links)
+
       // this.graph = {
       //   nodes: nodes,
       //   links: links
       // }
+      Vue.set(self.graph, 'nodes', nodes)
+      Vue.set(self.graph, 'links', links)
     },
     setCharge(charge) {
       this.node_charge = charge;
@@ -224,6 +216,9 @@ export default {
     setCdp(cdp) {
       this.cdpScore_threshold = cdp;
       this.updateNodes()
+    },
+    setDistance(distance){
+      this.distance_nodes = distance;
     }
   },
   mounted() {

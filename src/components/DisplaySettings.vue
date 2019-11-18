@@ -29,7 +29,10 @@
       <input @change="$emit('favorites', favorites)" type="checkbox" v-model="favorites" />
       <br />
       Mots clés :
-      <input @change="sendKeyWords" type="text" value=""/>
+      <input @change="sendKeyWords" type="text" value="" />
+      Dates limites :
+        <vue-slider @change="sendDates" v-if="dates_extrem.start < dates_extrem.end" :min="dates_extrem.start" :max="dates_extrem.end" :value="dates_filter">
+        </vue-slider>
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -64,12 +67,18 @@
 </template>
 
 <script>
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/antd.css'
 export default {
   name: 'display-settings',
-  props:{
-    fav_nodes:Array,
-    trash_nodes:Array,
-    key_word:String
+  props: {
+    dates_extrem: Object,
+    fav_nodes: Array,
+    trash_nodes: Array,
+    key_word: String
+  },
+  components: {
+    VueSlider
   },
   data() {
     return {
@@ -78,7 +87,9 @@ export default {
       hovered: false,
       node_charge: -6000,
       cdpScore_threshold: 5,
+      dates_filter: [],
       distance_nodes: 150,
+      dates_filter:[],
       favorites: false,
       disp_titles: true,
     }
@@ -110,10 +121,17 @@ export default {
       console.log("HOVER")
       this.hovered = !this.hovered
     },
-    sendKeyWords(e){
+    sendKeyWords(e) {
       console.log(e.target.value)
       this.$emit('key_words', e.target.value)
+    },
+    sendDates(e){
+      console.log(e)
+      this.$emit('dates', e)
     }
+  },
+  mounted(){
+    this.dates_filter = [this.dates_extrem.start, this.dates_extrem.end]
   },
   watch: {
     node_charge() {
@@ -121,6 +139,9 @@ export default {
     },
     distance_nodes() {
       this.$emit('distance', this.distance_nodes)
+    },
+    dates_extrem(){
+      console.log(this.dates_extrem)
     }
   }
 }
@@ -154,14 +175,14 @@ export default {
 .sliders.display:hover {
   opacity: 1;
   width: 230px;
-  max-height:10em;
+  max-height: 10em;
   transition: all ease-in-out .2s;
 }
 
 .sliders.filters:hover {
   opacity: 1;
   width: 230px;
-  max-height:10em;
+  max-height: 13em;
   transition: all ease-in-out .2s;
 }
 
@@ -173,7 +194,7 @@ export default {
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 230px;
-  max-height: 10em;
+  max-height: 13em;
   transition: all ease-in-out .2s;
 }
 </style>

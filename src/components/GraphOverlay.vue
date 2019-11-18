@@ -19,7 +19,10 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings :fav_nodes="favorites" :trash_nodes="trash" @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites"></display-settings>
+        {{dates_extrem}}
+        <display-settings :dates_filter="dates_filter === null ? [dates_extrem.start,dates_extrem.end] : [dates_filter.start,dates_filter.end]" :dates_extrem="dates_extrem" :fav_nodes="favorites" :trash_nodes="trash"
+                          @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
+        </display-settings>
       </b-col>
     </b-row>
   </div>
@@ -48,13 +51,24 @@ export default {
   },
   data() {
     return {
-      trash:[],
+      trash: [],
       favorites: [],
       draw: false,
       total_nodes: [],
       total_links: [],
-      graph: null,
       adjlist: {},
+      graph: {
+        nodes: [],
+        links: []
+      },
+      hovered_node: null,
+      disp_titles: true,
+      node_charge: -6000,
+      distance_nodes: 100,
+      key_words: [],
+      dates_filter: null,
+      cdpScore_threshold: 5,
+      favorites_only: false,
       hovered_node_location: {
         F: -25,
         G: 100
@@ -62,18 +76,6 @@ export default {
       node_settings: {
         diameter: 20
       },
-      hovered_node: null,
-      graph: {
-        nodes: [],
-        links: []
-      },
-      total_width: 0,
-      key_words:[],
-      disp_titles: true,
-      node_charge: -6000,
-      distance_nodes: 100,
-      cdpScore_threshold: 5,
-      favorites_only: false,
     }
   },
   computed: {
@@ -82,9 +84,12 @@ export default {
         return link.source.constructor === String && link.target.constructor === String
       }).length
     },
-    dates_extrem(){
-      let dates = this.total_nodes.map(n => parseInt(n.year));
-      return {start:min(dates), end:max(dates)}
+    dates_extrem() {
+      var dates = this.total_nodes.map(n => parseInt(n.year)).filter(date => !isNaN(date))
+      return {
+        start: Math.min(...dates),
+        end: Math.max(...dates)
+      }
     }
   },
   methods: {
@@ -101,14 +106,14 @@ export default {
           centered: true
         })
         .then(value => {
-          if(value){
+          if (value) {
             console.log("delete")
 
             self.trash.push(self.copyNestedObject(self.hovered_node))
             console.log(self.total_nodes)
             let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
             self.total_nodes.splice(index, 1)
-            console.log("post thing",self.total_nodes)
+            console.log("post thing", self.total_nodes)
             index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
             self.updateNodes();
             self.hovered_node = null
@@ -234,25 +239,26 @@ export default {
       var nodes = this.total_nodes.filter(node => {
         var filt = true
         var kw = true
+        var dates = true
 
         if (this.favorites_only && !node.favorite) {
           filt = false
         }
 
+        if (self.dates_filter !== null && self.dates_filter.end > node.year && self.dates_filter.start < node.year) {
+          dates = true
+        }
+
         if (this.key_words.length > 0) {
           kw = false
-          for(let i=0;i<this.key_words.length;i++){
-            console.log(node.title.toUpperCase())
-            console.log(this.key_words[i].toUpperCase())
-            console.log(node.title.toUpperCase().includes(this.key_words[i].toUpperCase()))
-            if(node.title.toUpperCase().includes(this.key_words[i].toUpperCase())){
-
-              kw=true;
+          for (let i = 0; i < this.key_words.length; i++) {
+            if (node.title.toUpperCase().includes(this.key_words[i].toUpperCase())) {
+              kw = true;
               break;
             }
           }
         }
-        return kw && filt && node.cdpScore >= this.cdpScore_threshold
+        return dates && kw && filt && node.cdpScore >= this.cdpScore_threshold
       })
       return nodes
     },
@@ -306,12 +312,12 @@ export default {
     setDispTitles(disp_titles) {
       this.disp_titles = disp_titles
     },
-    setKeyWords(str){
-      console.log("the"+str+"string")
-      if(str===""){
-        this.key_words=[];
-      }else{
-        this.key_words=[...str.split(" ")]
+    setKeyWords(str) {
+      console.log("the" + str + "string")
+      if (str === "") {
+        this.key_words = [];
+      } else {
+        this.key_words = [...str.split(" ")]
       }
       console.log(this.key_words)
       this.updateNodes();

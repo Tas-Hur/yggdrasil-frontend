@@ -297,30 +297,30 @@ export default {
 </script>
 
 <style scoped>
-text {
-  background-color: var(--main-color);
-  color: white;
-}
+  text {
+    background-color: var(--main-color);
+    color: white;
+  }
 
-svg {
-  /* background-color: var(--main-color); */
-  /* color: rgb(200, 200, 200); */
-}
+  svg {
+    /* background-color: var(--main-color); */
+    /* color: rgb(200, 200, 200); */
+  }
 
-circle {
-  transition: ease-in-out opacity .3s;
-}
+  circle {
+    transition: ease-in-out opacity .3s;
+  }
 
-line {
-  transition: ease-in-out opacity .3s;
-}
+  line {
+    transition: ease-in-out opacity .3s;
+  }
 
-text {
-  transition: ease-in-out opacity .3s;
-}
+  text {
+    transition: ease-in-out opacity .3s;
+  }
 
-#infoBoxHolder {
-  z-index: 300;
-  position: fixed;
-}
+  #infoBoxHolder {
+    z-index: 300;
+    position: fixed;
+  }
 </style>

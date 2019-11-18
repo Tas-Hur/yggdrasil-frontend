@@ -7,10 +7,12 @@
     <b-col class="sliders display" cols="auto">
       Charge : {{node_charge}}
       <vue-slider class="slider" v-model="node_charge"
-                  tooltipPlacement="bottom" :min="-100000" :max="0" :contained="true" />
+                  tooltipPlacement="bottom" direction="rtl"
+                  :min="-100000" :max="0" :contained="true" />
       <br />
       Distance : {{distance_nodes}}
-      <vue-slider :min="0" :max="1000" v-model="distance_nodes" class="slider" :contained="true" />
+      <vue-slider class="slider" v-model="distance_nodes"
+                  :min="0" :max="1000" :contained="true" />
       <br />
       Afficher les titres :
       <br />
@@ -42,7 +44,7 @@
       <br />
       Mots clés :
       <input type=" text" value=""
-      @change="sendKeyWords" />
+             @change="sendKeyWords" />
       <br />
       Favoris seulement :
       <br />

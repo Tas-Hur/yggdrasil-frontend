@@ -1,10 +1,13 @@
 <template>
 <div>
-  <custom-tooltip @favorite="setFavorite" @trash="deleteNode" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
+  <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
+                  @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist"
-    :graph_original="graph">
+  <tree-v2 v-if="draw"
+           :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
+           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)"
+           @hover_node="setHoveredNode">
   </tree-v2>
 
   <div class="custom-container">
@@ -19,15 +22,14 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        {{dates_extrem}}
-        <display-settings :dates_filter="dates_filter === null ? [dates_extrem.start,dates_extrem.end] : [dates_filter.start,dates_filter.end]" :dates_extrem="dates_extrem" :fav_nodes="favorites" :trash_nodes="trash"
-                          @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
+        <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
+                          @dates="setDates" @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
         </display-settings>
       </b-col>
     </b-row>
   </div>
 
-  <b-modal hide-header id="delete-modal">
+  <b-modal id="delete-modal" hide-header>
     Êtes vous sûrs de vouloir supprimer ce noeud ? Il sera déplacé dans la corbeille et pourra être restauré à tout moment.
   </b-modal>
 </div>
@@ -90,6 +92,15 @@ export default {
         start: Math.min(...dates),
         end: Math.max(...dates)
       }
+    },
+    dates_filter_array() {
+      var ret
+      if (this.dates_filter === null) {
+        ret = [this.dates_extrem.start, this.dates_extrem.end]
+      } else {
+        ret = [this.dates_filter.start, this.dates_filter.end]
+      }
+      return ret
     }
   },
   methods: {
@@ -139,9 +150,6 @@ export default {
       this.total_nodes[index].favorite = bool;
       index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
       this.graph.nodes[index].favorite = bool
-    },
-    setHoveredNode(d) {
-      this.hovered_node = d;
     },
     copyNestedObject(obj) {
       var self = this;
@@ -200,6 +208,9 @@ export default {
     search() {
       this.$emit('search')
     },
+    setHoveredNode(d) {
+      this.hovered_node = d;
+    },
     addNode(node) {
       var self = this
       node.id = node.paperId
@@ -245,8 +256,11 @@ export default {
           filt = false
         }
 
-        if (self.dates_filter !== null && self.dates_filter.end > node.year && self.dates_filter.start < node.year) {
-          dates = true
+        if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
+          console.log(node.year)
+          console.log(self.dates_filter)
+          console.log("Dates are fitlersd")
+          dates = false
         }
 
         if (this.key_words.length > 0) {
@@ -321,6 +335,13 @@ export default {
       }
       console.log(this.key_words)
       this.updateNodes();
+    },
+    setDates(dates) {
+      this.dates_filter = {
+        start: dates[0],
+        end: dates[1]
+      }
+      this.updateNodes()
     }
   },
   mounted() {

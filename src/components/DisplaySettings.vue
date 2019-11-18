@@ -5,12 +5,18 @@
       <font-awesome-icon class="svg_icon" icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
     <b-col class="sliders display" cols="auto">
-      Charge : {{node_charge}}<input type="range" min="-100000" max="0" v-model="node_charge" class="slider" id="myRange" />
+      Charge : {{node_charge}}
+      <vue-slider class="slider" v-model="node_charge"
+                  tooltipPlacement="bottom" :min="-100000" :max="0" :contained="true" />
       <br />
-      Distance : {{distance_nodes}}<input @change="$emit('distance', distance_nodes)" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />
+      Distance : {{distance_nodes}}
+      <vue-slider :min="0" :max="1000" v-model="distance_nodes" class="slider" :contained="true" />
       <br />
       Afficher les titres :
-      <input @change="$emit('disp_titles', disp_titles)" type="checkbox" v-model="disp_titles" />
+      <br />
+      <toggle-button v-model="disp_titles"
+                     :color="mainColor"
+                     @change="$emit('disp_titles', disp_titles)" />
       <br />
       <!-- <b-button @click="addCircle">
         Add Node
@@ -23,16 +29,27 @@
       <font-awesome-icon class="svg_icon" icon="filter" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
     <b-col class="sliders filters" cols="auto">
-      Cdp Score mini : {{cdpScore_threshold}}<input @change="$emit('cdp', cdpScore_threshold)" type="range" min="0" max="200" v-model="cdpScore_threshold" class="slider" />
+      Cdp Score mini : {{cdpScore_threshold}}
+      <vue-slider class="slider" v-model="cdpScore_threshold"
+                  tooltipPlacement="bottom" :min="0" :max="200" :contained="true"
+                  @drag-end="$emit('cdp', cdpScore_threshold)" />
       <br />
-      Favoris seulement :
-      <input @change="$emit('favorites', favorites)" type="checkbox" v-model="favorites" />
+      Dates limites :
+      <vue-slider v-if="dates_extrem.start < dates_extrem.end"
+                  :min="dates_extrem.start" :max="dates_extrem.end" :value="dates_filter" :contained="true"
+                  @drag-end="sendDates" @change="changeDates">
+      </vue-slider>
       <br />
       Mots clés :
-      <input @change="sendKeyWords" type="text" value="" />
-      Dates limites :
-        <vue-slider @change="sendDates" v-if="dates_extrem.start < dates_extrem.end" :min="dates_extrem.start" :max="dates_extrem.end" :value="dates_filter">
-        </vue-slider>
+      <input type=" text" value=""
+      @change="sendKeyWords" />
+      <br />
+      Favoris seulement :
+      <br />
+      <toggle-button v-model="favorites"
+                     :color="mainColor"
+                     @change="$emit('favorites', favorites)" />
+      <br />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -41,7 +58,8 @@
 
   <div class="inputs_group">
     <b-col class="custom-btn text-right" cols="12">
-      <font-awesome-icon class="svg_icon" icon="briefcase" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+      <font-awesome-icon class="svg_icon" icon="briefcase"
+                         @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
     <b-col class="sliders lists" cols="auto">
       <ul>
@@ -69,9 +87,11 @@
 <script>
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/antd.css'
+
 export default {
   name: 'display-settings',
   props: {
+    dates_filter: Array,
     dates_extrem: Object,
     fav_nodes: Array,
     trash_nodes: Array,
@@ -87,9 +107,8 @@ export default {
       hovered: false,
       node_charge: -6000,
       cdpScore_threshold: 5,
-      dates_filter: [],
       distance_nodes: 150,
-      dates_filter:[],
+      dates_buffer: [],
       favorites: false,
       disp_titles: true,
     }
@@ -109,29 +128,23 @@ export default {
       this.hovered = false;
     },
     displaySettings() {
-      console.log("Ho");
       // this.width = '20vw'
       // this.height = "20vh";
       this.hovered = true;
     },
-    updateNodes() {
-      console.log("Hn")
-    },
+    updateNodes() {},
     hover() {
-      console.log("HOVER")
       this.hovered = !this.hovered
     },
     sendKeyWords(e) {
-      console.log(e.target.value)
       this.$emit('key_words', e.target.value)
     },
-    sendDates(e){
-      console.log(e)
-      this.$emit('dates', e)
+    changeDates(e) {
+      this.dates_buffer = e
+    },
+    sendDates() {
+      this.$emit('dates', this.dates_buffer)
     }
-  },
-  mounted(){
-    this.dates_filter = [this.dates_extrem.start, this.dates_extrem.end]
   },
   watch: {
     node_charge() {
@@ -140,9 +153,7 @@ export default {
     distance_nodes() {
       this.$emit('distance', this.distance_nodes)
     },
-    dates_extrem(){
-      console.log(this.dates_extrem)
-    }
+    dates_filter() {}
   }
 }
 </script>
@@ -167,34 +178,37 @@ export default {
   /* background-color: white; */
   opacity: 0;
   width: 0;
+  padding-left: 30px;
+  padding-right: 30px;
   max-height: 0;
   overflow: hidden;
   transition: all ease-in-out .2s;
 }
 
-.sliders.display:hover {
+.sliders:hover {
+  /* background-color: white; */
   opacity: 1;
-  width: 230px;
-  max-height: 10em;
+  width: 260px;
   transition: all ease-in-out .2s;
 }
 
+
+.sliders.display:hover {
+  max-height: 12em;
+}
+
 .sliders.filters:hover {
+  max-height: 15em;
+}
+
+.custom-btn:hover+.sliders {
   opacity: 1;
-  width: 230px;
-  max-height: 13em;
+  width: 260px;
+  max-height: 15em;
   transition: all ease-in-out .2s;
 }
 
 .inputs_group {
   margin-bottom: 2em;
-}
-
-
-.custom-btn:hover+.sliders {
-  opacity: 1;
-  width: 230px;
-  max-height: 13em;
-  transition: all ease-in-out .2s;
 }
 </style>

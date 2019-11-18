@@ -82,6 +82,10 @@ export default {
         return link.source.constructor === String && link.target.constructor === String
       }).length
     },
+    dates_extrem(){
+      let dates = this.total_nodes.map(n => parseInt(n.year));
+      return {start:min(dates), end:max(dates)}
+    }
   },
   methods: {
     deleteNode() {

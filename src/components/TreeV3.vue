@@ -88,15 +88,12 @@ export default {
     graph_original() {
       var self = this;
       console.log("graph original changed");
-      // this.graph.nodes = this.copyNestedObject(this.graph_original.nodes)
-      // this.graph.links = this.copyNestedObject(this.graph_original.links)
-      // this.graphLayout.nodes(self.graph.nodes)
-      //   .force("charge", d3.forceManyBody().strength(self.node_charge))
-      //   .force("center", d3.forceCenter(width / 2, height / 2))
-      //   .force("collide", d3.forceCollide().radius(d => d.r * -100))
-      //   .force("link", d3.forceLink(self.graph.links).id(d => d.id)
-      //     .distance(self.distance_nodes).strength(1))
-      // this.graphLayout.alpha(0.3).restart()
+      this.graph = this.graph_original
+      console.log(self.graph_original.nodes.length)
+      console.log(self.graph.nodes.length)
+      this.graphLayout.nodes(self.graph.nodes)
+        .force("link", d3.forceLink(self.graph.links).id(d => d.id)
+          .distance(self.distance_nodes).strength(1))
       // this.graph.links.forEach((link, i) => {
       //   Vue.set(self.graph.links, i, Object.assign({}, link))
       //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
@@ -107,8 +104,7 @@ export default {
       // })
 
     },
-    adjlist() {
-    },
+    adjlist() {},
   },
   methods: {
     copyNestedObject(obj) {
@@ -161,18 +157,18 @@ export default {
         width = 1920,
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
-      this.graph = this.copyNestedObject(this.graph_original)
+      this.graph = this.graph_original
       console.log("the graph is : ", this.graph);
 
       this.graphLayout = d3.forceSimulation(self.graph.nodes)
-      .force("charge", d3.forceManyBody().strength(self.node_charge))
+        .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collide", d3.forceCollide().radius(d => d.r * -100))
         .force("link", d3.forceLink(self.graph.links).id(d => d.id)
           .distance(self.distance_nodes).strength(1))
         .on("tick", ticked);
 
-      this.graphLayout.alphaDecay(0.001)
+      // this.graphLayout.alphaDecay(0.001)
 
       function neigh(a, b) {
         return a == b || self.adjlist[a + "-" + b];
@@ -203,7 +199,7 @@ export default {
         })
         .attr("fill", "white")
         .attr("stroke", function(d) {
-          return self.mainColor;
+          return d.favorite ? self.greenColor : self.mainColor;
         })
 
       var link = d3.select("#g_links")
@@ -212,7 +208,9 @@ export default {
         .enter()
         .append("line")
         .attr("class", "link")
-        .attr("stroke", (d)=> {return "url(#gradient_"+d.index+")"})
+        .attr("stroke", (d) => {
+          return "url(#gradient_" + d.index + ")"
+        })
         .attr("stroke-width", "1px")
 
       var circle_text = pseudo_node
@@ -220,12 +218,18 @@ export default {
         .attr("class", "text_circle")
         .attr("text-anchor", "middle")
         .text(function(d, i) {
-          return d.title.slice(0,Math.min(d.title.length, self.computeRadius(d.citations.length)/2))
+          return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
         })
-        .attr('id',function(d) { return 'title_'+d.id})
-        .attr("lengthAdjust","spacingAndGlyphs")
-        .attr("textLength",function (d) {4*self.computeRadius(d.citations.length)})
-        .attr("fill", function(d) { return d.favorite ? self.greenColor : self.mainColor })
+        .attr('id', function(d) {
+          return 'title_' + d.id
+        })
+        .attr("lengthAdjust", "spacingAndGlyphs")
+        .attr("textLength", function(d) {
+          4 * self.computeRadius(d.citations.length)
+        })
+        .attr("fill", function(d) {
+          return d.favorite ? self.greenColor : self.mainColor
+        })
 
       node.call(
         d3.drag()
@@ -241,7 +245,7 @@ export default {
       }).on("mouseout", unfocus);
 
       function ticked() {
-        console.log("ticked")
+        // console.log("ticked")
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);
@@ -259,6 +263,7 @@ export default {
       }
 
       function focus(d) {
+        self.$emit("hover_node", d)
         var index = d3.select(d3.event.target).datum().id;
         node.style("opacity", function(o) {
           return neigh(index, o.id) ? 1 : 0.1;

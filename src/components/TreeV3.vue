@@ -80,7 +80,6 @@ export default {
     },
     distance_nodes() {
       var self = this
-      console.log("changing distance")
       this.graphLayout.force("collide", d3.forceCollide(self.distance_nodes))
         .force("link", d3.forceLink(this.graph.links).id(function(d) {
           return d.id;
@@ -109,41 +108,9 @@ export default {
 
     },
     adjlist() {
-      console.log("adjlist refreshed");
     },
-    node_charge() {
-      console.log("force changed")
-      this.graphLayout.alpha(0.03).restart()
-    },
-    distance_nodes() {
-      console.log("distance changed")
-      this.graphLayout.alpha(0.03).restart()
-    }
   },
   methods: {
-    computeThales(target_coord, source_coord, quote) {
-      var vector = [target_coord[0] - source_coord[0], target_coord[1] - source_coord[1]]
-      var d = Math.pow(Math.pow(vector[0], 2) + Math.pow(vector[1], 2), 1 / 2)
-      return {
-        d: d,
-        vector: vector
-      }
-    },
-    computeArrowX(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[0] - ((this.computeRadius(quotes) + 5) * res.vector[0] / res.d)
-    },
-    computeArrowY(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[1] - ((this.computeRadius(quotes) + 5) * res.vector[1] / res.d)
-    },
-    correctPos(pos) {
-      if (pos < 0 || !isFinite(pos)) {
-        return 800
-      } else {
-        return pos
-      }
-    },
     copyNestedObject(obj) {
       var self = this;
       var ret
@@ -195,25 +162,17 @@ export default {
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
       this.graph = this.copyNestedObject(this.graph_original)
-      var graph = this.graph
-      console.log("the graph is : ", graph);
-      var label = {
-        'nodes': [],
-        'links': []
-      };
+      console.log("the graph is : ", this.graph);
 
-      let links = [...graph.links]
-      let nodes = [...graph.nodes]
-      var graphLayout = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(self.node_charge))
+      this.graphLayout = d3.forceSimulation(self.graph.nodes)
+      .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collide", d3.forceCollide().radius(d => d.r * -100))
-        .force("link", d3.forceLink(links).id(d => d.id)
+        .force("link", d3.forceLink(self.graph.links).id(d => d.id)
           .distance(self.distance_nodes).strength(1))
         .on("tick", ticked);
 
-      this.graphLayout = graphLayout
-
+      this.graphLayout.alphaDecay(0.001)
 
       function neigh(a, b) {
         return a == b || self.adjlist[a + "-" + b];
@@ -233,7 +192,7 @@ export default {
 
       var pseudo_node = d3.select("#g_nodes")
         .selectAll("g")
-        .data(graph.nodes)
+        .data(self.graph.nodes)
         .enter()
 
       var node = pseudo_node
@@ -249,7 +208,7 @@ export default {
 
       var link = d3.select("#g_links")
         .selectAll("line")
-        .data(graph.links)
+        .data(self.graph.links)
         .enter()
         .append("line")
         .attr("class", "link")
@@ -261,16 +220,12 @@ export default {
         .attr("class", "text_circle")
         .attr("text-anchor", "middle")
         .text(function(d, i) {
-          return d.title + "\n" + d.group
+          return d.title.slice(0,Math.min(d.title.length, self.computeRadius(d.citations.length)/2))
         })
-        .style("fill", function(d) {
-          return color(d.group);
-        })
-        .style("white-space", "nowrap")
-        .style("overflow", "hidden")
-        .style("font-family", "Arial")
-        .style("font-size", '5px')
-        .style("pointer-events", "none"); // to prevent mouseover/drag capture
+        .attr('id',function(d) { return 'title_'+d.id})
+        .attr("lengthAdjust","spacingAndGlyphs")
+        .attr("textLength",function (d) {4*self.computeRadius(d.citations.length)})
+        .attr("fill", function(d) { return d.favorite ? self.greenColor : self.mainColor })
 
       node.call(
         d3.drag()
@@ -290,9 +245,9 @@ export default {
         circle_text.call(updateCircleText)
         node.call(updateNode);
         link.call(updateLink);
-        graphLayout.nodes(self.graph.nodes)
-        graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-          .force("link", d3.forceLink(graph.links).id(function(d) {
+        self.graphLayout.nodes(self.graph.nodes)
+        self.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
+          .force("link", d3.forceLink(self.graph.links).id(function(d) {
             return d.id;
           }).distance(self.distance_nodes).strength(1))
         self.current_x -= 10
@@ -319,6 +274,11 @@ export default {
       }
 
       function updateLink(link) {
+        self.graph.links.forEach((link, i) => {
+          Vue.set(self.graph.links, i, Object.assign({}, link))
+          Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
+          Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
+        })
         link.attr("x1", function(d) {
             return fixna(d.source.x);
           })
@@ -335,19 +295,19 @@ export default {
 
       function updateNode(node) {
         node.attr("transform", function(d) {
-          return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+          return "translate(" + (d.x) + "," + (d.y) + ")";
         });
       }
 
       function updateCircleText(circle_text) {
         circle_text.attr("transform", function(d) {
-          return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+          return "translate(" + (d.x) + "," + (d.y) + ")";
         });
       }
 
       function dragstarted(d) {
         d3.event.sourceEvent.stopPropagation();
-        if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+        if (!d3.event.active) self.graphLayout.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
       }
@@ -358,7 +318,7 @@ export default {
       }
 
       function dragended(d) {
-        if (!d3.event.active) graphLayout.alphaTarget(0);
+        if (!d3.event.active) self.graphLayout.alphaTarget(0);
         d.fx = null;
         d.fy = null;
       }

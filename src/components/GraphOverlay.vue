@@ -4,11 +4,11 @@
                   @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v2 v-if="draw && graph !== null"
+  <tree-v3 v-if="draw && graph !== null"
            :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
            :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)"
            @hover_node="setHoveredNode">
-  </tree-v2>
+  </tree-v3>
 
   <!-- <tree-d3 :socket="socket" :nodes="nodes"
            @hover_node="setHoveredNode">

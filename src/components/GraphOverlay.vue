@@ -4,11 +4,15 @@
                   @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v2 v-if="draw"
+  <tree-v2 v-if="draw && graph !== null"
            :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
            :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)"
            @hover_node="setHoveredNode">
   </tree-v2>
+
+  <!-- <tree-d3 :socket="socket" :nodes="nodes"
+           @hover_node="setHoveredNode">
+  </tree-d3> -->
 
   <div class="custom-container">
     <b-row align-h="end">
@@ -39,11 +43,13 @@
 import DisplaySettings from './DisplaySettings.vue'
 import CustomTooltip from './CustomTooltip.vue'
 import TreeV2 from './TreeV2.vue'
+import TreeV3 from './TreeV3.vue'
 import Vue from 'vue'
 export default {
   name: 'graph-overlay',
   components: {
     TreeV2,
+    TreeV3,
     CustomTooltip,
     DisplaySettings
   },
@@ -59,17 +65,14 @@ export default {
       total_nodes: [],
       total_links: [],
       adjlist: {},
-      graph: {
-        nodes: [],
-        links: []
-      },
+      graph: null,
       hovered_node: null,
       disp_titles: true,
       node_charge: -6000,
       distance_nodes: 100,
       key_words: [],
       dates_filter: null,
-      cdpScore_threshold: 5,
+      cdpScore_threshold: 0,
       favorites_only: false,
       hovered_node_location: {
         F: -25,
@@ -305,8 +308,7 @@ export default {
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
 
-      Vue.set(self.graph, 'nodes', nodes)
-      Vue.set(self.graph, 'links', links)
+      Vue.set(this,'graph', {nodes: nodes, links : links})
     },
     setCharge(charge) {
       this.node_charge = charge;

@@ -2,27 +2,22 @@
 <svg id='viz' :style="{height:'100vh',width:'100vw'}">
   <g id='container'>
     <g class="links" id="g_links">
+
       <template v-if="graph !== null">
-        <linearGradient :id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+        <linearGradient :id="'gradient_'+link.index" :x1="link.source.x" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
           <stop stop-color="white" offset="0" />
           <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
         </linearGradient>
-        <line :stroke="'url(#gradient_'+link.index+')'" stroke-width="1.5px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
-        </line>
-        <!-- <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="mainColor" stroke-width="1px" :stroke="mainColor" r="5"
-          :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
-          v-for="link in graph.links"></circle> -->
       </template>
     </g>
     <g class="nodes" id="g_nodes">
-      <template v-if="graph !== null">
+      <!-- <template v-if="graph !== null">
         <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? greenColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
                 :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
         </circle>
         <text v-if="disp_titles" :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="node.favorite ? greenColor : mainColor" :x="node.x - 2*computeRadius(node.citations.length)"
               :y="node.y+computeRadius(node.citations.length)+25" v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
-        <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
-      </template>
+      </template> -->
     </g>
   </g>
 </svg>
@@ -33,7 +28,7 @@ import * as d3 from 'd3'
 import Vue from 'vue'
 
 export default {
-  name: "tree-v2",
+  name: "tree-v3",
   props: {
     cdpScore_threshold: {
       type: Number,
@@ -94,9 +89,15 @@ export default {
     graph_original() {
       var self = this;
       console.log("graph original changed");
-      this.graph = this.copyNestedObject(this.graph_original)
-      this.graphLayout.nodes(self.graph.nodes)
-      this.graphLayout.alpha(0.3).restart()
+      // this.graph.nodes = this.copyNestedObject(this.graph_original.nodes)
+      // this.graph.links = this.copyNestedObject(this.graph_original.links)
+      // this.graphLayout.nodes(self.graph.nodes)
+      //   .force("charge", d3.forceManyBody().strength(self.node_charge))
+      //   .force("center", d3.forceCenter(width / 2, height / 2))
+      //   .force("collide", d3.forceCollide().radius(d => d.r * -100))
+      //   .force("link", d3.forceLink(self.graph.links).id(d => d.id)
+      //     .distance(self.distance_nodes).strength(1))
+      // this.graphLayout.alpha(0.3).restart()
       // this.graph.links.forEach((link, i) => {
       //   Vue.set(self.graph.links, i, Object.assign({}, link))
       //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
@@ -111,9 +112,11 @@ export default {
       console.log("adjlist refreshed");
     },
     node_charge() {
+      console.log("force changed")
       this.graphLayout.alpha(0.03).restart()
     },
     distance_nodes() {
+      console.log("distance changed")
       this.graphLayout.alpha(0.03).restart()
     }
   },
@@ -181,71 +184,44 @@ export default {
           break;
       }
     },
-    ticked() {
-      var self = this;
-      console.log("tick")
-      function dragstarted(d) {
-        d3.event.sourceEvent.stopPropagation();
-        self.graphLayout.alpha(0.03).restart()
-      }
-
-      function dragged(d) {
-        self.graph.nodes.find(node => node.id == d.id).fx = d3.event.x
-        self.graph.nodes.find(node => node.id == d.id).fy = d3.event.y
-      }
-
-      function dragended(d) {
-        self.graph.nodes.find(node => node.id == d.id).fx = null
-        self.graph.nodes.find(node => node.id == d.id).fy = null
-      }
-
-      var node = d3.selectAll(".circle").data(this.graph.nodes).call(
-        d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-      );
-    },
     init() {
       if (this.drawn) {
         return;
       }
-      this.graph = this.copyNestedObject(this.graph_original)
       this.drawn = true;
       var self = this;
       var svg = d3.select("svg"),
         width = 1920,
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
-
+      this.graph = this.copyNestedObject(this.graph_original)
+      var graph = this.graph
+      console.log("the graph is : ", graph);
       var label = {
         'nodes': [],
         'links': []
       };
 
-      var graph = this.graph
-      this.graphLayout = d3.forceSimulation(graph.nodes)
+      let links = [...graph.links]
+      let nodes = [...graph.nodes]
+      var graphLayout = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("x", d3.forceX(width / 2).strength(1))
-        .force("y", d3.forceY(height / 2).strength(1))
-        .force("collide", d3.forceCollide(self.distance_nodes))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("link", d3.forceLink(graph.links).id(d => d.id).distance(self.distance_nodes).strength(1))
-        .on("tick", self.ticked)
-        .alpha(0.03)
-        .alphaDecay(0.002)
+        .force("collide", d3.forceCollide().radius(d => d.r * -100))
+        .force("link", d3.forceLink(links).id(d => d.id)
+          .distance(self.distance_nodes).strength(1))
+        .on("tick", ticked);
 
-      var svg = d3.select("#viz");
+      this.graphLayout = graphLayout
+
+
+      function neigh(a, b) {
+        return a == b || self.adjlist[a + "-" + b];
+      }
+
+
+      var svg = d3.select("#viz").attr("width", width).attr("height", height);
       var container = d3.select("#container");
-
-      this.graph.links.forEach((link, i) => {
-        Vue.set(self.graph.links, i, Object.assign({}, link))
-        Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
-        Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
-      })
-      this.graph.nodes.forEach((node, i) => {
-        Vue.set(self.graph.nodes, i, Object.assign({}, node))
-      })
 
       svg.call(
         d3.zoom()
@@ -254,54 +230,144 @@ export default {
           container.attr("transform", d3.event.transform);
         })
       );
-    },
-    fixna(x) {
-      if (isFinite(x)) return x;
-      return 600;
+
+      var pseudo_node = d3.select("#g_nodes")
+        .selectAll("g")
+        .data(graph.nodes)
+        .enter()
+
+      var node = pseudo_node
+        .append("circle")
+        .attr("class", "node")
+        .attr("r", (d) => {
+          return self.computeRadius(d.citations.length)
+        })
+        .attr("fill", "white")
+        .attr("stroke", function(d) {
+          return self.mainColor;
+        })
+
+      var link = d3.select("#g_links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter()
+        .append("line")
+        .attr("class", "link")
+        .attr("stroke", (d)=> {return "url(#gradient_"+d.index+")"})
+        .attr("stroke-width", "1px")
+
+      var circle_text = pseudo_node
+        .append("text")
+        .attr("class", "text_circle")
+        .attr("text-anchor", "middle")
+        .text(function(d, i) {
+          return d.title + "\n" + d.group
+        })
+        .style("fill", function(d) {
+          return color(d.group);
+        })
+        .style("white-space", "nowrap")
+        .style("overflow", "hidden")
+        .style("font-family", "Arial")
+        .style("font-size", '5px')
+        .style("pointer-events", "none"); // to prevent mouseover/drag capture
+
+      node.call(
+        d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+      );
+
+      node.on("mouseover", (node) => {
+        focus(node);
+        self.hover_node = true;
+        self.hovered_node = node;
+      }).on("mouseout", unfocus);
+
+      function ticked() {
+        console.log("ticked")
+        circle_text.call(updateCircleText)
+        node.call(updateNode);
+        link.call(updateLink);
+        graphLayout.nodes(self.graph.nodes)
+        graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
+          .force("link", d3.forceLink(graph.links).id(function(d) {
+            return d.id;
+          }).distance(self.distance_nodes).strength(1))
+        self.current_x -= 10
+      }
+
+      function fixna(x) {
+        if (isFinite(x)) return x;
+        return 0;
+      }
+
+      function focus(d) {
+        var index = d3.select(d3.event.target).datum().id;
+        node.style("opacity", function(o) {
+          return neigh(index, o.id) ? 1 : 0.1;
+        });
+        link.style("opacity", function(o) {
+          return o.source.id == index || o.target.id == index ? 1 : 0.1;
+        });
+      }
+
+      function unfocus() {
+        node.style("opacity", 1);
+        link.style("opacity", 1);
+      }
+
+      function updateLink(link) {
+        link.attr("x1", function(d) {
+            return fixna(d.source.x);
+          })
+          .attr("y1", function(d) {
+            return fixna(d.source.y);
+          })
+          .attr("x2", function(d) {
+            return fixna(d.target.x);
+          })
+          .attr("y2", function(d) {
+            return fixna(d.target.y);
+          });
+      }
+
+      function updateNode(node) {
+        node.attr("transform", function(d) {
+          return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+        });
+      }
+
+      function updateCircleText(circle_text) {
+        circle_text.attr("transform", function(d) {
+          return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+        });
+      }
+
+      function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) graphLayout.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
     },
     computeRadius(quotes) {
       if (quotes == 0) {
         return 20;
       }
       return 20 + 5 * Math.pow(quotes, 1 / 3)
-    },
-    neigh(a, b) {
-      return a == b || this.adjlist[a + "-" + b];
-    },
-    focus(d) {
-      this.$emit("hover_node", d)
-      this.current_node = d
-      var self = this
-      var node = d3.selectAll(".circle").data(self.graph.nodes)
-      var link = d3.selectAll("line").data(self.graph.links)
-      var labels = d3.selectAll("text").data(self.graph.nodes)
-      var pointer = d3.selectAll(".pointer").data(self.graph.links)
-      var index = d.id;
-
-      node.style("opacity", function(o) {
-        return self.neigh(index, o.id) ? 1 : 0.1;
-      });
-      labels.style("opacity", function(o) {
-        return self.neigh(index, o.id) ? 1 : 0.1;
-      });
-      link.style("opacity", function(o) {
-        return o.source.id == index || o.target.id == index ? 1 : 0.1;
-      });
-      pointer.style("opacity", function(o) {
-        return o.source.id == index || o.target.id == index ? 1 : 0.0;
-      });
-    },
-    unfocus() {
-      this.current_node = null
-      var self = this;
-      var node = d3.selectAll(".circle")
-      var link = d3.selectAll("line")
-      var labels = d3.selectAll("text")
-      var pointer = d3.selectAll(".pointer")
-      node.style("opacity", 1);
-      link.style("opacity", 1);
-      labels.style("opacity", 1);
-      pointer.style("opacity", 1);
     },
   }
 }

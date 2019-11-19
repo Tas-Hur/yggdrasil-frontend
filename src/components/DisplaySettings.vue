@@ -20,9 +20,6 @@
                      :color="mainColor"
                      @change="$emit('disp_titles', disp_titles)" />
       <br />
-      <!-- <b-button @click="addCircle">
-        Add Node
-      </b-button> -->
     </b-col>
   </div>
 
@@ -52,9 +49,6 @@
                      :color="mainColor"
                      @change="$emit('favorites', favorites)" />
       <br />
-      <!-- <b-button @click="addCircle">
-        Add Node
-      </b-button> -->
     </b-col>
   </div>
 
@@ -77,9 +71,6 @@
           {{n.title}}
         </li>
       </ul>
-      <!-- <b-button @click="addCircle">
-        Add Node
-      </b-button> -->
     </b-col>
   </div>
 

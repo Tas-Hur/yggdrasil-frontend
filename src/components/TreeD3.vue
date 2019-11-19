@@ -29,9 +29,6 @@
         <br />
         Distance : <input @change="refresh" type="range" min="0" max="1000" v-model="distance_nodes" class="slider" />{{distance_nodes}}
       </b-col>
-      <template v-if="graphLayout !== null">
-        "{{graphLayout.force('link')}}
-      </template>
     </b-row>
   </div>
 </div>
@@ -94,7 +91,7 @@ export default {
       greenColor: "#41b883",
       nodeDiameter: 200,
       current_node: null,
-      cdpScore_threshold: 5,
+      cdpScore_threshold: 0,
       eventual_links: [],
       eventual_nodes: [],
     }
@@ -418,12 +415,12 @@ export default {
         .style("font-size", '5px')
         .style("pointer-events", "none"); // to prevent mouseover/drag capture
 
-      // node.call(
-      //   d3.drag()
-      //   .on("start", dragstarted)
-      //   .on("drag", dragged)
-      //   .on("end", dragended)
-      // );
+      node.call(
+        d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+      );
 
       // var labelNode = container.append("g").attr("class", "labelNodes")
       //   .selectAll("text")

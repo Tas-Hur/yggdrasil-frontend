@@ -3,11 +3,11 @@
   <g id='container'>
     <g class="links" id="g_links">
       <template v-if="graph !== null">
-        <linearGradient :id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+        <linearGradient v-if="gradient_links":id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
           <stop stop-color="white" offset="0" />
           <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
         </linearGradient>
-        <line :stroke="'url(#gradient_'+link.index+')'" stroke-width="1.5px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
+        <line :stroke="gradient_links ? 'url(#gradient_'+link.index+')' : mainColor" stroke-width="1.5px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
         </line>
         <!-- <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="mainColor" stroke-width="1px" :stroke="mainColor" r="5"
           :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
@@ -50,6 +50,7 @@ export default {
     graph_original: Object,
     adjlist: Object,
     disp_titles: Boolean,
+    gradient_links: Boolean,
   },
   components: {
 

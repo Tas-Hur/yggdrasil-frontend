@@ -5,11 +5,23 @@
   </custom-tooltip>
 
   <tree-v2 v-if="draw"
-           :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="false"
+           :node_charge="parseInt(node_charge)"
+           :cdpScore_threshold="parseInt(cdpScore_threshold)"
+           :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
+           :adjlist="adjlist" :graph_original="graph"
            @hover_node="setHoveredNode">
   </tree-v2>
 
+
+  <div class="full-container">
+    <b-row align-h="center">
+      <b-col cols="auto">
+        <template v-if="graph !== null">
+          Le graph comporte <span class="imp_text">{{graph.nodes.length}}</span> noeuds et <span class="imp_text">{{graph.links.length}}</span> liens
+        </template>
+      </b-col>
+    </b-row>
+  </div>
   <div class="custom-container">
     <b-row align-h="end">
       <!-- <b-col cols="8">
@@ -22,8 +34,11 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
+
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
-                          @dates="setDates" @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
+                          @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
+                          @dates="setDates" @key_words="setKeyWords"
+                          @cdp="setCdp" @favorites="setFavorites">
         </display-settings>
       </b-col>
     </b-row>
@@ -64,6 +79,7 @@ export default {
       },
       hovered_node: null,
       disp_titles: true,
+      gradient_links: true,
       node_charge: -6000,
       distance_nodes: 100,
       key_words: [],
@@ -341,6 +357,10 @@ export default {
         end: dates[1]
       }
       this.updateNodes()
+    },
+    setGradientLinks(gradient_links) {
+      console.log("NOT GRADIENT")
+      this.gradient_links = gradient_links;
     }
   },
   mounted() {
@@ -363,16 +383,27 @@ export default {
 </script>
 
 <style scoped>
-  .custom-container {
-    position: fixed;
-    z-index: 500;
-    right: 50px;
-    top: 50px;
-    width: auto;
-  }
 
-  #infoBoxHolder {
-    z-index: 300;
-    position: fixed;
-  }
+.imp_text{
+  color:var(--green-color);
+}
+
+.full-container {
+  position: fixed;
+  z-index: 100;
+  top: 50px;
+  width: 100vw;
+}
+.custom-container {
+  position: fixed;
+  z-index: 500;
+  right: 50px;
+  top: 50px;
+  width: auto;
+}
+
+#infoBoxHolder {
+  z-index: 300;
+  position: fixed;
+}
 </style>

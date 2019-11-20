@@ -20,6 +20,12 @@
                      :color="mainColor"
                      @change="$emit('disp_titles', disp_titles)" />
       <br />
+      Activer les dégradés pour les liens :
+      <br />
+      <toggle-button v-model="gradient_links"
+                     :color="mainColor"
+                     @change="$emit('gradient_links', gradient_links)" />
+      <br />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -113,6 +119,7 @@ export default {
       dates_buffer: [],
       favorites: false,
       disp_titles: true,
+      gradient_links: true,
     }
   },
   computed: {
@@ -196,7 +203,7 @@ export default {
 
 
 .sliders.display:hover {
-  max-height: 12em;
+  max-height: 17em;
 }
 
 .sliders.filters:hover {
@@ -206,7 +213,7 @@ export default {
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 260px;
-  max-height: 15em;
+  max-height: 17em;
   transition: all ease-in-out .2s;
 }
 

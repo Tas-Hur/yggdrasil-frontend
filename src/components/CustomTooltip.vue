@@ -3,27 +3,40 @@
     <!-- <div class="arrow-tooltip" :style="arrowStyle">
     </div> -->
     <div id="infoBox" :style="sizingStyle">
-      <b>
+      <h5>
+        <font-awesome-icon @click="setFavorite" class="svg_icon star" :style="star_style" icon="star"/>
         {{node.title}}
-      </b>
+      </h5>
+        <font-awesome-icon @click="trashNode" class="svg_icon star" :color="redColor" icon="trash"/>
+        supprimer ce noeud du graph
       <br  />
       <span class="full_text">
-        Abstract :
+        <b>
+          Abstract :
+        </b>
         {{node.abstract}}
       </span>
       <br  />
-      Year :
+      <b>
+        Year :
+      </b>
       {{node.year}}
       <br  />
-      Cited by :
+      <b>
+        Cited by :
+      </b>
       <template v-if="'citations' in node">
         {{node.citations.length}}
       </template>
       <br  />
-      CdP Score :
+      <b>
+        CdP Score :
+      </b>
       {{node.cdpScore}}
       <br  />
-      Appeared in :
+      <b>
+        Appeared in :
+      </b>
       <template v-if="node.venue !== ''">
         {{node.venue}}
       </template>
@@ -31,8 +44,12 @@
         N/A
       </template>
       <br  />
-      URL:
-      <a :href="node.url">{{node.url}}</a>
+      <p class="url">
+        <b>
+          URL :
+        </b>
+        <a :href="node.url">{{node.url}}</a>
+      </p>
     </div>
   </div>
 </template>
@@ -57,10 +74,15 @@ export default{
   },
   data(){
     return{
-      total_width:0
+      total_width:0,
     }
   },
   computed:{
+    star_style(){
+      let style = {}
+      this.node.favorite ? style={color:this.greenColor} : style={opacity:0.2}
+      return style
+    },
     arrowStyle(){
       if( this.position.F+this.node_settings.diameter/2 > this.total_width/2){
         return{
@@ -93,10 +115,23 @@ export default{
       }
     }
   },
+  methods:{
+    trashNode(){
+      this.$emit('trash')
+    },
+    setFavorite(){
+      this.$emit('favorite', !this.node.favorite)
+    }
+  },
   mounted(){
     var self=this;
     this.total_width = window.innerWidth
     window.addEventListener('resize', ()=>{this.total_width=window.innerWidth});
+  },
+  watch:{
+    node(){
+      console.log("node refreshed");
+    }
   }
 }
 </script>
@@ -127,7 +162,8 @@ export default{
   overflow: hidden;
   text-overflow: ellipsis;
   font-size:90%;
-  box-shadow: 0 0 10px 1px rgba(10,10,10,0.1);
+  /* box-shadow: 0 0 10px 1px rgba(10,10,10,0.1); */
+  overflow-y:scroll;
 }
 /* this is known as the "clearfix" hack to allow
 floated objects to add to the height of a div */
@@ -138,6 +174,14 @@ floated objects to add to the height of a div */
   content: " ";
   clear: both;
   height: 0;
+}
+
+.url{
+  text-align: left;
+}
+
+.svg_icon.star{
+  cursor:pointer;
 }
 
 .full_text{

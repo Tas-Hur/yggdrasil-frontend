@@ -1,11 +1,14 @@
 <template>
 <div>
-  <custom-tooltip v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" id="infoBoxHolder" :node="this.hovered_node">
+  <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
+                  @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v2 @hover_node="setHoveredNode" v-if="draw" :node_charge="parseInt(node_charge)" :cdpScore_threshold="parseInt(cdpScore_threshold)" :distance_nodes="parseInt(distance_nodes)" :adjlist="adjlist" :graph_original="graph">
+  <tree-v2 v-if="draw"
+           :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
+           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)"
+           @hover_node="setHoveredNode">
   </tree-v2>
-
 
   <div class="custom-container">
     <b-row align-h="end">
@@ -19,10 +22,16 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-        <display-settings @charge="setCharge" @cdp="setCdp"></display-settings>
+        <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
+                          @dates="setDates" @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
+        </display-settings>
       </b-col>
     </b-row>
   </div>
+
+  <b-modal id="delete-modal" hide-header>
+    Êtes vous sûrs de vouloir supprimer ce noeud ? Il sera déplacé dans la corbeille et pourra être restauré à tout moment.
+  </b-modal>
 </div>
 </template>
 
@@ -44,12 +53,24 @@ export default {
   },
   data() {
     return {
+      trash: [],
+      favorites: [],
       draw: false,
       total_nodes: [],
       total_links: [],
-      graph: null,
-      total_links_2: [],
       adjlist: {},
+      graph: {
+        nodes: [],
+        links: []
+      },
+      hovered_node: null,
+      disp_titles: true,
+      node_charge: -6000,
+      distance_nodes: 100,
+      key_words: [],
+      dates_filter: null,
+      cdpScore_threshold: 5,
+      favorites_only: false,
       hovered_node_location: {
         F: -25,
         G: 100
@@ -57,15 +78,6 @@ export default {
       node_settings: {
         diameter: 20
       },
-      hovered_node: null,
-      graph: {
-        nodes: [],
-        links: []
-      },
-      total_width: 0,
-      node_charge: -6000,
-      distance_nodes: 100,
-      cdpScore_threshold: 5
     }
   },
   computed: {
@@ -74,14 +86,74 @@ export default {
         return link.source.constructor === String && link.target.constructor === String
       }).length
     },
+    dates_extrem() {
+      var dates = this.total_nodes.map(n => parseInt(n.year)).filter(date => !isNaN(date))
+      return {
+        start: Math.min(...dates),
+        end: Math.max(...dates)
+      }
+    },
+    dates_filter_array() {
+      var ret
+      if (this.dates_filter === null) {
+        ret = [this.dates_extrem.start, this.dates_extrem.end]
+      } else {
+        ret = [this.dates_filter.start, this.dates_filter.end]
+      }
+      return ret
+    }
   },
   methods: {
-    setHoveredNode(d) {
-      console.log(d);
-      this.hovered_node = d;
+    deleteNode() {
+      var self = this
+      this.$bvModal.msgBoxConfirm('Êtes vous sûrs de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'Supprmier',
+          cancelTitle: 'Annuler',
+          footerClass: 'p-2',
+          hideHeader: true,
+          centered: true
+        })
+        .then(value => {
+          if (value) {
+            console.log("delete")
+
+            self.trash.push(self.copyNestedObject(self.hovered_node))
+            console.log(self.total_nodes)
+            let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+            self.total_nodes.splice(index, 1)
+            console.log("post thing", self.total_nodes)
+            index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+            self.updateNodes();
+            self.hovered_node = null
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          // An error occurred
+        })
+    },
+    setFavorite(bool) {
+      var self = this;
+      if (bool) {
+        this.favorites.push(this.hovered_node)
+      } else {
+        let i = this.favorites.findIndex(n => this.hovered_node.id == n.id)
+        this.favorites.splice(i, 1)
+      }
+      this.hovered_node.favorite = bool;
+
+      this.hovered_node = Object.assign({}, this.hovered_node)
+      let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.total_nodes[index].favorite = bool;
+      index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.graph.nodes[index].favorite = bool
     },
     copyNestedObject(obj) {
       var self = this;
+      var ret
       switch (obj) {
         case null:
           return null;
@@ -103,18 +175,23 @@ export default {
           return obj;
           break;
         case Array:
-          return obj.map(cell => self.copyNestedObject(cell))
+          ret = []
+          for (let i = 0; i < obj.length; i++) {
+            ret.push(self.copyNestedObject(obj[i]))
+          }
+          return ret
           break;
         case Object:
-          Object.keys(obj).map(key => {
-            obj[key] = self.copyNestedObject(obj[key])
-          })
-          return obj
+          ret = {}
+          var keys = Object.keys(obj)
+          for (let i = 0; i < keys.length; i++) {
+            ret[keys[i]] = self.copyNestedObject(obj[keys[i]])
+          }
+          return ret
           break;
       }
     },
     slowAddNode(delay) {
-      console.log("Adding ", this.cursor)
       var self = this;
       if (this.cursor == 100) {
         this.init();
@@ -131,6 +208,9 @@ export default {
     search() {
       this.$emit('search')
     },
+    setHoveredNode(d) {
+      this.hovered_node = d;
+    },
     addNode(node) {
       var self = this
       node.id = node.paperId
@@ -142,14 +222,8 @@ export default {
             target: node.paperId,
             value: 1
           }
-          let link_2 = {
-            source: ref.paperId,
-            target: node.paperId,
-            value: 1
-          }
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
-            self.total_links_2.push(link_2)
           }
         }
       })
@@ -160,14 +234,8 @@ export default {
             target: cit.paperId,
             value: 1
           }
-          let link_2 = {
-            source: node.paperId,
-            target: cit.paperId,
-            value: 1
-          }
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
-            self.total_links_2.push(link_2)
           }
         }
       })
@@ -179,16 +247,44 @@ export default {
     },
     computeEventual_nodes() {
       var self = this
-      var nodes = this.total_nodes.filter(node => node.cdpScore >= this.cdpScore_threshold)
+      var nodes = this.total_nodes.filter(node => {
+        var filt = true
+        var kw = true
+        var dates = true
+
+        if (this.favorites_only && !node.favorite) {
+          filt = false
+        }
+
+        if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
+          console.log(node.year)
+          console.log(self.dates_filter)
+          console.log("Dates are fitlersd")
+          dates = false
+        }
+
+        if (this.key_words.length > 0) {
+          kw = false
+          for (let i = 0; i < this.key_words.length; i++) {
+            if (node.title.toUpperCase().includes(this.key_words[i].toUpperCase())) {
+              kw = true;
+              break;
+            }
+          }
+        }
+        return dates && kw && filt && node.cdpScore >= this.cdpScore_threshold
+      })
       return nodes
     },
     computeEventual_links(nodes) {
       var self = this;
+
       var links = this.copyNestedObject(self.total_links).filter(link => nodes.map(node => node.paperId).includes(link.source) && nodes.map(node => node.paperId).includes(link.target))
       for (let i = 0; i < links.length; i++) {
         self.adjlist[links[i].source + "-" + links[i].target] = true;
         self.adjlist[links[i].target + "-" + links[i].source] = true;
       }
+      Vue.set(self, 'adjlist', self.adjlist);
       return links
     },
     addCircle() {
@@ -204,25 +300,47 @@ export default {
     updateNodes() {
       console.log("Update nodes")
       var self = this
-      this.total_links_2.forEach((link, i) => {
-        this.total_links[i] = Object.assign({}, link)
-      })
       var nodes = [...this.computeEventual_nodes()]
       console.log("Updated nodes")
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
+
       Vue.set(self.graph, 'nodes', nodes)
       Vue.set(self.graph, 'links', links)
-      // this.graph = {
-      //   nodes: nodes,
-      //   links: links
-      // }
     },
     setCharge(charge) {
       this.node_charge = charge;
     },
     setCdp(cdp) {
       this.cdpScore_threshold = cdp;
+      this.updateNodes()
+    },
+    setDistance(distance) {
+      this.distance_nodes = distance;
+    },
+    setFavorites(fav) {
+      console.log("Je veux set les favoris : ", fav)
+      this.favorites_only = fav
+      this.updateNodes();
+    },
+    setDispTitles(disp_titles) {
+      this.disp_titles = disp_titles
+    },
+    setKeyWords(str) {
+      console.log("the" + str + "string")
+      if (str === "") {
+        this.key_words = [];
+      } else {
+        this.key_words = [...str.split(" ")]
+      }
+      console.log(this.key_words)
+      this.updateNodes();
+    },
+    setDates(dates) {
+      this.dates_filter = {
+        start: dates[0],
+        end: dates[1]
+      }
       this.updateNodes()
     }
   },

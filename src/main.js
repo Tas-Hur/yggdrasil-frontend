@@ -7,6 +7,7 @@ import {
   FontAwesomeIcon
 } from '@fortawesome/vue-fontawesome'
 import VueMultiselect from 'vue-multiselect'
+import ToggleButton from 'vue-js-toggle-button'
 import GoJs from 'gojs'
 import io from 'socket.io-client'
 
@@ -17,20 +18,31 @@ import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faSearch,
   faCog,
-  faFilter
+  faFilter,
+  faStar,
+  faBriefcase,
+  faTrash
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '../public/main.css'
 import "vue-multiselect/dist/vue-multiselect.min.css"
-
+Vue.prototype.mainColor= "#2c3e50",
+Vue.prototype.interestColor= '#FDDC17',
+Vue.prototype.lightColor= "rgb(150,150,150)",
+Vue.prototype.redColor= "#ff6a6a",
+Vue.prototype.greenColor= "#41B883",
 
 library.add(faSearch)
 library.add(faCog)
 library.add(faFilter)
+library.add(faStar)
+library.add(faBriefcase)
+library.add(faTrash)
 
 
+Vue.use(ToggleButton)
 Vue.component('vue-multiselect', VueMultiselect)
 Vue.use(VueAxios, axios)
 Vue.prototype.$ = axios

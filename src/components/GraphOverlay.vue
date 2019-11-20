@@ -4,11 +4,11 @@
                   @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v2 v-if="draw"
+  <tree-canvas v-if="draw"
            :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="false"
+           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
            @hover_node="setHoveredNode">
-  </tree-v2>
+  </tree-canvas>
 
   <div class="custom-container">
     <b-row align-h="end">
@@ -39,13 +39,15 @@
 import DisplaySettings from './DisplaySettings.vue'
 import CustomTooltip from './CustomTooltip.vue'
 import TreeV2 from './TreeV2.vue'
+import TreeCanvas from './TreeCanvas.vue'
 import Vue from 'vue'
 export default {
   name: 'graph-overlay',
   components: {
     TreeV2,
     CustomTooltip,
-    DisplaySettings
+    DisplaySettings,
+    TreeCanvas
   },
   props: {
     socket: Object

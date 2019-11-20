@@ -57,7 +57,8 @@ export default {
   },
   mounted() {
     this.graph = this.graph_original
-    setTimeout(this.init, 1000)
+    // setTimeout(this.init, 1000)
+    this.init()
     // this.init();
   },
   data() {

@@ -56,6 +56,9 @@ export default {
   },
   data() {
     return {
+      node:null,
+      link:null,
+      circle_text:null,
       current_node: null,
       center_x: 950,
       center_y: 500,
@@ -88,12 +91,64 @@ export default {
     graph_original() {
       var self = this;
       console.log("graph original changed");
-      this.graph = this.graph_original
-      console.log(self.graph_original.nodes.length)
-      console.log(self.graph.nodes.length)
-      this.graphLayout.nodes(self.graph.nodes)
-        .force("link", d3.forceLink(self.graph.links).id(d => d.id)
-          .distance(self.distance_nodes).strength(1))
+      console.log(this.node)
+      var pseudo_node = d3.select("#g_nodes")
+        .selectAll("g")
+        .data(self.graph.nodes)
+        .enter()
+
+      self.node = pseudo_node
+        .append("circle")
+        .attr("class", "node")
+        .attr("r", (d) => {
+          return self.computeRadius(d.citations.length)
+        })
+        .attr("fill", "white")
+        .attr("stroke", function(d) {
+          return d.favorite ? self.greenColor : self.mainColor;
+        })
+
+      self.link = d3.select("#g_links")
+        .selectAll("line")
+        .data(self.graph.links)
+        .enter()
+        .append("line")
+        .attr("class", "link")
+        .attr("stroke", (d) => {
+          return "url(#gradient_" + d.index + ")"
+        })
+        .attr("stroke-width", "1px")
+
+      self.circle_text = pseudo_node
+        .append("text")
+        .attr("class", "text_circle")
+        .attr("text-anchor", "middle")
+        .text(function(d, i) {
+          return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
+        })
+        .attr('id', function(d) {
+          return 'title_' + d.id
+        })
+        .attr("lengthAdjust", "spacingAndGlyphs")
+        .attr("textLength", function(d) {
+          4 * self.computeRadius(d.citations.length)
+        })
+        .attr("fill", function(d) {
+          return d.favorite ? self.greenColor : self.mainColor
+        })
+
+      // self.node.call(
+      //   d3.drag()
+      //   .on("start", dragstarted)
+      //   .on("drag", dragged)
+      //   .on("end", dragended)
+      // );
+      // this.graph = this.copyNestedObject(self.graph_original)
+      // console.log(self.graph_original.nodes.length)
+      // console.log(self.graph.nodes.length)
+      // this.graphLayout.nodes(self.graph.nodes)
+      //   .force("link", d3.forceLink(self.graph.links).id(d => d.id)
+      //     .distance(self.distance_nodes).strength(1))
       // this.graph.links.forEach((link, i) => {
       //   Vue.set(self.graph.links, i, Object.assign({}, link))
       //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
@@ -191,7 +246,7 @@ export default {
         .data(self.graph.nodes)
         .enter()
 
-      var node = pseudo_node
+      self.node = pseudo_node
         .append("circle")
         .attr("class", "node")
         .attr("r", (d) => {
@@ -202,7 +257,7 @@ export default {
           return d.favorite ? self.greenColor : self.mainColor;
         })
 
-      var link = d3.select("#g_links")
+      self.link = d3.select("#g_links")
         .selectAll("line")
         .data(self.graph.links)
         .enter()
@@ -213,7 +268,7 @@ export default {
         })
         .attr("stroke-width", "1px")
 
-      var circle_text = pseudo_node
+      self.circle_text = pseudo_node
         .append("text")
         .attr("class", "text_circle")
         .attr("text-anchor", "middle")
@@ -231,14 +286,14 @@ export default {
           return d.favorite ? self.greenColor : self.mainColor
         })
 
-      node.call(
+      self.node.call(
         d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended)
       );
 
-      node.on("mouseover", (node) => {
+      self.node.on("mouseover", (node) => {
         focus(node);
         self.hover_node = true;
         self.hovered_node = node;
@@ -246,9 +301,9 @@ export default {
 
       function ticked() {
         // console.log("ticked")
-        circle_text.call(updateCircleText)
-        node.call(updateNode);
-        link.call(updateLink);
+        self.circle_text.call(updateCircleText)
+        self.node.call(updateNode);
+        self.link.call(updateLink);
         self.graphLayout.nodes(self.graph.nodes)
         self.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
           .force("link", d3.forceLink(self.graph.links).id(function(d) {
@@ -265,17 +320,17 @@ export default {
       function focus(d) {
         self.$emit("hover_node", d)
         var index = d3.select(d3.event.target).datum().id;
-        node.style("opacity", function(o) {
+        self.node.style("opacity", function(o) {
           return neigh(index, o.id) ? 1 : 0.1;
         });
-        link.style("opacity", function(o) {
+        self.link.style("opacity", function(o) {
           return o.source.id == index || o.target.id == index ? 1 : 0.1;
         });
       }
 
       function unfocus() {
-        node.style("opacity", 1);
-        link.style("opacity", 1);
+        self.node.style("opacity", 1);
+        self.link.style("opacity", 1);
       }
 
       function updateLink(link) {

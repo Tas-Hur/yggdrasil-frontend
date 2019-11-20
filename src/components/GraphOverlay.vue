@@ -54,7 +54,6 @@ export default {
     DisplaySettings
   },
   props: {
-    nodes: Array,
     socket: Object
   },
   data() {
@@ -366,16 +365,16 @@ export default {
 </script>
 
 <style scoped>
-.custom-container {
-  position: fixed;
-  z-index: 500;
-  right: 50px;
-  top: 50px;
-  width: auto;
-}
+  .custom-container {
+    position: fixed;
+    z-index: 500;
+    right: 50px;
+    top: 50px;
+    width: auto;
+  }
 
-#infoBoxHolder {
-  z-index: 300;
-  position: fixed;
-}
+  #infoBoxHolder {
+    z-index: 300;
+    position: fixed;
+  }
 </style>

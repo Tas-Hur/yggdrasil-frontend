@@ -80,7 +80,7 @@ export default{
         }
       })
       .then(res => {
-        console.log("data ! ",res.data)
+        console.log("success ? ",res.data)
         this.loading=false;
         if('error' in res.data){
           this.$bvToast.toast(`Le papier n'a pas été trouvé`, {
@@ -89,7 +89,7 @@ export default{
           })
           throw "Paper not found";
         }
-        this.$emit("got_papers", {data: res.data, socket: this.socket})
+        this.$emit("got_papers", {socket: this.socket})
       })
       .catch(err => {
         console.log(err)

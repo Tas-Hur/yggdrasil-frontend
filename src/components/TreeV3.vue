@@ -56,9 +56,9 @@ export default {
   },
   data() {
     return {
-      node:null,
-      link:null,
-      circle_text:null,
+      node: null,
+      link: null,
+      circle_text: null,
       current_node: null,
       center_x: 950,
       center_y: 500,
@@ -94,73 +94,11 @@ export default {
       console.log("graph original changed");
       console.log(this.node)
       this.drawn = false;
+
+      this.node.selectAll(".node").data([]).exit().remove()
+      this.link.selectAll(".link").data([]).exit().remove()
+      this.circle_text.selectAll(".text_circle").data([]).exit().remove()
       this.init()
-      // var pseudo_node = d3.select("#g_nodes")
-      //   .selectAll("g")
-      //   .data(self.graph.nodes)
-      //   .enter()
-      //
-      // self.node = pseudo_node
-      //   .append("circle")
-      //   .attr("class", "node")
-      //   .attr("r", (d) => {
-      //     return self.computeRadius(d.citations.length)
-      //   })
-      //   .attr("fill", "white")
-      //   .attr("stroke", function(d) {
-      //     return d.favorite ? self.greenColor : self.mainColor;
-      //   })
-      //
-      // self.link = d3.select("#g_links")
-      //   .selectAll("line")
-      //   .data(self.graph.links)
-      //   .enter()
-      //   .append("line")
-      //   .attr("class", "link")
-      //   .attr("stroke", (d) => {
-      //     return "url(#gradient_" + d.index + ")"
-      //   })
-      //   .attr("stroke-width", "1px")
-      //
-      // self.circle_text = pseudo_node
-      //   .append("text")
-      //   .attr("class", "text_circle")
-      //   .attr("text-anchor", "middle")
-      //   .text(function(d, i) {
-      //     return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
-      //   })
-      //   .attr('id', function(d) {
-      //     return 'title_' + d.id
-      //   })
-      //   .attr("lengthAdjust", "spacingAndGlyphs")
-      //   .attr("textLength", function(d) {
-      //     4 * self.computeRadius(d.citations.length)
-      //   })
-      //   .attr("fill", function(d) {
-      //     return d.favorite ? self.greenColor : self.mainColor
-      //   })
-
-      // self.node.call(
-      //   d3.drag()
-      //   .on("start", dragstarted)
-      //   .on("drag", dragged)
-      //   .on("end", dragended)
-      // );
-      // this.graph = this.copyNestedObject(self.graph_original)
-      // console.log(self.graph_original.nodes.length)
-      // console.log(self.graph.nodes.length)
-      // this.graphLayout.nodes(self.graph.nodes)
-      //   .force("link", d3.forceLink(self.graph.links).id(d => d.id)
-      //     .distance(self.distance_nodes).strength(1))
-      // this.graph.links.forEach((link, i) => {
-      //   Vue.set(self.graph.links, i, Object.assign({}, link))
-      //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
-      //   Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
-      // })
-      // this.graph.nodes.forEach((node, i) => {
-      //   Vue.set(self.graph.nodes, i, Object.assign({}, node))
-      // })
-
     },
     adjlist() {},
   },
@@ -235,7 +173,9 @@ export default {
 
       var svg = d3.select("#viz").attr("width", width).attr("height", height);
       var container = d3.select("#container");
-
+      svg.selectAll('.node').remove()
+      svg.selectAll('.text_circle').remove()
+      svg.selectAll('.link').remove()
       svg.call(
         d3.zoom()
         .scaleExtent([.1, 4])

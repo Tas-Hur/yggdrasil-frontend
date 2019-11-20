@@ -48,7 +48,6 @@ export default {
     DisplaySettings
   },
   props: {
-    nodes: Array,
     socket: Object
   },
   data() {
@@ -191,20 +190,20 @@ export default {
           break;
       }
     },
-    slowAddNode(delay) {
-      var self = this;
-      if (this.cursor == 100) {
-        this.init();
-      }
-      if (this.cursor < this.total_nodes.length) {
-        this.addNode(this.total_nodes[this.cursor])
-      }
-      this.cursor += 1;
-      if (this.cursor < this.nodes_limit) {
-        setTimeout(self.slowAddNode.bind(null, delay), delay)
-      }
-
-    },
+    // slowAddNode(delay) {
+    //   var self = this;
+    //   if (this.cursor == 100) {
+    //     this.init();
+    //   }
+    //   if (this.cursor < this.total_nodes.length) {
+    //     this.addNode(this.total_nodes[this.cursor])
+    //   }
+    //   this.cursor += 1;
+    //   if (this.cursor < this.nodes_limit) {
+    //     setTimeout(self.slowAddNode.bind(null, delay), delay)
+    //   }
+    //
+    // },
     search() {
       this.$emit('search')
     },
@@ -352,9 +351,6 @@ export default {
     }, 3000)
     var self = this;
     console.log("Launching stuff")
-    this.nodes.forEach(node => {
-      this.addNode(node);
-    })
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
     })

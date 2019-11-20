@@ -1,14 +1,14 @@
 <template>
 <svg id='viz' :style="{height:'100vh',width:'100vw'}">
+  <template v-if="graph !== null">
+    <linearGradient :id="'gradient_'+link.index" :x1="link.source.x" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" offset="0" />
+      <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
+    </linearGradient>
+  </template>
   <g id='container'>
     <g class="links" id="g_links">
 
-      <template v-if="graph !== null">
-        <linearGradient :id="'gradient_'+link.index" :x1="link.source.x" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
-          <stop stop-color="white" offset="0" />
-          <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
-        </linearGradient>
-      </template>
     </g>
     <g class="nodes" id="g_nodes">
       <!-- <template v-if="graph !== null">
@@ -80,6 +80,7 @@ export default {
       console.log("changing force")
       var self = this
       this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
+      this.graphLayout.alpha(0.3).restart()
     },
     distance_nodes() {
       var self = this
@@ -92,50 +93,52 @@ export default {
       var self = this;
       console.log("graph original changed");
       console.log(this.node)
-      var pseudo_node = d3.select("#g_nodes")
-        .selectAll("g")
-        .data(self.graph.nodes)
-        .enter()
-
-      self.node = pseudo_node
-        .append("circle")
-        .attr("class", "node")
-        .attr("r", (d) => {
-          return self.computeRadius(d.citations.length)
-        })
-        .attr("fill", "white")
-        .attr("stroke", function(d) {
-          return d.favorite ? self.greenColor : self.mainColor;
-        })
-
-      self.link = d3.select("#g_links")
-        .selectAll("line")
-        .data(self.graph.links)
-        .enter()
-        .append("line")
-        .attr("class", "link")
-        .attr("stroke", (d) => {
-          return "url(#gradient_" + d.index + ")"
-        })
-        .attr("stroke-width", "1px")
-
-      self.circle_text = pseudo_node
-        .append("text")
-        .attr("class", "text_circle")
-        .attr("text-anchor", "middle")
-        .text(function(d, i) {
-          return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
-        })
-        .attr('id', function(d) {
-          return 'title_' + d.id
-        })
-        .attr("lengthAdjust", "spacingAndGlyphs")
-        .attr("textLength", function(d) {
-          4 * self.computeRadius(d.citations.length)
-        })
-        .attr("fill", function(d) {
-          return d.favorite ? self.greenColor : self.mainColor
-        })
+      this.drawn = false;
+      this.init()
+      // var pseudo_node = d3.select("#g_nodes")
+      //   .selectAll("g")
+      //   .data(self.graph.nodes)
+      //   .enter()
+      //
+      // self.node = pseudo_node
+      //   .append("circle")
+      //   .attr("class", "node")
+      //   .attr("r", (d) => {
+      //     return self.computeRadius(d.citations.length)
+      //   })
+      //   .attr("fill", "white")
+      //   .attr("stroke", function(d) {
+      //     return d.favorite ? self.greenColor : self.mainColor;
+      //   })
+      //
+      // self.link = d3.select("#g_links")
+      //   .selectAll("line")
+      //   .data(self.graph.links)
+      //   .enter()
+      //   .append("line")
+      //   .attr("class", "link")
+      //   .attr("stroke", (d) => {
+      //     return "url(#gradient_" + d.index + ")"
+      //   })
+      //   .attr("stroke-width", "1px")
+      //
+      // self.circle_text = pseudo_node
+      //   .append("text")
+      //   .attr("class", "text_circle")
+      //   .attr("text-anchor", "middle")
+      //   .text(function(d, i) {
+      //     return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
+      //   })
+      //   .attr('id', function(d) {
+      //     return 'title_' + d.id
+      //   })
+      //   .attr("lengthAdjust", "spacingAndGlyphs")
+      //   .attr("textLength", function(d) {
+      //     4 * self.computeRadius(d.citations.length)
+      //   })
+      //   .attr("fill", function(d) {
+      //     return d.favorite ? self.greenColor : self.mainColor
+      //   })
 
       // self.node.call(
       //   d3.drag()

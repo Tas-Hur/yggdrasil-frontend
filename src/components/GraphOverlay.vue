@@ -54,7 +54,6 @@ export default {
     DisplaySettings
   },
   props: {
-    nodes: Array,
     socket: Object
   },
   data() {

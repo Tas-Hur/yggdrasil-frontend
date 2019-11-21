@@ -247,11 +247,11 @@ export default {
         self.circle_text.call(updateCircleText)
         self.node.call(updateNode);
         self.link.call(updateLink);
-        self.graphLayout.nodes(self.graph.nodes)
-        self.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-          .force("link", d3.forceLink(self.graph.links).id(function(d) {
-            return d.id;
-          }).distance(self.distance_nodes).strength(1))
+        // self.graphLayout.nodes(self.graph.nodes)
+        // self.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
+        //   .force("link", d3.forceLink(self.graph.links).id(function(d) {
+        //     return d.id;
+        //   }).distance(self.distance_nodes).strength(1))
         self.current_x -= 10
       }
 
@@ -277,11 +277,11 @@ export default {
       }
 
       function updateLink(link) {
-        self.graph.links.forEach((link, i) => {
-          Vue.set(self.graph.links, i, Object.assign({}, link))
-          Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
-          Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
-        })
+        // self.graph.links.forEach((link, i) => {
+        //   Vue.set(self.graph.links, i, Object.assign({}, link))
+        //   Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
+        //   Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
+        // })
         link.attr("x1", function(d) {
             return fixna(d.source.x);
           })

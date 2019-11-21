@@ -445,32 +445,12 @@ export default {
         console.log("ticked")
         circle_text.call(updateCircleText)
         node.call(updateNode);
-        link.call(updateLink);
+        // link.call(updateLink);
         graphLayout.nodes(self.graph.nodes)
         graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
           .force("link", d3.forceLink(graph.links).id(function(d) {
             return d.id;
           }).distance(self.distance_nodes).strength(1))
-        // labelLayout.alphaTarget(0.3).restart();
-        // labelNode.each(function(d, i) {
-        //   if (i % 2 == 0) {
-        //     d.x = d.node.x;
-        //     d.y = d.node.y;
-        //   } else {
-        //     var b = this.getBBox();
-        //
-        //     var diffX = d.x - d.node.x;
-        //     var diffY = d.y - d.node.y;
-        //
-        //     var dist = Math.sqrt(diffX * diffX + diffY * diffY);
-        //
-        //     var shiftX = b.width * (diffX - dist) / (dist * 2);
-        //     shiftX = Math.max(-b.width, Math.min(0, shiftX));
-        //     var shiftY = 16;
-        //     this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
-        //   }
-        // });
-        // labelNode.call(updateNode);
         self.current_x -= 10
       }
 

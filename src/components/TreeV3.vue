@@ -44,6 +44,7 @@ export default {
     },
     graph_original: Object,
     adjlist: Object,
+    gradient_links:Boolean,
     disp_titles: Boolean,
   },
   components: {
@@ -153,7 +154,7 @@ export default {
         width = 1920,
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
-      this.graph = this.graph_original
+      this.graph = this.copyNestedObject(this.graph_original)
       console.log("the graph is : ", this.graph);
 
       this.graphLayout = d3.forceSimulation(self.graph.nodes)
@@ -207,7 +208,7 @@ export default {
         .append("line")
         .attr("class", "link")
         .attr("stroke", (d) => {
-          return "url(#gradient_" + d.index + ")"
+          return this.gradient_links ? "url(#gradient_" + d.index + ")" : mainColor
         })
         .attr("stroke-width", "1px")
 
@@ -216,7 +217,8 @@ export default {
         .attr("class", "text_circle")
         .attr("text-anchor", "middle")
         .text(function(d, i) {
-          return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
+          return d.favorite;
+          // return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
         })
         .attr('id', function(d) {
           return 'title_' + d.id
@@ -277,11 +279,11 @@ export default {
       }
 
       function updateLink(link) {
-        self.graph.links.forEach((link, i) => {
-          Vue.set(self.graph.links, i, Object.assign({}, link))
-          Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
-          Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
-        })
+        // self.graph.links.forEach((link, i) => {
+        //   Vue.set(self.graph.links, i, Object.assign({}, link))
+        //   Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
+        //   Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
+        // })
         link.attr("x1", function(d) {
             return fixna(d.source.x);
           })

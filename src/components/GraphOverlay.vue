@@ -4,16 +4,37 @@
                   @favorite="setFavorite" @trash="deleteNode">
   </custom-tooltip>
 
-  <tree-v3 v-if="draw && graph !== null"
-           :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)"
+
+  <tree-v3 v-if="draw && choice"
+           :node_charge="parseInt(node_charge)"
+           :cdpScore_threshold="parseInt(cdpScore_threshold)"
+           :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
+           :adjlist="adjlist" :graph_original="graph"
            @hover_node="setHoveredNode">
   </tree-v3>
+
+  <tree-v2 v-if="draw && !choice"
+           :node_charge="parseInt(node_charge)"
+           :cdpScore_threshold="parseInt(cdpScore_threshold)"
+           :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
+           :adjlist="adjlist" :graph_original="graph"
+           @hover_node="setHoveredNode">
+  </tree-v2>
 
   <!-- <tree-d3 :socket="socket" :nodes="nodes"
            @hover_node="setHoveredNode">
   </tree-d3> -->
 
+
+  <div class="full-container">
+    <b-row align-h="center">
+      <b-col cols="auto">
+        <template v-if="graph !== null">
+          Le graph comporte <span class="imp_text">{{graph.nodes.length}}</span> noeuds et <span class="imp_text">{{graph.links.length}}</span> liens
+        </template>
+      </b-col>
+    </b-row>
+  </div>
   <div class="custom-container">
     <b-row align-h="end">
       <!-- <b-col cols="8">
@@ -26,8 +47,11 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
+
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
-                          @dates="setDates" @key_words="setKeyWords" @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @cdp="setCdp" @favorites="setFavorites">
+                          @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
+                          @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative"
+                          @cdp="setCdp" @favorites="setFavorites">
         </display-settings>
       </b-col>
     </b-row>
@@ -59,6 +83,7 @@ export default {
   data() {
     return {
       trash: [],
+      choice: true,
       favorites: [],
       draw: false,
       total_nodes: [],
@@ -67,6 +92,7 @@ export default {
       graph: null,
       hovered_node: null,
       disp_titles: true,
+      gradient_links: true,
       node_charge: -6000,
       distance_nodes: 100,
       key_words: [],
@@ -343,6 +369,14 @@ export default {
         end: dates[1]
       }
       this.updateNodes()
+    },
+    setGradientLinks(gradient_links) {
+      console.log("NOT GRADIENT")
+      this.gradient_links = gradient_links;
+    },
+    setAlternative(choice){
+      this.choice = choice
+      this.updateNodes()
     }
   },
   mounted() {
@@ -365,16 +399,27 @@ export default {
 </script>
 
 <style scoped>
-  .custom-container {
-    position: fixed;
-    z-index: 500;
-    right: 50px;
-    top: 50px;
-    width: auto;
-  }
 
-  #infoBoxHolder {
-    z-index: 300;
-    position: fixed;
-  }
+.imp_text{
+  color:var(--green-color);
+}
+
+.full-container {
+  position: fixed;
+  z-index: 100;
+  top: 50px;
+  width: 100vw;
+}
+.custom-container {
+  position: fixed;
+  z-index: 500;
+  right: 50px;
+  top: 50px;
+  width: auto;
+}
+
+#infoBoxHolder {
+  z-index: 300;
+  position: fixed;
+}
 </style>

@@ -39,7 +39,7 @@
     <b-col class="sliders filters" cols="auto">
       Cdp Score mini : {{cdpScore_threshold}}
       <vue-slider class="slider" v-model="cdpScore_threshold"
-                  tooltipPlacement="bottom" :min="0" :max="200" :contained="true"
+                  tooltipPlacement="bottom" :min="0" :max="50" :contained="true"
                   @drag-end="$emit('cdp', cdpScore_threshold)" />
       <br />
       Dates limites :

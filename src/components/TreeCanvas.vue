@@ -1,7 +1,8 @@
 <template>
-<canvas id='viz' ref="tree-graph" width="1360" height="720">
-
-</canvas>
+<div class="canvas_container" :style="{width:'98vw',height:'98vh'}">
+  <canvas id='viz' ref="tree-graph">
+  </canvas>
+</div>
 </template>
 
 <script>
@@ -31,26 +32,29 @@ export default {
   components: {
 
   },
+  created() {
+    window.addEventListener('wheel', this.scaleGraph);
+    window.addEventListener('drag', this.translateGraph)
+  },
+  destroyed() {
+    window.removeEventListener('scroll', this.scaleGraph);
+    window.removeEventListener('drag', this.translateGraph)
+  },
   mounted() {
+    var container = document.getElementsByClassName("canvas_container")[0];
+    var width = container.offsetWidth
+    var height = container.offsetHeight;
+    this.width = width
+    this.height= height
     var can = document.getElementById('viz');
+    this.stage = can
+    can.width = width;
+    can.height = height;
     if (can.getContext) {
       console.log("I have a context")
-
       this.ctx = can.getContext('2d')
-
       this.ctx.fillStyle = 'white';
-
-      this.ctx.scale(0.2,0.2)
-      // var node = {x:520 , y:566, citations:[45,45,45,45,45,45,45,45,45]}
-      // this.ctx.beginPath()
-      // var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
-      // var y = 'fy' in node && node.fy !== null ? node.fy : node.y; // y coordinate
-      // var radius = this.computeRadius(node.citations.length); // Arc radius
-      // var startAngle = 0; // Starting point on circle
-      // var endAngle = Math.PI *2; // End point on circle
-      // var anticlockwise = true; // clockwise or anticlockwise
-      // this.ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
-      // this.ctx.fill();
+      this.ctx.scale(this.scale, this.scale)
     }
 
     this.graph = this.graph_original
@@ -59,7 +63,11 @@ export default {
   },
   data() {
     return {
+      stage:null,
+      scale: 1,
       ctx: null,
+      width:null,
+      height:null,
       current_node: null,
       center_x: 950,
       center_y: 500,
@@ -70,46 +78,18 @@ export default {
     }
   },
   computed: {
-    node_settings() {
-      return {
-        diameter: this.nodeDiameter
-      }
-    },
-  },
-  watch: {
-    adjlist() {
-      console.log("adjlist refreshed");
-    },
-    node_charge() {
-      this.graphLayout.alpha(0.03).restart()
-    },
-    distance_nodes() {
-      this.graphLayout.alpha(0.03).restart()
-    }
   },
   methods: {
-    computeThales(target_coord, source_coord, quote) {
-      var vector = [target_coord[0] - source_coord[0], target_coord[1] - source_coord[1]]
-      var d = Math.pow(Math.pow(vector[0], 2) + Math.pow(vector[1], 2), 1 / 2)
-      return {
-        d: d,
-        vector: vector
-      }
+    scaleGraph(e){
+      var direction = e.deltaY < 0 ? -1 : 1
+      var s = 1-e.deltaY/100
+      console.log("Scrool : ",s)
+      console.log(this.stage)
+      this.ctx.translate(-1*this.width*(s-1)/2,-1*this.height*(s-1)/2)
+      this.ctx.scale(s,s,e.clientX,e.clientY)
     },
-    computeArrowX(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[0] - ((this.computeRadius(quotes) + 5) * res.vector[0] / res.d)
-    },
-    computeArrowY(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[1] - ((this.computeRadius(quotes) + 5) * res.vector[1] / res.d)
-    },
-    correctPos(pos) {
-      if (pos < 0 || !isFinite(pos)) {
-        return 800
-      } else {
-        return pos
-      }
+    translateGraph(e){
+      console.log(e)
     },
     copyNestedObject(obj) {
       var self = this;
@@ -152,10 +132,9 @@ export default {
       }
     },
     ticked() {
-      console.log("tick")
+      // console.log("tick")
       this.ctx.clearRect(0, 0, 4000, 3000)
       var self = this;
-      // console.log("tick")
       function dragstarted(d) {
         d3.event.sourceEvent.stopPropagation();
         self.graphLayout.alpha(0.03).restart()
@@ -179,11 +158,8 @@ export default {
         }).distance(self.distance_nodes).strength(1))
 
       self.ctx.beginPath();
-      for(let i = 0;i<this.graph.links.length;i++){
+      for (let i = 0; i < this.graph.links.length; i++) {
         var link = self.graph.links[i]
-        // Vue.set(self.graph.links, i, Object.assign({}, link))
-        // Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
-        // Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
         var x1 = 'fx' in link.source && link.source.fx !== null ? link.source.fx : link.source.x // x coordinate
         var y1 = 'fy' in link.source && link.source.fy !== null ? link.source.fy : link.source.y; // y coordinate
         self.ctx.moveTo(x1, y1);
@@ -192,12 +168,11 @@ export default {
         self.ctx.lineTo(x2, y2);
       }
 
-      for(let j = 0;j<this.graph.nodes.length;j++){
+      for (let j = 0; j < this.graph.nodes.length; j++) {
         var node = self.graph.nodes[j]
-        // Vue.set(self.graph.nodes, j, Object.assign({}, node))
         var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
         var y = 'fy' in node && node.fy !== null ? node.fy : node.y; // y coordinate
-        self.ctx.moveTo(x,y)
+        self.ctx.moveTo(x, y)
         var radius = self.computeRadius(node.citations.length); // Arc radius
         var startAngle = 0; // Starting point on circle
         var endAngle = Math.PI * 2; // End point on circle
@@ -206,15 +181,6 @@ export default {
       }
       self.ctx.stroke();
       self.ctx.fill()
-
-      // self.ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-      // var node = d3.selectAll(".circle").data(this.graph.nodes).call(
-      //   d3.drag()
-      //   .on("start", dragstarted)
-      //   .on("drag", dragged)
-      //   .on("end", dragended)
-      // );
     },
     init() {
       if (this.drawn) {
@@ -302,7 +268,18 @@ export default {
       labels.style("opacity", 1);
       pointer.style("opacity", 1);
     },
-  }
+  },
+  watch: {
+    adjlist() {
+      console.log("adjlist refreshed");
+    },
+    node_charge() {
+      this.graphLayout.alpha(0.03).restart()
+    },
+    distance_nodes() {
+      this.graphLayout.alpha(0.03).restart()
+    }
+  },
 }
 </script>
 
@@ -327,10 +304,5 @@ line {
 
 text {
   transition: ease-in-out opacity .3s;
-}
-
-#infoBoxHolder {
-  z-index: 300;
-  position: fixed;
 }
 </style>

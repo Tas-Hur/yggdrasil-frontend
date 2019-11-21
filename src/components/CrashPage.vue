@@ -68,6 +68,7 @@ export default{
         console.log("connected")
       })
     },
+
     search(){
       var self = this;
       this.loading=true

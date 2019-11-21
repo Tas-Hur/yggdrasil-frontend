@@ -30,6 +30,11 @@ export default {
     }
   },
   methods:{
+    userLeave(){
+        var self = this;
+        console.log("A User leaves :",this.socket)
+        this.socket.emit('userLeave')
+    },
     search(){
       this.step=0
     },
@@ -37,9 +42,14 @@ export default {
       this.step = 1
       this.data=session.data
       this.socket=session.socket
+      var self =this;
+      console.log("ici : ", this.socket)
+
+      window.addEventListener("beforeunload", function(){ self.socket.emit("userLeave")}, false);
     }
   },
 }
+
 </script>
 
 <style>

@@ -217,8 +217,8 @@ export default {
         .attr("class", "text_circle")
         .attr("text-anchor", "middle")
         .text(function(d, i) {
-          return d.favorite;
-          // return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))
+          // return d.favorite;
+          return d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2))+"..."
         })
         .attr('id', function(d) {
           return 'title_' + d.id
@@ -279,11 +279,11 @@ export default {
       }
 
       function updateLink(link) {
-        // self.graph.links.forEach((link, i) => {
-        //   Vue.set(self.graph.links, i, Object.assign({}, link))
-        //   Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
-        //   Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
-        // })
+        self.graph.links.forEach((link, i) => {
+          Vue.set(self.graph.links, i, Object.assign({}, link))
+          Vue.set(self.graph.links[i], "source", self.graph.nodes.find(node => node.paperId == link.source.paperId))
+          Vue.set(self.graph.links[i], "target", self.graph.nodes.find(node => node.paperId == link.target.paperId))
+        })
         link.attr("x1", function(d) {
             return fixna(d.source.x);
           })

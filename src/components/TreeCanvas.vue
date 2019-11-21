@@ -1,5 +1,5 @@
 <template>
-<canvas id='viz' ref="tree-graph" width="4000" height="2000">
+<canvas id='viz' ref="tree-graph" width="1360" height="720">
 
 </canvas>
 </template>
@@ -39,6 +39,8 @@ export default {
       this.ctx = can.getContext('2d')
 
       this.ctx.fillStyle = 'white';
+
+      this.ctx.scale(0.2,0.2)
       // var node = {x:520 , y:566, citations:[45,45,45,45,45,45,45,45,45]}
       // this.ctx.beginPath()
       // var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
@@ -151,7 +153,7 @@ export default {
     },
     ticked() {
       console.log("tick")
-      this.ctx.clearRect(0, 0, 4000, 2000)
+      this.ctx.clearRect(0, 0, 4000, 3000)
       var self = this;
       // console.log("tick")
       function dragstarted(d) {
@@ -175,36 +177,37 @@ export default {
         .force("link", d3.forceLink(this.graph.links).id(function(d) {
           return d.id;
         }).distance(self.distance_nodes).strength(1))
+
+      self.ctx.beginPath();
       for(let i = 0;i<this.graph.links.length;i++){
         var link = self.graph.links[i]
-        Vue.set(self.graph.links, i, Object.assign({}, link))
-        Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
-        Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
-        self.ctx.beginPath();
+        // Vue.set(self.graph.links, i, Object.assign({}, link))
+        // Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
+        // Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
         var x1 = 'fx' in link.source && link.source.fx !== null ? link.source.fx : link.source.x // x coordinate
         var y1 = 'fy' in link.source && link.source.fy !== null ? link.source.fy : link.source.y; // y coordinate
         self.ctx.moveTo(x1, y1);
         var x2 = 'fx' in link.target && link.target.fx !== null ? link.target.fx : link.target.x // x coordinate
         var y2 = 'fy' in link.target && link.target.fy !== null ? link.target.fy : link.target.y; // y coordinate
         self.ctx.lineTo(x2, y2);
-        self.ctx.stroke();
       }
 
       for(let j = 0;j<this.graph.nodes.length;j++){
         var node = self.graph.nodes[j]
-        Vue.set(self.graph.nodes, j, Object.assign({}, node))
-        self.ctx.beginPath()
+        // Vue.set(self.graph.nodes, j, Object.assign({}, node))
         var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
         var y = 'fy' in node && node.fy !== null ? node.fy : node.y; // y coordinate
+        self.ctx.moveTo(x,y)
         var radius = self.computeRadius(node.citations.length); // Arc radius
         var startAngle = 0; // Starting point on circle
         var endAngle = Math.PI * 2; // End point on circle
         var anticlockwise = true; // clockwise or anticlockwise
         self.ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
-        self.ctx.fill()
-        self.ctx.stroke();
       }
+      self.ctx.stroke();
+      self.ctx.fill()
 
+      // self.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       // var node = d3.selectAll(".circle").data(this.graph.nodes).call(
       //   d3.drag()

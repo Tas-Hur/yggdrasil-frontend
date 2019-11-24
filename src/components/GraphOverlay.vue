@@ -252,12 +252,12 @@ export default {
         var filt = true
         var kw = true
         var dates = true
-
+        var score = true
         if (this.favorites_only && !node.favorite) {
           filt = false
         }
 
-        if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
+        if (self.dates_filter !== null &&  !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
           console.log(node.year)
           console.log(self.dates_filter)
           console.log("Dates are fitlersd")
@@ -273,7 +273,15 @@ export default {
             }
           }
         }
-        return dates && kw && filt && node.cdpScore >= this.cdpScore_threshold
+
+        if(node.cdpScore){
+          score = false;
+          if(node.cdpScore >= self.cdpScore_threshold){
+            score = true
+          }
+        }
+        return dates && kw && filt && score
+        return true
       })
       return nodes
     },
@@ -358,6 +366,7 @@ export default {
       console.log("RECEIVED ALL")
     })
     this.socket.on('new_node', (data) => {
+      console.log("receiving node")
       this.addNode(data)
     })
   },

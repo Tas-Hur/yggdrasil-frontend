@@ -307,7 +307,8 @@ export default {
       console.log("Updated links")
 
       Vue.set(self.graph, 'nodes', nodes)
-      setTimeout(()=>{Vue.set(self.graph, 'links', links)},100)
+      Vue.set(self.graph, 'links', links)
+      // setTimeout(()=>{Vue.set(self.graph, 'links', links)},0)
     },
     setCharge(charge) {
       this.node_charge = charge;

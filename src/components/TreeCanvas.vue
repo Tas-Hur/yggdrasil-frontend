@@ -1,8 +1,5 @@
 <template>
 <div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
-  {{current_mouse_position}}
-  {{origin}}
-  {{scale}}
   <canvas id='viz' ref="tree-graph">
   </canvas>
 </div>
@@ -124,10 +121,12 @@ export default {
         .node();
 
       self.ctx = graphCanvas.getContext('2d');
-
       self.ctx.strokeStyle = this.mainColor;
 
+      self.graph = this.graph_original
+
       self.graphLayout = d3.forceSimulation()
+        .nodes(self.graph.nodes)
         .force("center", d3.forceCenter(self.width / 2, self.height / 2))
         .force("x", d3.forceX(self.width / 2).strength(0.1))
         .force("y", d3.forceY(self.height / 2).strength(0.1))
@@ -137,10 +136,11 @@ export default {
         }).distance(self.distance_nodes).strength(1))
         .alpha(0.03)
         .alphaDecay(0.001)
+        .on("tick", self.simulationUpdate);
 
       self.transform = d3.zoomIdentity;
+      self.graphLayout.force("link").links(self.graph.links)
 
-      self.graph = this.graph_original
 
       function zoomed() {
         self.transform = d3.event.transform;
@@ -191,24 +191,17 @@ export default {
         d3.event.subject.fy = null;
       }
 
-      self.graphLayout.nodes(self.graph.nodes)
-        .on("tick", self.simulationUpdate);
-
-      self.graphLayout.force("link")
-        .links(self.graph.links);
-
-
     },
     simulationUpdate() {
       var self = this;
       self.ctx.fillStyle = 'white'
       self.ctx.save();
+      self.graphLayout.nodes(self.graph.nodes)
       self.ctx.clearRect(0, 0, self.width, self.height);
       self.ctx.translate(self.transform.x, self.transform.y);
       self.ctx.scale(self.transform.k, self.transform.k);
-      self.graphLayout.force("link")
-        .links(self.graph.links);
       self.ctx.beginPath();
+
       self.graph.links.forEach(function(d) {
         self.ctx.moveTo(d.source.x, d.source.y);
         self.ctx.lineTo(d.target.x, d.target.y);
@@ -229,6 +222,8 @@ export default {
         self.ctx.fillStyle = "white"
         self.ctx.fill()
       });
+      self.graphLayout.force("link")
+        .links(self.graph.links);
       self.ctx.restore();
     },
     computeRadius(quotes) {
@@ -280,8 +275,7 @@ export default {
     adjlist() {
       console.log("adjlist refreshed");
     },
-    graph() {
-    },
+    graph() {},
     node_charge() {
       this.graphLayout.force("charge", d3.forceManyBody().strength(this.node_charge))
       this.graphLayout.alpha(0.03).restart()

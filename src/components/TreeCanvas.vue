@@ -40,7 +40,7 @@ export default {
 
   },
   mounted() {
-    this.init_2()
+    this.init()
   },
   data() {
     return {
@@ -108,7 +108,7 @@ export default {
           break;
       }
     },
-    init_2() {
+    init() {
       var self = this;
       var radius = 20
       var defaultNodeCol = "white",

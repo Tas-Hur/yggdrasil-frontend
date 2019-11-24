@@ -48,7 +48,7 @@ export default {
       stage: null,
       scale: 1,
       ctx: null,
-      transform:null,
+      transform: null,
       width: null,
       current_mouse_position: {
         x: 0,
@@ -126,10 +126,6 @@ export default {
       self.ctx = graphCanvas.getContext('2d');
 
       self.ctx.strokeStyle = this.mainColor;
-      var div = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
 
       self.graphLayout = d3.forceSimulation()
         .force("center", d3.forceCenter(self.width / 2, self.height / 2))
@@ -145,9 +141,6 @@ export default {
       self.transform = d3.zoomIdentity;
 
       self.graph = this.graph_original
-
-
-
 
       function zoomed() {
         self.transform = d3.event.transform;
@@ -181,7 +174,6 @@ export default {
         }
       }
 
-
       function dragstarted() {
         if (!d3.event.active) self.graphLayout.alpha(0.03).restart();
         d3.event.subject.fx = self.transform.invertX(d3.event.x);
@@ -211,11 +203,11 @@ export default {
       var self = this;
       self.ctx.fillStyle = 'white'
       self.ctx.save();
-
       self.ctx.clearRect(0, 0, self.width, self.height);
       self.ctx.translate(self.transform.x, self.transform.y);
       self.ctx.scale(self.transform.k, self.transform.k);
-
+      self.graphLayout.force("link")
+        .links(self.graph.links);
       self.ctx.beginPath();
       self.graph.links.forEach(function(d) {
         self.ctx.moveTo(d.source.x, d.source.y);
@@ -225,11 +217,16 @@ export default {
 
       // Draw the nodes
       self.graph.nodes.forEach(function(d, i) {
+        let radius = self.computeRadius(d.citations.length)
         self.ctx.beginPath()
         self.ctx.moveTo(d.x, d.y)
-        self.ctx.arc(d.x, d.y, self.computeRadius(d.citations.length), 0, 2 * Math.PI, true);
+        self.ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
         self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
         self.ctx.stroke()
+        self.ctx.font = "10px Arial";
+        self.ctx.fillStyle = self.mainColor
+        self.ctx.fillText(d.title, d.x, d.y + radius + 20, radius * 2);
+        self.ctx.fillStyle = "white"
         self.ctx.fill()
       });
       self.ctx.restore();
@@ -283,12 +280,17 @@ export default {
     adjlist() {
       console.log("adjlist refreshed");
     },
+    graph() {
+    },
     node_charge() {
-      console.log("Ho")
       this.graphLayout.force("charge", d3.forceManyBody().strength(this.node_charge))
       this.graphLayout.alpha(0.03).restart()
     },
     distance_nodes() {
+      var self = this
+      this.graphLayout.force("link", d3.forceLink().strength(1).id(function(d) {
+        return d.id;
+      }).distance(self.distance_nodes).strength(1))
       this.graphLayout.alpha(0.03).restart()
     }
   },

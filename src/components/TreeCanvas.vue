@@ -1,15 +1,15 @@
 <template>
-<!-- <div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
+<div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
   {{current_mouse_position}}
   {{origin}}
   {{scale}}
   <canvas id='viz' ref="tree-graph">
   </canvas>
-</div> -->
-
-<div id="graphDiv">
-
 </div>
+
+<!-- <div id="graphDiv">
+
+</div> -->
 </template>
 
 <script>
@@ -39,47 +39,8 @@ export default {
   components: {
 
   },
-  created() {
-    // window.addEventListener('wheel', this.scaleGraph);
-    //
-    // window.addEventListener('mousedown', this.initTranslate)
-  },
-  destroyed() {
-    // window.removeEventListener('scroll', this.scaleGraph);
-    //
-    // window.removeEventListener('mousedown', this.initTranslate);
-    //
-    // document.getElementById('viz').removeEventListener('mousemove', this.hoverNode)
-  },
   mounted() {
     this.init_2()
-    // document.getElementById('viz')
-    //
-    // var container = document.getElementsByClassName("canvas_container")[0];
-    // var width = container.offsetWidth
-    // var height = container.offsetHeight;
-    // this.width = width
-    // this.height = height
-    // var can = document.getElementById('viz');
-    // this.stage = can
-    // this.stage.addEventListener('mousemove', this.hoverNode)
-    // can.width = width;
-    // can.height = height;
-    // if (can.getContext) {
-    //   console.log("I have a context")
-    //   this.ctx = can.getContext('2d')
-    //   this.ctx.fillStyle = 'white'
-    //   this.ctx.scale(this.scale, this.scale)
-    //   this.ctx.font = "30px Arial";
-    //
-    //   this.grad = this.ctx.createLinearGradient(50, 50, 250, 250);
-    //   this.grad.addColorStop(0, 'black');
-    //   this.grad.addColorStop(1, 'white');
-    // }
-    //
-    // this.graph = this.graph_original
-    //
-    // this.init()
   },
   data() {
     return {
@@ -87,6 +48,7 @@ export default {
       stage: null,
       scale: 1,
       ctx: null,
+      transform:null,
       width: null,
       current_mouse_position: {
         x: 0,
@@ -106,45 +68,6 @@ export default {
   },
   computed: {},
   methods: {
-    scaleGraph(e) {
-      this.graphLayout.alpha(0.03).restart()
-      var direction = e.deltaY < 0 ? -1 : 1
-      var s = 1 - e.deltaY / 100
-      this.ctx.translate(-1 * this.width * (s - 1) / 2, -1 * this.height * (s - 1) / 2)
-      this.ctx.scale(s, s, e.clientX, e.clientY)
-      this.origin = [this.origin[0] - 1 * this.width * (s - 1), this.origin[1] - 1 * this.height * (s - 1) / 2]
-      this.scale *= s
-    },
-    initTranslate(e) {
-      this.graphLayout.alpha(0.03).restart()
-      var self = this
-      this.move_origin = {
-        x: e.clientX,
-        y: e.clientY
-      }
-      var endmove = () => {
-        window.removeEventListener('mousemove', self.translateGraph);
-        window.removeEventListener('mouseup', endmove);
-      }
-      window.addEventListener('mousemove', self.translateGraph)
-      window.addEventListener('mouseup', endmove)
-    },
-    hoverNode(e) {
-      this.current_mouse_position = {
-        x: (e.clientX - this.origin[0]) * this.scale,
-        y: (e.clientY - this.origin[1]) * this.scale
-      }
-    },
-    translateGraph(e) {
-      let deltaX = e.clientX - this.move_origin.x
-      let deltaY = e.clientY - this.move_origin.y
-      this.ctx.translate(deltaX, deltaY)
-      this.origin = [this.origin[0] + deltaX, this.origin[1] + deltaY]
-      this.move_origin = {
-        x: e.clientX,
-        y: e.clientY
-      }
-    },
     copyNestedObject(obj) {
       var self = this;
       var ret
@@ -185,246 +108,131 @@ export default {
           break;
       }
     },
-    ticked() {
-      // console.log("tick")
-
-      this.ctx.clearRect(-5 * this.width, -5 * this.height, 10 * this.width, 10 * this.height)
-      var self = this;
-
-      function dragstarted(d) {
-        d3.event.sourceEvent.stopPropagation();
-        self.graphLayout.alpha(0.03).restart()
-      }
-
-      function dragged(d) {
-        self.graph.nodes.find(node => node.id == d.id).fx = d3.event.x
-        self.graph.nodes.find(node => node.id == d.id).fy = d3.event.y
-      }
-
-      function dragended(d) {
-        self.graph.nodes.find(node => node.id == d.id).fx = null
-        self.graph.nodes.find(node => node.id == d.id).fy = null
-      }
-
-      this.graphLayout.nodes(self.graph.nodes)
-      this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("collide", d3.forceCollide(self.distance_nodes))
-        .force("link", d3.forceLink(this.graph.links).id(function(d) {
-          return d.id;
-        }).distance(self.distance_nodes).strength(1))
-      self.ctx.beginPath();
-      for (let i = 0; i < this.graph.links.length; i++) {
-        var link = self.graph.links[i]
-        var x1 = 'fx' in link.source && link.source.fx !== null ? link.source.fx : link.source.x // x coordinate
-        var y1 = 'fy' in link.source && link.source.fy !== null ? link.source.fy : link.source.y; // y coordinate
-        self.ctx.moveTo(x1, y1);
-        var x2 = 'fx' in link.target && link.target.fx !== null ? link.target.fx : link.target.x // x coordinate
-        var y2 = 'fy' in link.target && link.target.fy !== null ? link.target.fy : link.target.y; // y coordinate
-        self.ctx.lineTo(x2, y2);
-      }
-      for (let j = 0; j < this.graph.nodes.length; j++) {
-        var node = self.graph.nodes[j]
-        var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
-        var y = 'fy' in node && node.fy !== null ? node.fy : node.y; // y coordinate
-        self.ctx.moveTo(x, y)
-        var radius = self.computeRadius(node.citations.length); // Arc radius
-        var startAngle = 0; // Starting point on circle
-        var endAngle = Math.PI * 2; // End point on circle
-        var anticlockwise = true; // clockwise or anticlockwise
-        self.ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
-
-        let m_x = self.current_mouse_position.x
-        let m_y = self.current_mouse_position.y
-        self.ctx.fillText(x + ' : ' + y, x, y);
-        if (m_x >= x - radius && m_x <= x + radius && m_y >= y - radius && m_y <= y + radius) {
-          console.log(x, y)
-          self.$emit("hover_node", node)
-          self.ctx.arc(x, y, radius * 1.2, startAngle, endAngle, anticlockwise);
-        }
-      }
-      self.ctx.strokeStyle = self.mainColor
-      self.ctx.stroke();
-      self.ctx.fill()
-    },
-    init() {
-      if (this.drawn) {
-        return;
-      }
-      // var nodes = this.computeEventual_nodes()
-      // var links = [...this.computeEventual_links(nodes)]
-      // this.graph = {
-      //   nodes: nodes,
-      //   links: links
-      // }
-      this.drawn = true;
-      var self = this;
-      var svg = d3.select("svg"),
-        width = 1920,
-        height = 1080;
-      var color = d3.scaleOrdinal(d3.schemeCategory10);
-      // var graph = Object.assign({}, this.graph)this.back
-
-      var label = {
-        'nodes': [],
-        'links': []
-      };
-      var graph = this.graph
-      var links = [...graph.links]
-      var nodes = [...graph.nodes]
-
-      this.graphLayout = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(self.node_charge))
-        .force("x", d3.forceX(width / 2).strength(1))
-        .force("y", d3.forceY(height / 2).strength(1))
-        .force("collide", d3.forceCollide(self.distance_nodes))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(1))
-        .on("tick", self.ticked)
-        .alpha(0.03)
-        .alphaDecay(0.002)
-
-
-
-    },
     init_2() {
-      var radius = 5;
-
+      var self = this;
+      var radius = 20
       var defaultNodeCol = "white",
         highlightCol = "yellow";
 
-      var height = window.innerHeight;
-      var graphWidth = window.innerWidth;
 
-      var graphCanvas = d3.select('#graphDiv').append('canvas')
-        .attr('width', graphWidth + 'px')
-        .attr('height', height + 'px')
+      this.height = window.innerHeight * 0.96;
+      this.width = window.innerWidth;
+
+      var graphCanvas = d3.select('#viz')
+        .attr('width', this.width + 'px')
+        .attr('height', this.height + 'px')
         .node();
 
-      var context = graphCanvas.getContext('2d');
+      self.ctx = graphCanvas.getContext('2d');
 
+      self.ctx.strokeStyle = this.mainColor;
       var div = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
 
-      var simulation = d3.forceSimulation()
-        .force("center", d3.forceCenter(graphWidth / 2, height / 2))
-        .force("x", d3.forceX(graphWidth / 2).strength(0.1))
-        .force("y", d3.forceY(height / 2).strength(0.1))
-        .force("charge", d3.forceManyBody().strength(-50))
+      self.graphLayout = d3.forceSimulation()
+        .force("center", d3.forceCenter(self.width / 2, self.height / 2))
+        .force("x", d3.forceX(self.width / 2).strength(0.1))
+        .force("y", d3.forceY(self.height / 2).strength(0.1))
+        .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("link", d3.forceLink().strength(1).id(function(d) {
           return d.id;
-        }))
-        .alphaTarget(0)
-        .alphaDecay(0.05)
+        }).distance(self.distance_nodes).strength(1))
+        .alpha(0.03)
+        .alphaDecay(0.001)
 
-      var transform = d3.zoomIdentity;
+      self.transform = d3.zoomIdentity;
 
-      var data = this.graph_original
-      console.log(data)
-
-      initGraph(data)
-
-      function initGraph(tempData) {
-
-        console.log("tempData : ",tempData)
-        function zoomed() {
-          console.log("zooming")
-          transform = d3.event.transform;
-          simulationUpdate();
-        }
-
-        d3.select(graphCanvas)
-          .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
-          .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+      self.graph = this.graph_original
 
 
 
-        function dragsubject() {
-          var i,
-            x = transform.invertX(d3.event.x),
-            y = transform.invertY(d3.event.y),
-            dx,
-            node,
-            dy;
-          for (i = tempData.nodes.length - 1; i >= 0; --i) {
-            node = tempData.nodes[i];
-            dx = x - node.x;
-            dy = y - node.y;
 
-            if (dx * dx + dy * dy < radius * radius) {
+      function zoomed() {
+        self.transform = d3.event.transform;
+        self.simulationUpdate();
+      }
 
-              node.x = transform.applyX(node.x);
-              node.y = transform.applyY(node.y);
+      d3.select(graphCanvas)
+        .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
+        .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
 
-              return node;
-            }
+      function dragsubject() {
+        var i,
+          x = self.transform.invertX(d3.event.x),
+          y = self.transform.invertY(d3.event.y),
+          dx,
+          node,
+          dy;
+        for (i = self.graph.nodes.length - 1; i >= 0; --i) {
+          node = self.graph.nodes[i];
+          dx = x - node.x;
+          dy = y - node.y;
+          let radius = self.computeRadius(node.citations.length) * 1
+
+          if (dx * dx + dy * dy < radius * radius) {
+            self.$emit('hover_node', node)
+            node.x = self.transform.applyX(node.x);
+            node.y = self.transform.applyY(node.y);
+
+            return node;
           }
-        }
-
-
-        function dragstarted() {
-          if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-          d3.event.subject.fx = transform.invertX(d3.event.x);
-          d3.event.subject.fy = transform.invertY(d3.event.y);
-        }
-
-        function dragged() {
-          d3.event.subject.fx = transform.invertX(d3.event.x);
-          d3.event.subject.fy = transform.invertY(d3.event.y);
-
-        }
-
-        function dragended() {
-          if (!d3.event.active) simulation.alphaTarget(0);
-          d3.event.subject.fx = null;
-          d3.event.subject.fy = null;
-        }
-
-        simulation.nodes(tempData.nodes)
-          .on("tick", simulationUpdate);
-
-        simulation.force("link")
-          .links(tempData.links);
-
-
-
-        function render() {
-
-        }
-
-        function simulationUpdate() {
-          context.save();
-
-          context.clearRect(0, 0, graphWidth, height);
-          context.translate(transform.x, transform.y);
-          context.scale(transform.k, transform.k);
-
-          tempData.links.forEach(function(d) {
-            context.beginPath();
-            context.moveTo(d.source.x, d.source.y);
-            context.lineTo(d.target.x, d.target.y);
-            context.stroke();
-          });
-
-          // Draw the nodes
-          tempData.nodes.forEach(function(d, i) {
-
-            context.beginPath();
-            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
-            context.fillStyle = d.col ? "red" : "black"
-            context.fill();
-          });
-
-          context.restore();
-          //        transform = d3.zoomIdentity;
         }
       }
 
+
+      function dragstarted() {
+        if (!d3.event.active) self.graphLayout.alpha(0.03).restart();
+        d3.event.subject.fx = self.transform.invertX(d3.event.x);
+        d3.event.subject.fy = self.transform.invertY(d3.event.y);
+      }
+
+      function dragged() {
+        d3.event.subject.fx = self.transform.invertX(d3.event.x);
+        d3.event.subject.fy = self.transform.invertY(d3.event.y);
+
+      }
+
+      function dragended() {
+        d3.event.subject.fx = null;
+        d3.event.subject.fy = null;
+      }
+
+      self.graphLayout.nodes(self.graph.nodes)
+        .on("tick", self.simulationUpdate);
+
+      self.graphLayout.force("link")
+        .links(self.graph.links);
+
+
     },
-    fixna(x) {
-      if (isFinite(x)) return x;
-      return 600;
+    simulationUpdate() {
+      var self = this;
+      self.ctx.fillStyle = 'white'
+      self.ctx.save();
+
+      self.ctx.clearRect(0, 0, self.width, self.height);
+      self.ctx.translate(self.transform.x, self.transform.y);
+      self.ctx.scale(self.transform.k, self.transform.k);
+
+      self.ctx.beginPath();
+      self.graph.links.forEach(function(d) {
+        self.ctx.moveTo(d.source.x, d.source.y);
+        self.ctx.lineTo(d.target.x, d.target.y);
+      });
+      self.ctx.stroke();
+
+      // Draw the nodes
+      self.graph.nodes.forEach(function(d, i) {
+        self.ctx.beginPath()
+        self.ctx.moveTo(d.x, d.y)
+        self.ctx.arc(d.x, d.y, self.computeRadius(d.citations.length), 0, 2 * Math.PI, true);
+        self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
+        self.ctx.stroke()
+        self.ctx.fill()
+      });
+      self.ctx.restore();
     },
     computeRadius(quotes) {
       if (quotes == 0) {
@@ -476,6 +284,8 @@ export default {
       console.log("adjlist refreshed");
     },
     node_charge() {
+      console.log("Ho")
+      this.graphLayout.force("charge", d3.forceManyBody().strength(this.node_charge))
       this.graphLayout.alpha(0.03).restart()
     },
     distance_nodes() {

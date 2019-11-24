@@ -350,7 +350,7 @@ export default {
     setTimeout(() => {
       self.updateNodes();
       self.draw = true
-    }, 10000)
+    }, 3000)
     var self = this;
     console.log("Launching stuff")
     this.socket.on('done', () => {

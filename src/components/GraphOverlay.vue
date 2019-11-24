@@ -70,7 +70,7 @@ export default {
       distance_nodes: 100,
       key_words: [],
       dates_filter: null,
-      cdpScore_threshold: 5,
+      cdpScore_threshold: 0,
       favorites_only: false,
       hovered_node_location: {
         F: -25,
@@ -350,7 +350,7 @@ export default {
     setTimeout(() => {
       self.updateNodes();
       self.draw = true
-    }, 3000)
+    }, 10000)
     var self = this;
     console.log("Launching stuff")
     this.socket.on('done', () => {

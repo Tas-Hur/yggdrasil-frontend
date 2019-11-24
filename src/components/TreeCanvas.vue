@@ -1,7 +1,14 @@
 <template>
-<div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
+<!-- <div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
+  {{current_mouse_position}}
+  {{origin}}
+  {{scale}}
   <canvas id='viz' ref="tree-graph">
   </canvas>
+</div> -->
+
+<div id="graphDiv">
+
 </div>
 </template>
 
@@ -33,48 +40,58 @@ export default {
 
   },
   created() {
-    window.addEventListener('wheel', this.scaleGraph);
-
-    window.addEventListener('mousedown', this.initTranslate)
+    // window.addEventListener('wheel', this.scaleGraph);
+    //
+    // window.addEventListener('mousedown', this.initTranslate)
   },
   destroyed() {
-    window.removeEventListener('scroll', this.scaleGraph);
-
-    window.removeEventListener('mousedown', this.initTranslate);
+    // window.removeEventListener('scroll', this.scaleGraph);
+    //
+    // window.removeEventListener('mousedown', this.initTranslate);
+    //
+    // document.getElementById('viz').removeEventListener('mousemove', this.hoverNode)
   },
   mounted() {
-    var container = document.getElementsByClassName("canvas_container")[0];
-    var width = container.offsetWidth
-    var height = container.offsetHeight;
-    this.width = width
-    this.height = height
-    var can = document.getElementById('viz');
-    this.stage = can
-    can.width = width;
-    can.height = height;
-    if (can.getContext) {
-
-      console.log("I have a context")
-      this.ctx = can.getContext('2d')
-      this.ctx.fillStyle = 'white'
-      this.ctx.scale(this.scale, this.scale)
-
-      this.grad = this.ctx.createLinearGradient(50, 50, 250, 250);
-      this.grad.addColorStop(0, 'black');
-      this.grad.addColorStop(1, 'white');
-    }
-
-    this.graph = this.graph_original
-
-    this.init()
+    this.init_2()
+    // document.getElementById('viz')
+    //
+    // var container = document.getElementsByClassName("canvas_container")[0];
+    // var width = container.offsetWidth
+    // var height = container.offsetHeight;
+    // this.width = width
+    // this.height = height
+    // var can = document.getElementById('viz');
+    // this.stage = can
+    // this.stage.addEventListener('mousemove', this.hoverNode)
+    // can.width = width;
+    // can.height = height;
+    // if (can.getContext) {
+    //   console.log("I have a context")
+    //   this.ctx = can.getContext('2d')
+    //   this.ctx.fillStyle = 'white'
+    //   this.ctx.scale(this.scale, this.scale)
+    //   this.ctx.font = "30px Arial";
+    //
+    //   this.grad = this.ctx.createLinearGradient(50, 50, 250, 250);
+    //   this.grad.addColorStop(0, 'black');
+    //   this.grad.addColorStop(1, 'white');
+    // }
+    //
+    // this.graph = this.graph_original
+    //
+    // this.init()
   },
   data() {
     return {
-      grad:null,
+      grad: null,
       stage: null,
       scale: 1,
       ctx: null,
       width: null,
+      current_mouse_position: {
+        x: 0,
+        y: 0
+      },
       height: null,
       origin: [0, 0],
       move_origin: null,
@@ -111,6 +128,12 @@ export default {
       }
       window.addEventListener('mousemove', self.translateGraph)
       window.addEventListener('mouseup', endmove)
+    },
+    hoverNode(e) {
+      this.current_mouse_position = {
+        x: (e.clientX - this.origin[0]) * this.scale,
+        y: (e.clientY - this.origin[1]) * this.scale
+      }
     },
     translateGraph(e) {
       let deltaX = e.clientX - this.move_origin.x
@@ -209,8 +232,17 @@ export default {
         var endAngle = Math.PI * 2; // End point on circle
         var anticlockwise = true; // clockwise or anticlockwise
         self.ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+
+        let m_x = self.current_mouse_position.x
+        let m_y = self.current_mouse_position.y
+        self.ctx.fillText(x + ' : ' + y, x, y);
+        if (m_x >= x - radius && m_x <= x + radius && m_y >= y - radius && m_y <= y + radius) {
+          console.log(x, y)
+          self.$emit("hover_node", node)
+          self.ctx.arc(x, y, radius * 1.2, startAngle, endAngle, anticlockwise);
+        }
       }
-      self.ctx.strokeStyle=self.mainColor
+      self.ctx.strokeStyle = self.mainColor
       self.ctx.stroke();
       self.ctx.fill()
     },
@@ -250,6 +282,144 @@ export default {
         .on("tick", self.ticked)
         .alpha(0.03)
         .alphaDecay(0.002)
+
+
+
+    },
+    init_2() {
+      var radius = 5;
+
+      var defaultNodeCol = "white",
+        highlightCol = "yellow";
+
+      var height = window.innerHeight;
+      var graphWidth = window.innerWidth;
+
+      var graphCanvas = d3.select('#graphDiv').append('canvas')
+        .attr('width', graphWidth + 'px')
+        .attr('height', height + 'px')
+        .node();
+
+      var context = graphCanvas.getContext('2d');
+
+      var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+
+      var simulation = d3.forceSimulation()
+        .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+        .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+        .force("y", d3.forceY(height / 2).strength(0.1))
+        .force("charge", d3.forceManyBody().strength(-50))
+        .force("link", d3.forceLink().strength(1).id(function(d) {
+          return d.id;
+        }))
+        .alphaTarget(0)
+        .alphaDecay(0.05)
+
+      var transform = d3.zoomIdentity;
+
+      var data = this.graph_original
+      console.log(data)
+
+      initGraph(data)
+
+      function initGraph(tempData) {
+
+        console.log("tempData : ",tempData)
+        function zoomed() {
+          console.log("zooming")
+          transform = d3.event.transform;
+          simulationUpdate();
+        }
+
+        d3.select(graphCanvas)
+          .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
+          .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+
+
+
+        function dragsubject() {
+          var i,
+            x = transform.invertX(d3.event.x),
+            y = transform.invertY(d3.event.y),
+            dx,
+            node,
+            dy;
+          for (i = tempData.nodes.length - 1; i >= 0; --i) {
+            node = tempData.nodes[i];
+            dx = x - node.x;
+            dy = y - node.y;
+
+            if (dx * dx + dy * dy < radius * radius) {
+
+              node.x = transform.applyX(node.x);
+              node.y = transform.applyY(node.y);
+
+              return node;
+            }
+          }
+        }
+
+
+        function dragstarted() {
+          if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+          d3.event.subject.fx = transform.invertX(d3.event.x);
+          d3.event.subject.fy = transform.invertY(d3.event.y);
+        }
+
+        function dragged() {
+          d3.event.subject.fx = transform.invertX(d3.event.x);
+          d3.event.subject.fy = transform.invertY(d3.event.y);
+
+        }
+
+        function dragended() {
+          if (!d3.event.active) simulation.alphaTarget(0);
+          d3.event.subject.fx = null;
+          d3.event.subject.fy = null;
+        }
+
+        simulation.nodes(tempData.nodes)
+          .on("tick", simulationUpdate);
+
+        simulation.force("link")
+          .links(tempData.links);
+
+
+
+        function render() {
+
+        }
+
+        function simulationUpdate() {
+          context.save();
+
+          context.clearRect(0, 0, graphWidth, height);
+          context.translate(transform.x, transform.y);
+          context.scale(transform.k, transform.k);
+
+          tempData.links.forEach(function(d) {
+            context.beginPath();
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+            context.stroke();
+          });
+
+          // Draw the nodes
+          tempData.nodes.forEach(function(d, i) {
+
+            context.beginPath();
+            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            context.fillStyle = d.col ? "red" : "black"
+            context.fill();
+          });
+
+          context.restore();
+          //        transform = d3.zoomIdentity;
+        }
+      }
 
     },
     fixna(x) {

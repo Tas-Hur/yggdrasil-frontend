@@ -1,5 +1,5 @@
 <template>
-<div class="canvas_container" :style="{width:'98vw',height:'98vh'}">
+<div class="canvas_container" :style="{width:'99vw',height:'95vh'}">
   <canvas id='viz' ref="tree-graph">
   </canvas>
 </div>
@@ -34,27 +34,34 @@ export default {
   },
   created() {
     window.addEventListener('wheel', this.scaleGraph);
-    window.addEventListener('drag', this.translateGraph)
+
+    window.addEventListener('mousedown', this.initTranslate)
   },
   destroyed() {
     window.removeEventListener('scroll', this.scaleGraph);
-    window.removeEventListener('drag', this.translateGraph)
+
+    window.removeEventListener('mousedown', this.initTranslate);
   },
   mounted() {
     var container = document.getElementsByClassName("canvas_container")[0];
     var width = container.offsetWidth
     var height = container.offsetHeight;
     this.width = width
-    this.height= height
+    this.height = height
     var can = document.getElementById('viz');
     this.stage = can
     can.width = width;
     can.height = height;
     if (can.getContext) {
+
       console.log("I have a context")
       this.ctx = can.getContext('2d')
-      this.ctx.fillStyle = 'white';
+      this.ctx.fillStyle = 'white'
       this.ctx.scale(this.scale, this.scale)
+
+      this.grad = this.ctx.createLinearGradient(50, 50, 250, 250);
+      this.grad.addColorStop(0, 'black');
+      this.grad.addColorStop(1, 'white');
     }
 
     this.graph = this.graph_original
@@ -63,11 +70,14 @@ export default {
   },
   data() {
     return {
-      stage:null,
+      grad:null,
+      stage: null,
       scale: 1,
       ctx: null,
-      width:null,
-      height:null,
+      width: null,
+      height: null,
+      origin: [0, 0],
+      move_origin: null,
       current_node: null,
       center_x: 950,
       center_y: 500,
@@ -77,19 +87,40 @@ export default {
       nodeDiameter: 200,
     }
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    scaleGraph(e){
+    scaleGraph(e) {
+      this.graphLayout.alpha(0.03).restart()
       var direction = e.deltaY < 0 ? -1 : 1
-      var s = 1-e.deltaY/100
-      console.log("Scrool : ",s)
-      console.log(this.stage)
-      this.ctx.translate(-1*this.width*(s-1)/2,-1*this.height*(s-1)/2)
-      this.ctx.scale(s,s,e.clientX,e.clientY)
+      var s = 1 - e.deltaY / 100
+      this.ctx.translate(-1 * this.width * (s - 1) / 2, -1 * this.height * (s - 1) / 2)
+      this.ctx.scale(s, s, e.clientX, e.clientY)
+      this.origin = [this.origin[0] - 1 * this.width * (s - 1), this.origin[1] - 1 * this.height * (s - 1) / 2]
+      this.scale *= s
     },
-    translateGraph(e){
-      console.log(e)
+    initTranslate(e) {
+      this.graphLayout.alpha(0.03).restart()
+      var self = this
+      this.move_origin = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      var endmove = () => {
+        window.removeEventListener('mousemove', self.translateGraph);
+        window.removeEventListener('mouseup', endmove);
+      }
+      window.addEventListener('mousemove', self.translateGraph)
+      window.addEventListener('mouseup', endmove)
+    },
+    translateGraph(e) {
+      let deltaX = e.clientX - this.move_origin.x
+      let deltaY = e.clientY - this.move_origin.y
+      this.ctx.translate(deltaX, deltaY)
+      this.origin = [this.origin[0] + deltaX, this.origin[1] + deltaY]
+      this.move_origin = {
+        x: e.clientX,
+        y: e.clientY
+      }
     },
     copyNestedObject(obj) {
       var self = this;
@@ -133,8 +164,10 @@ export default {
     },
     ticked() {
       // console.log("tick")
-      this.ctx.clearRect(0, 0, 4000, 3000)
+
+      this.ctx.clearRect(-5 * this.width, -5 * this.height, 10 * this.width, 10 * this.height)
       var self = this;
+
       function dragstarted(d) {
         d3.event.sourceEvent.stopPropagation();
         self.graphLayout.alpha(0.03).restart()
@@ -156,7 +189,6 @@ export default {
         .force("link", d3.forceLink(this.graph.links).id(function(d) {
           return d.id;
         }).distance(self.distance_nodes).strength(1))
-
       self.ctx.beginPath();
       for (let i = 0; i < this.graph.links.length; i++) {
         var link = self.graph.links[i]
@@ -167,7 +199,6 @@ export default {
         var y2 = 'fy' in link.target && link.target.fy !== null ? link.target.fy : link.target.y; // y coordinate
         self.ctx.lineTo(x2, y2);
       }
-
       for (let j = 0; j < this.graph.nodes.length; j++) {
         var node = self.graph.nodes[j]
         var x = 'fx' in node && node.fx !== null ? node.fx : node.x // x coordinate
@@ -179,6 +210,7 @@ export default {
         var anticlockwise = true; // clockwise or anticlockwise
         self.ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
       }
+      self.ctx.strokeStyle=self.mainColor
       self.ctx.stroke();
       self.ctx.fill()
     },

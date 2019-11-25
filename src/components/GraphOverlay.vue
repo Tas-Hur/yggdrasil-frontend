@@ -97,7 +97,10 @@ export default {
       total_nodes: [],
       total_links: [],
       adjlist: {},
-      graph: null,
+      graph: {
+        nodes: [],
+        links: []
+      },
       hovered_node: null,
       disp_titles: true,
       gradient_links: true,
@@ -391,7 +394,7 @@ export default {
       console.log("NOT GRADIENT")
       this.gradient_links = gradient_links;
     },
-    setAlternative(choice){
+    setAlternative(choice) {
       this.choice = choice
       this.updateNodes()
     }
@@ -417,9 +420,8 @@ export default {
 </script>
 
 <style scoped>
-
-.imp_text{
-  color:var(--green-color);
+.imp_text {
+  color: var(--green-color);
 }
 
 .full-container {
@@ -428,6 +430,7 @@ export default {
   top: 50px;
   width: 100vw;
 }
+
 .custom-container {
   position: fixed;
   z-index: 500;
@@ -436,8 +439,7 @@ export default {
   width: auto;
 }
 
-=======
-.custom-container {
+=======.custom-container {
   position: fixed;
   z-index: 500;
   right: 50px;
@@ -445,8 +447,7 @@ export default {
   width: auto;
 }
 
->>>>>>> f4448cc59f0ab2a16378137240211d142bcc5123
-#infoBoxHolder {
+>>>>>>>f4448cc59f0ab2a16378137240211d142bcc5123 #infoBoxHolder {
   z-index: 300;
   position: fixed;
 }

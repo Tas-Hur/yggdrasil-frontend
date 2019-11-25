@@ -399,7 +399,7 @@ export default {
       this.updateNodes()
     }
   },
-  mounted() {
+  mounted() {    
     var self = this;
     setTimeout(() => {
       self.updateNodes();

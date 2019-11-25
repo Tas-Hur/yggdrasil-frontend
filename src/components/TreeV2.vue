@@ -99,14 +99,14 @@ export default {
       // this.graph = this.copyNestedObject(this.graph_original)
       // this.graphLayout.nodes(self.graph.nodes)
       // this.graphLayout.alpha(0.3).restart()
-      this.graph.links.forEach((link, i) => {
-        Vue.set(self.graph.links, i, Object.assign({}, link))
-        Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
-        Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
-      })
-      this.graph.nodes.forEach((node, i) => {
-        Vue.set(self.graph.nodes, i, Object.assign({}, node))
-      })
+      // this.graph.links.forEach((link, i) => {
+      //   Vue.set(self.graph.links, i, Object.assign({}, link))
+      //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
+      //   Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
+      // })
+      // this.graph.nodes.forEach((node, i) => {
+      //   Vue.set(self.graph.nodes, i, Object.assign({}, node))
+      // })
 
     },
     adjlist() {
@@ -186,13 +186,13 @@ export default {
         self.graph.nodes.find(node => node.id == d.id).fy = null
       }
 
+      this.graph.nodes.forEach((node, i) => {
+        Vue.set(self.graph.nodes, i, Object.assign({}, node))
+      })
       this.graph.links.forEach((link, i) => {
         Vue.set(self.graph.links, i, Object.assign({}, link))
         Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
         Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
-      })
-      this.graph.nodes.forEach((node, i) => {
-        Vue.set(self.graph.nodes, i, Object.assign({}, node))
       })
       var node = d3.selectAll(".circle").data(this.graph.nodes).call(
         d3.drag()

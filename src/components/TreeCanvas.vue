@@ -128,7 +128,7 @@ export default {
 
       self.ctx = graphCanvas.getContext('2d');
       self.ctx.strokeStyle = this.mainColor;
-
+      self.ctx.lineWidth = 1.5
       self.graph = this.graph_original
 
       self.graphLayout = d3.forceSimulation()
@@ -213,7 +213,12 @@ export default {
       self.ctx.scale(self.transform.k, self.transform.k);
       self.ctx.beginPath();
 
+      self.grad = self.ctx.createLinearGradient(0, 0,self.width*1.5, 0);
+      self.grad.addColorStop("0", self.mainColor);
+      self.grad.addColorStop("1.0", 'white');
+
       self.graph.links.forEach(function(d) {
+        self.ctx.strokeStyle = self.grad;
         self.ctx.moveTo(d.source.x, d.source.y);
         self.ctx.lineTo(d.target.x, d.target.y);
       });
@@ -223,14 +228,20 @@ export default {
       self.graph.nodes.forEach(function(d, i) {
         let radius = self.computeRadius(d.citations.length)
         self.ctx.beginPath()
+        self.ctx.lineWidth = 3
+        self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
+
         self.ctx.moveTo(d.x, d.y)
         self.ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
-        self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
+
+        if (self.disp_titles) {
+          self.ctx.font = "13px Arial";
+          self.ctx.fillStyle = self.mainColor
+          self.ctx.fillText(d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2)), d.x - 1.5 * radius, d.y + radius + 20, radius * 4);
+          self.ctx.fillStyle = "white"
+        }
+
         self.ctx.stroke()
-        self.ctx.font = "13px Arial";
-        self.ctx.fillStyle = self.mainColor
-        self.ctx.fillText(d.title.slice(0,Math.min(d.title.length, self.computeRadius(d.citations.length)/2)), d.x-1.5*radius, d.y + radius + 20, radius * 4);
-        self.ctx.fillStyle = "white"
         self.ctx.fill()
       });
       self.graphLayout.force("link")

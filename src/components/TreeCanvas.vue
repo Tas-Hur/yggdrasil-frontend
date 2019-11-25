@@ -37,7 +37,11 @@ export default {
 
   },
   mounted() {
+    var self = this;
+    console.log("mounted componentcanvas", this.graph_original)
+    this.graph = this.graph_original
     this.init()
+
   },
   data() {
     return {
@@ -106,6 +110,8 @@ export default {
       }
     },
     init() {
+
+      console.log("init canvas")
       var self = this;
       var radius = 20
       var defaultNodeCol = "white",
@@ -150,6 +156,11 @@ export default {
       d3.select(graphCanvas)
         .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
         .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+
+      this.graph.nodes.forEach(node => {
+        node.x = self.transform.applyX(node.x);
+        node.y = self.transform.applyY(node.y);
+      })
 
       function dragsubject() {
         var i,
@@ -216,9 +227,9 @@ export default {
         self.ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
         self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
         self.ctx.stroke()
-        self.ctx.font = "10px Arial";
+        self.ctx.font = "13px Arial";
         self.ctx.fillStyle = self.mainColor
-        self.ctx.fillText(d.title, d.x, d.y + radius + 20, radius * 2);
+        self.ctx.fillText(d.title.slice(0,Math.min(d.title.length, self.computeRadius(d.citations.length)/2)), d.x-1.5*radius, d.y + radius + 20, radius * 4);
         self.ctx.fillStyle = "white"
         self.ctx.fill()
       });
@@ -231,44 +242,6 @@ export default {
         return 20;
       }
       return 20 + 5 * Math.pow(quotes, 1 / 3)
-    },
-    neigh(a, b) {
-      return a == b || this.adjlist[a + "-" + b];
-    },
-    focus(d) {
-      this.$emit("hover_node", d)
-      this.current_node = d
-      var self = this
-      var node = d3.selectAll(".circle").data(self.graph.nodes)
-      var link = d3.selectAll("line").data(self.graph.links)
-      var labels = d3.selectAll("text").data(self.graph.nodes)
-      var pointer = d3.selectAll(".pointer").data(self.graph.links)
-      var index = d.id;
-
-      node.style("opacity", function(o) {
-        return self.neigh(index, o.id) ? 1 : 0.1;
-      });
-      labels.style("opacity", function(o) {
-        return self.neigh(index, o.id) ? 1 : 0.1;
-      });
-      link.style("opacity", function(o) {
-        return o.source.id == index || o.target.id == index ? 1 : 0.1;
-      });
-      pointer.style("opacity", function(o) {
-        return o.source.id == index || o.target.id == index ? 1 : 0.0;
-      });
-    },
-    unfocus() {
-      this.current_node = null
-      var self = this;
-      var node = d3.selectAll(".circle")
-      var link = d3.selectAll("line")
-      var labels = d3.selectAll("text")
-      var pointer = d3.selectAll(".pointer")
-      node.style("opacity", 1);
-      link.style("opacity", 1);
-      labels.style("opacity", 1);
-      pointer.style("opacity", 1);
     },
   },
   watch: {

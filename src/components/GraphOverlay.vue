@@ -13,7 +13,7 @@
            @hover_node="setHoveredNode">
   </tree-v3> -->
 
-  <tree-v2 v-if="draw && choice"
+  <tree-v2 v-if="draw && !choice"
            :node_charge="parseInt(node_charge)"
            :cdpScore_threshold="parseInt(cdpScore_threshold)"
            :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
@@ -21,7 +21,7 @@
            @hover_node="setHoveredNode">
   </tree-v2>
 
-  <tree-canvas v-if="draw && !choice"
+  <tree-canvas v-if="draw && choice"
                :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
                :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
                @hover_node="setHoveredNode">
@@ -104,11 +104,11 @@ export default {
       hovered_node: null,
       disp_titles: true,
       gradient_links: true,
-      node_charge: -6000,
+      node_charge: -3000,
       distance_nodes: 100,
       key_words: [],
       dates_filter: null,
-      cdpScore_threshold: 0,
+      cdpScore_threshold: 5,
       favorites_only: false,
       hovered_node_location: {
         F: -25,
@@ -345,7 +345,13 @@ export default {
         citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       })
     },
-    updateNodes() {
+    updateNodes(reset) {
+      if (reset) {
+        this.graph = {
+          nodes: [],
+          links: []
+        }
+      }
       console.log("Update nodes")
       var self = this
       var nodes = [...this.computeEventual_nodes()]
@@ -396,10 +402,10 @@ export default {
     },
     setAlternative(choice) {
       this.choice = choice
-      this.updateNodes()
+      this.updateNodes(true)
     }
   },
-  mounted() {    
+  mounted() {
     var self = this;
     setTimeout(() => {
       self.updateNodes();
@@ -439,7 +445,7 @@ export default {
   width: auto;
 }
 
-=======.custom-container {
+.custom-container {
   position: fixed;
   z-index: 500;
   right: 50px;
@@ -447,7 +453,7 @@ export default {
   width: auto;
 }
 
->>>>>>>f4448cc59f0ab2a16378137240211d142bcc5123 #infoBoxHolder {
+#infoBoxHolder {
   z-index: 300;
   position: fixed;
 }

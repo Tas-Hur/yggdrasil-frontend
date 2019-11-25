@@ -58,6 +58,7 @@ export default {
 
   },
   mounted() {
+    console.log("mounted component", this.graph_original)
     this.graph = this.graph_original
     this.init()
   },
@@ -80,19 +81,6 @@ export default {
     },
   },
   watch: {
-    node_charge() {
-      console.log("changing force")
-      var self = this
-      this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
-    },
-    distance_nodes() {
-      var self = this
-      console.log("changing distance")
-      this.graphLayout.force("collide", d3.forceCollide(self.distance_nodes))
-        .force("link", d3.forceLink(this.graph.links).id(function(d) {
-          return d.id;
-        }).distance(self.distance_nodes).strength(1))
-    },
     graph_original() {
       var self = this;
       console.log("graph original changed");
@@ -169,8 +157,7 @@ export default {
     },
     ticked() {
       var self = this;
-      console.log("tick")
-
+      // console.log("tick")
       function dragstarted(d) {
         d3.event.sourceEvent.stopPropagation();
         self.graphLayout.alpha(0.03).restart()
@@ -185,21 +172,26 @@ export default {
         self.graph.nodes.find(node => node.id == d.id).fx = null
         self.graph.nodes.find(node => node.id == d.id).fy = null
       }
-
-      this.graph.nodes.forEach((node, i) => {
-        Vue.set(self.graph.nodes, i, Object.assign({}, node))
-      })
+      this.graphLayout.nodes(self.graph.nodes)
+      this.graphLayout.force("charge", d3.forceManyBody().strength(self.node_charge))
+        .force("collide", d3.forceCollide(self.distance_nodes))
+        .force("link", d3.forceLink(this.graph.links).id(function(d) {
+          return d.id;
+        }).distance(self.distance_nodes).strength(1))
       this.graph.links.forEach((link, i) => {
         Vue.set(self.graph.links, i, Object.assign({}, link))
         Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
         Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
+      })
+      this.graph.nodes.forEach((node, i) => {
+        Vue.set(self.graph.nodes, i, Object.assign({}, node))
       })
       var node = d3.selectAll(".circle").data(this.graph.nodes).call(
         d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended)
-      );
+      )
     },
     init() {
       if (this.drawn) {

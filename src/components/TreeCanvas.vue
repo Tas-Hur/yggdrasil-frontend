@@ -213,12 +213,14 @@ export default {
       self.ctx.scale(self.transform.k, self.transform.k);
       self.ctx.beginPath();
 
-      self.grad = self.ctx.createLinearGradient(0, 0,self.width*1.5, 0);
-      self.grad.addColorStop("0", self.mainColor);
-      self.grad.addColorStop("1.0", 'white');
 
       self.graph.links.forEach(function(d) {
-        self.ctx.strokeStyle = self.grad;
+        if(self.gradient_links){
+          var grad = self.ctx.createLinearGradient(d.source.x, d.source.y, d.target.x, d.target.y);
+          grad.addColorStop("0", 'white');
+          grad.addColorStop("1.0", self.mainColor);
+          self.ctx.strokeStyle = grad;
+        }
         self.ctx.moveTo(d.source.x, d.source.y);
         self.ctx.lineTo(d.target.x, d.target.y);
       });

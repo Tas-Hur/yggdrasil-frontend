@@ -23,7 +23,7 @@
 
   <tree-canvas v-if="draw && choice"
                :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-               :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
+               :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="gradient_links"
                @hover_node="setHoveredNode">
   </tree-canvas>
 

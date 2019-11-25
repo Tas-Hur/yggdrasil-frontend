@@ -5,21 +5,27 @@
   </custom-tooltip>
 
 
-  <tree-v3 v-if="draw && choice"
+  <!-- <tree-v3 v-if="draw && choice"
            :node_charge="parseInt(node_charge)"
            :cdpScore_threshold="parseInt(cdpScore_threshold)"
            :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
            :adjlist="adjlist" :graph_original="graph"
            @hover_node="setHoveredNode">
-  </tree-v3>
+  </tree-v3> -->
 
-  <tree-v2 v-if="draw && !choice"
+  <tree-v2 v-if="draw && choice"
            :node_charge="parseInt(node_charge)"
            :cdpScore_threshold="parseInt(cdpScore_threshold)"
            :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
            :adjlist="adjlist" :graph_original="graph"
            @hover_node="setHoveredNode">
   </tree-v2>
+
+  <tree-canvas v-if="draw && !choice"
+               :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
+               :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
+               @hover_node="setHoveredNode">
+  </tree-canvas>
 
   <!-- <tree-d3 :socket="socket" :nodes="nodes"
            @hover_node="setHoveredNode">
@@ -68,6 +74,7 @@ import DisplaySettings from './DisplaySettings.vue'
 import CustomTooltip from './CustomTooltip.vue'
 import TreeV2 from './TreeV2.vue'
 import TreeV3 from './TreeV3.vue'
+import TreeCanvas from './TreeCanvas.vue'
 import Vue from 'vue'
 export default {
   name: 'graph-overlay',
@@ -75,7 +82,8 @@ export default {
     TreeV2,
     TreeV3,
     CustomTooltip,
-    DisplaySettings
+    DisplaySettings,
+    TreeCanvas
   },
   props: {
     socket: Object
@@ -279,7 +287,7 @@ export default {
         var filt = true
         var kw = true
         var dates = true
-
+        var score = false
         if (this.favorites_only && !node.favorite) {
           filt = false
         }
@@ -300,7 +308,16 @@ export default {
             }
           }
         }
-        return dates && kw && filt && node.cdpScore >= this.cdpScore_threshold
+
+        if (node.cdpScore == null || node.cdpScore == undefined) {
+          node.cdpScore = 0
+        }
+
+        if (node.cdpScore >= self.cdpScore_threshold) {
+          score = true
+        }
+
+        return dates && kw && filt && score
       })
       return nodes
     },
@@ -332,8 +349,8 @@ export default {
       console.log("Updated nodes")
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
-
-      Vue.set(this,'graph', {nodes: nodes, links : links})
+      Vue.set(self.graph, 'nodes', nodes)
+      Vue.set(self.graph, 'links', links)
     },
     setCharge(charge) {
       this.node_charge = charge;
@@ -391,6 +408,7 @@ export default {
       console.log("RECEIVED ALL")
     })
     this.socket.on('new_node', (data) => {
+      console.log("receiving node")
       this.addNode(data)
     })
   },
@@ -418,6 +436,16 @@ export default {
   width: auto;
 }
 
+=======
+.custom-container {
+  position: fixed;
+  z-index: 500;
+  right: 50px;
+  top: 50px;
+  width: auto;
+}
+
+>>>>>>> f4448cc59f0ab2a16378137240211d142bcc5123
 #infoBoxHolder {
   z-index: 300;
   position: fixed;

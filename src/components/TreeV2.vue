@@ -58,7 +58,7 @@ export default {
   },
   mounted() {
     this.graph = this.graph_original
-    this.init();
+    this.init()
   },
   data() {
     return {

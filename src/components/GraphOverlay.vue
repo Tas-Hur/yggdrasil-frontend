@@ -5,9 +5,9 @@
   </custom-tooltip>
 
   <tree-canvas v-if="draw"
-           :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-           :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
-           @hover_node="setHoveredNode">
+               :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
+               :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="true"
+               @hover_node="setHoveredNode">
   </tree-canvas>
 
   <div class="custom-container">
@@ -252,12 +252,12 @@ export default {
         var filt = true
         var kw = true
         var dates = true
-        var score = true
+        var score = false
         if (this.favorites_only && !node.favorite) {
           filt = false
         }
 
-        if (self.dates_filter !== null &&  !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
+        if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
           console.log(node.year)
           console.log(self.dates_filter)
           console.log("Dates are fitlersd")
@@ -274,14 +274,15 @@ export default {
           }
         }
 
-        if(node.cdpScore){
-          score = false;
-          if(node.cdpScore >= self.cdpScore_threshold){
-            score = true
-          }
+        if (node.cdpScore == null || node.cdpScore == undefined) {
+          node.cdpScore = 0
         }
+
+        if (node.cdpScore >= self.cdpScore_threshold) {
+          score = true
+        }
+
         return dates && kw && filt && score
-        return true
       })
       return nodes
     },
@@ -375,16 +376,16 @@ export default {
 </script>
 
 <style scoped>
-  .custom-container {
-    position: fixed;
-    z-index: 500;
-    right: 50px;
-    top: 50px;
-    width: auto;
-  }
+.custom-container {
+  position: fixed;
+  z-index: 500;
+  right: 50px;
+  top: 50px;
+  width: auto;
+}
 
-  #infoBoxHolder {
-    z-index: 300;
-    position: fixed;
-  }
+#infoBoxHolder {
+  z-index: 300;
+  position: fixed;
+}
 </style>

@@ -41,7 +41,6 @@ library.add(faStar)
 library.add(faBriefcase)
 library.add(faTrash)
 
-
 Vue.use(ToggleButton)
 Vue.component('vue-multiselect', VueMultiselect)
 Vue.use(VueAxios, axios)

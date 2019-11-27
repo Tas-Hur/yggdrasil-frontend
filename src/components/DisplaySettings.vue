@@ -8,7 +8,7 @@
       Charge : {{node_charge}}
       <vue-slider class="slider" v-model="node_charge"
                   tooltipPlacement="bottom" direction="rtl"
-                  :min="-100000" :max="0" :contained="true" />
+                  :min="-15000" :max="0" :contained="true" />
       <br />
       Distance : {{distance_nodes}}
       <vue-slider class="slider" v-model="distance_nodes"

@@ -213,18 +213,20 @@ export default {
       self.ctx.scale(self.transform.k, self.transform.k);
       self.ctx.beginPath();
 
-
+      var grad = {}
       self.graph.links.forEach(function(d) {
+
+        self.ctx.beginPath()
         if(self.gradient_links){
-          var grad = self.ctx.createLinearGradient(Math.round(d.source.x), Math.round(d.source.y), Math.round(d.target.x), Math.round(d.target.y));
-          grad.addColorStop("0", 'white');
-          grad.addColorStop("1.0", self.mainColor);
-          self.ctx.strokeStyle = grad;
+          grad[d.index] = self.ctx.createLinearGradient(Math.round(d.source.x), Math.round(d.source.y), Math.round(d.target.x), Math.round(d.target.y));
+          grad[d.index].addColorStop("0", 'white');
+          grad[d.index].addColorStop("1.0", self.mainColor);
+          self.ctx.strokeStyle = grad[d.index];
         }
         self.ctx.moveTo(d.source.x, d.source.y);
         self.ctx.lineTo(d.target.x, d.target.y);
+        self.ctx.stroke();
       });
-      self.ctx.stroke();
 
       // Draw the nodes
       self.graph.nodes.forEach(function(d, i) {

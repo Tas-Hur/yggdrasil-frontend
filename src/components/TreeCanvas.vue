@@ -216,7 +216,7 @@ export default {
 
       self.graph.links.forEach(function(d) {
         if(self.gradient_links){
-          var grad = self.ctx.createLinearGradient(d.source.x, d.source.y, d.target.x, d.target.y);
+          var grad = self.ctx.createLinearGradient(Math.round(d.source.x), Math.round(d.source.y), Math.round(d.target.x), Math.round(d.target.y));
           grad.addColorStop("0", 'white');
           grad.addColorStop("1.0", self.mainColor);
           self.ctx.strokeStyle = grad;

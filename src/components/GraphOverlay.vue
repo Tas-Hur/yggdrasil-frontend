@@ -1,7 +1,7 @@
 <template>
 <div>
   <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
-                  @favorite="setFavorite" @trash="deleteNode">
+                  @favorite="makeFavorite" @trash="deleteNode">
   </custom-tooltip>
 
 
@@ -53,11 +53,12 @@
         </template>
       </b-col> -->
       <b-col cols="auto">
-
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
+                          :new_nodes="waiting_nodes"
                           @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
                           @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative"
-                          @cdp="setCdp" @favorites="setFavorites">
+                          @cdp="setCdp" @favorites="setFavorites"
+                          @refresh_graph="updateNodes">
         </display-settings>
       </b-col>
     </b-row>
@@ -91,9 +92,10 @@ export default {
   data() {
     return {
       trash: [],
-      choice: true,
+      choice: false,
       favorites: [],
       draw: false,
+      waiting_nodes: [],
       total_nodes: [],
       total_links: [],
       adjlist: {},
@@ -143,53 +145,6 @@ export default {
     }
   },
   methods: {
-    deleteNode() {
-      var self = this
-      this.$bvModal.msgBoxConfirm('Êtes vous sûrs de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'danger',
-          okTitle: 'Supprmier',
-          cancelTitle: 'Annuler',
-          footerClass: 'p-2',
-          hideHeader: true,
-          centered: true
-        })
-        .then(value => {
-          if (value) {
-            console.log("delete")
-
-            self.trash.push(self.copyNestedObject(self.hovered_node))
-            console.log(self.total_nodes)
-            let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
-            self.total_nodes.splice(index, 1)
-            console.log("post thing", self.total_nodes)
-            index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
-            self.updateNodes();
-            self.hovered_node = null
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          // An error occurred
-        })
-    },
-    setFavorite(bool) {
-      var self = this;
-      if (bool) {
-        this.favorites.push(this.hovered_node)
-      } else {
-        let i = this.favorites.findIndex(n => this.hovered_node.id == n.id)
-        this.favorites.splice(i, 1)
-      }
-      this.hovered_node.favorite = bool;
-
-      this.hovered_node = Object.assign({}, this.hovered_node)
-      let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
-      this.total_nodes[index].favorite = bool;
-      index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
-      this.graph.nodes[index].favorite = bool
-    },
     copyNestedObject(obj) {
       var self = this;
       var ret
@@ -230,26 +185,6 @@ export default {
           break;
       }
     },
-    // slowAddNode(delay) {
-    //   var self = this;
-    //   if (this.cursor == 100) {
-    //     this.init();
-    //   }
-    //   if (this.cursor < this.total_nodes.length) {
-    //     this.addNode(this.total_nodes[this.cursor])
-    //   }
-    //   this.cursor += 1;
-    //   if (this.cursor < this.nodes_limit) {
-    //     setTimeout(self.slowAddNode.bind(null, delay), delay)
-    //   }
-    //
-    // },
-    search() {
-      this.$emit('search')
-    },
-    setHoveredNode(d) {
-      this.hovered_node = d;
-    },
     addNode(node) {
       var self = this
       node.id = node.paperId
@@ -282,7 +217,39 @@ export default {
       node.group = Math.round(node.citations.length / 100)
       if (!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined) {
         self.total_nodes.push(node);
+        self.waiting_nodes.push(node);
       }
+    },
+    deleteNode() {
+      var self = this
+      this.$bvModal.msgBoxConfirm('Êtes vous sûrs de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
+        size: 'sm',
+        buttonSize: 'sm',
+        okVariant: 'danger',
+        okTitle: 'Supprmier',
+        cancelTitle: 'Annuler',
+        footerClass: 'p-2',
+        hideHeader: true,
+        centered: true
+      })
+      .then(value => {
+        if (value) {
+          console.log("delete")
+
+          self.trash.push(self.copyNestedObject(self.hovered_node))
+          console.log(self.total_nodes)
+          let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+          self.total_nodes.splice(index, 1)
+          console.log("post thing", self.total_nodes)
+          index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+          self.updateNodes();
+          self.hovered_node = null
+        }
+      })
+      .catch(err => {
+        console.log(err)
+        // An error occurred
+      })
     },
     computeEventual_nodes() {
       var self = this
@@ -335,16 +302,6 @@ export default {
       Vue.set(self, 'adjlist', self.adjlist);
       return links
     },
-    addCircle() {
-      this.graph.nodes.push({
-        id: '45454545454',
-        'cdpScore': 124,
-        title: "qsdmlkj",
-        x: this.graph.nodes[0].x,
-        y: this.graph.nodes[0].y,
-        citations: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-      })
-    },
     updateNodes(reset) {
       if (reset) {
         this.graph = {
@@ -358,8 +315,31 @@ export default {
       console.log("Updated nodes")
       var links = [...this.computeEventual_links(nodes)]
       console.log("Updated links")
+      this.waiting_nodes = []
       Vue.set(self.graph, 'nodes', nodes)
       Vue.set(self.graph, 'links', links)
+    },
+    makeFavorite(bool) {
+      var self = this;
+      if (bool) {
+        this.favorites.push(this.hovered_node)
+      } else {
+        let i = this.favorites.findIndex(n => this.hovered_node.id == n.id)
+        this.favorites.splice(i, 1)
+      }
+      this.hovered_node.favorite = bool;
+
+      this.hovered_node = Object.assign({}, this.hovered_node)
+      let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.total_nodes[index].favorite = bool;
+      index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+      this.graph.nodes[index].favorite = bool
+    },
+    search() {
+      this.$emit('search')
+    },
+    setHoveredNode(d) {
+      this.hovered_node = d;
     },
     setCharge(charge) {
       this.node_charge = charge;

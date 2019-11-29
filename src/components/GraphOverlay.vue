@@ -92,7 +92,7 @@ export default {
   data() {
     return {
       trash: [],
-      choice: false,
+      choice: !false,
       favorites: [],
       draw: false,
       waiting_nodes: [],

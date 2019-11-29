@@ -211,17 +211,20 @@ export default {
       self.ctx.clearRect(0, 0, self.width, self.height);
       self.ctx.translate(self.transform.x, self.transform.y);
       self.ctx.scale(self.transform.k, self.transform.k);
-      self.ctx.beginPath();
 
       var grad = {}
       self.graph.links.forEach(function(d) {
-
         self.ctx.beginPath()
         if(self.gradient_links){
-          grad[d.index] = self.ctx.createLinearGradient(Math.round(d.source.x), Math.round(d.source.y), Math.round(d.target.x), Math.round(d.target.y));
-          grad[d.index].addColorStop("0", 'white');
-          grad[d.index].addColorStop("1.0", self.mainColor);
-          self.ctx.strokeStyle = grad[d.index];
+          try{
+            grad[d.index] = self.ctx.createLinearGradient(Math.round(d.source.x), Math.round(d.source.y), Math.round(d.target.x), Math.round(d.target.y));
+            grad[d.index].addColorStop("0", 'white');
+            grad[d.index].addColorStop("1.0", self.mainColor);
+            self.ctx.strokeStyle = grad[d.index];
+          }catch(err){
+            console.log(err)
+            self.ctx.strokeStyle = self.mainColor;
+          }
         }
         self.ctx.moveTo(d.source.x, d.source.y);
         self.ctx.lineTo(d.target.x, d.target.y);

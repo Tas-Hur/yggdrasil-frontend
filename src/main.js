@@ -17,6 +17,7 @@ import {
   faSearch,
   faCog,
   faFilter,
+  faPlayCircle,
   faStar,
   faBriefcase,
   faTrash,
@@ -40,6 +41,7 @@ library.add(faStar)
 library.add(faBriefcase)
 library.add(faTrash)
 library.add(faSync)
+library.add(faPlayCircle)
 
 
 Vue.use(ToggleButton)

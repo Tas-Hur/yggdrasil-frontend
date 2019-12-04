@@ -1,7 +1,7 @@
 <template>
 <div>
   <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
-                  @favorite="makeFavorite" @trash="deleteNode">
+                  @favorite="makeFavorite" @trash="deleteNode" @new_search="newSearch">
   </custom-tooltip>
 
 
@@ -145,6 +145,10 @@ export default {
     }
   },
   methods: {
+    newSearch(paperId){
+      console.log("new search ",paperId)
+      this.$emit('new_search', paperId)
+    },
     copyNestedObject(obj) {
       var self = this;
       var ret

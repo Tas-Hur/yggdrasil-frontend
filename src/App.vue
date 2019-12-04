@@ -67,7 +67,7 @@ export default {
           })
           throw "Paper not found";
         }
-        this.draw_graph(null);
+        this.draw_graph();
       })
       .catch(err => {
         console.log(err)

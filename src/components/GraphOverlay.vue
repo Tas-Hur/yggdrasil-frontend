@@ -37,6 +37,8 @@
       <b-col cols="auto">
         <template v-if="graph !== null">
           Le graph comporte <span class="imp_text">{{graph.nodes.length}}</span> noeuds et <span class="imp_text">{{graph.links.length}}</span> liens
+          <br  />
+          Au total <span class="imp_text">{{total_nodes.length}}</span> noeuds et <span class="imp_text">{{total_links.length}}</span> sont chargés
         </template>
       </b-col>
     </b-row>
@@ -147,7 +149,7 @@ export default {
   methods: {
     newSearch(paperId){
       console.log("new search ",paperId)
-      this.$emit('new_search', paperId)
+      this.$emit('new_search', {request_type:'paper_id', request:paperId})
     },
     copyNestedObject(obj) {
       var self = this;
@@ -193,6 +195,7 @@ export default {
       var self = this
       node.id = node.paperId
       node.color = 'white'
+      console.log("Adding the node")
       node.references.forEach(ref => {
         if (self.total_nodes.map(node => node.id).includes(ref.paperId)) {
           let link = {
@@ -214,6 +217,8 @@ export default {
           }
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
+          }else{
+            console.log("node citations Already in ! ")
           }
         }
       })
@@ -222,6 +227,8 @@ export default {
       if (!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined) {
         self.total_nodes.push(node);
         self.waiting_nodes.push(node);
+      }else{
+        console.log("Node already in")
       }
     },
     deleteNode() {
@@ -401,7 +408,7 @@ export default {
       console.log("RECEIVED ALL")
     })
     this.socket.on('new_node', (data) => {
-      console.log("receiving node")
+      console.log("receiving node : ")
       this.addNode(data)
     })
   },

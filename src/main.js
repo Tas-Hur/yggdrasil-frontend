@@ -3,9 +3,7 @@ import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import {
-  FontAwesomeIcon
-} from '@fortawesome/vue-fontawesome'
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import VueMultiselect from 'vue-multiselect'
 import ToggleButton from 'vue-js-toggle-button'
 import GoJs from 'gojs'
@@ -21,7 +19,8 @@ import {
   faFilter,
   faStar,
   faBriefcase,
-  faTrash
+  faTrash,
+  faSync
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -40,6 +39,7 @@ library.add(faFilter)
 library.add(faStar)
 library.add(faBriefcase)
 library.add(faTrash)
+library.add(faSync)
 
 Vue.use(ToggleButton)
 Vue.component('vue-multiselect', VueMultiselect)

@@ -8,7 +8,7 @@
       Charge : {{node_charge}}
       <vue-slider class="slider" v-model="node_charge"
                   tooltipPlacement="bottom" direction="rtl"
-                  :min="-100000" :max="0" :contained="true" />
+                  :min="-15000" :max="0" :contained="true" />
       <br />
       Distance : {{distance_nodes}}
       <vue-slider class="slider" v-model="distance_nodes"
@@ -25,6 +25,12 @@
       <toggle-button v-model="gradient_links"
                      :color="mainColor"
                      @change="$emit('gradient_links', gradient_links)" />
+      <br />
+      Graph alternatif (plus rapide) :
+      <br />
+      <toggle-button v-model="alternative"
+                     :color="mainColor"
+                     @change="$emit('alternative', alternative)" />
       <br />
       <!-- <b-button @click="addCircle">
         Add Node
@@ -58,9 +64,6 @@
                      :color="mainColor"
                      @change="$emit('favorites', favorites)" />
       <br />
-      <!-- <b-button @click="addCircle">
-        Add Node
-      </b-button> -->
     </b-col>
   </div>
 
@@ -83,12 +86,21 @@
           {{n.title}}
         </li>
       </ul>
-      <!-- <b-button @click="addCircle">
-        Add Node
-      </b-button> -->
     </b-col>
   </div>
 
+  <div class="inputs_group">
+    <b-col class="custom-btn text-right" cols="12">
+      <font-awesome-icon class="svg_icon" icon="sync"
+                         @click="refreshGraph" />
+      <div class="new_nodes_notif" v-if="new_nodes.length != 0">
+        {{new_nodes.length}}
+      </div>
+    </b-col>
+    <!-- <b-col class="sliders lists" cols="auto">
+      <span class="green_text">{{new_nodes.length}}</span> nouveaux papiers
+    </b-col> -->
+  </div>
 </div>
 </template>
 
@@ -99,6 +111,7 @@ import 'vue-slider-component/theme/antd.css'
 export default {
   name: 'display-settings',
   props: {
+    new_nodes: Array,
     dates_filter: Array,
     dates_extrem: Object,
     fav_nodes: Array,
@@ -119,6 +132,7 @@ export default {
       dates_buffer: [],
       favorites: false,
       disp_titles: true,
+      alternative: true,
       gradient_links: true,
     }
   },
@@ -131,6 +145,9 @@ export default {
     }
   },
   methods: {
+    refreshGraph() {
+      this.$emit('refresh_graph')
+    },
     reduceSettings() {
       // this.width = "2em";
       // this.height = "2em";
@@ -156,6 +173,11 @@ export default {
     }
   },
   watch: {
+    new_nodes() {
+      var self = this
+      this.new_node_alert = true;
+      // setTimeout(()=>{self.new_node_alert = false},1000)
+    },
     node_charge() {
       this.$emit('charge', this.node_charge)
     },
@@ -174,6 +196,14 @@ export default {
   padding: 0.5em;
   border: 1px solid var(--main-color);
   border-radius: 100px;
+  transition: color ease-in-out .2s;
+  cursor:normal;
+}
+
+.svg_icon:hover {
+  background-color: var(--main-color);
+  color: white;
+  transition: color ease-in-out .2s;
 }
 
 .custom-btn {
@@ -201,9 +231,38 @@ export default {
   transition: all ease-in-out .2s;
 }
 
+.new_nodes_notif {
+  position: fixed;
+  right: 5em;
+
+  font-size: 80%;
+  text-align: center;
+  font-weight: bold;
+  color:white;
+
+  border: 1px solid var(--green-color);
+  border-radius: 100px;
+
+  margin-top: -1em;
+  padding: 3px;
+  width: 2em;
+  height: 2em;
+
+  background-color: var(--green-color);
+}
+
+.sliders:hover .svg_icon {
+  /* background-color: white; */
+  opacity: 1;
+  transition: all ease-in-out .2s;
+}
+
+.green_text {
+  color: var(--green-color);
+}
 
 .sliders.display:hover {
-  max-height: 17em;
+  max-height: 22em;
 }
 
 .sliders.filters:hover {
@@ -213,7 +272,7 @@ export default {
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 260px;
-  max-height: 17em;
+  max-height: 22em;
   transition: all ease-in-out .2s;
 }
 

@@ -3,11 +3,12 @@
   <g id='container'>
     <g class="links" id="g_links">
       <template v-if="graph !== null">
-        <linearGradient v-if="gradient_links":id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
+        <linearGradient v-if="gradient_links" :id="'gradient_'+link.index" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" :key="link.index" v-for="link in graph.links" gradientUnits="userSpaceOnUse">
           <stop stop-color="white" offset="0" />
           <stop :stop-color="link.source.favorite || link.target.favorite ? greenColor : mainColor" offset="1" />
         </linearGradient>
-        <line v-if="draw_lines" :stroke="gradient_links ? 'url(#gradient_'+link.index+')' : mainColor" stroke-width="1.5px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y" v-for="link in graph.links">
+        <line v-if="draw_lines" :stroke="gradient_links ? 'url(#gradient_'+link.index+')' : mainColor" stroke-width="1.5px" :style="{opacit:0.5}" :x1="fixna(link.source.x)" :y1="link.source.y" :x2="link.target.x" :y2="link.target.y"
+              v-for="link in graph.links">
         </line>
         <!-- <circle v-if="link.target.citations !== null && link.target.citations !== undefined" class="pointer" :fill="mainColor" stroke-width="1px" :stroke="mainColor" r="5"
           :cx="computeArrowX([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)" :cy="computeArrowY([link.target.x, link.target.y], [link.source.x, link.source.y], link.target.citations.length)"
@@ -17,10 +18,10 @@
     <g class="nodes" id="g_nodes">
       <template v-if="graph !== null">
         <circle @mouseenter="focus(node)" @mouseleave="unfocus" class="circle" fill="white" :stroke="node.favorite ? greenColor : mainColor" stroke-width="2px" :id="node.paperId" :key="node.paperId" :r="computeRadius(node.citations.length)"
-          :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
+                :cx="'fx' in node && node.fx !== null ? node.fx : fixna(node.x)" :cy="'fy' in node && node.fy !== null ? node.fy : fixna(node.y)" v-for="node in graph.nodes">
         </circle>
         <text v-if="disp_titles" :id="'title_'+node.id" lengthAdjust="spacingAndGlyphs" :textLength="4*computeRadius(node.citations.length)" :fill="node.favorite ? greenColor : mainColor" :x="node.x - 2*computeRadius(node.citations.length)"
-          :y="node.y+computeRadius(node.citations.length)+25" v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
+              :y="node.y+computeRadius(node.citations.length)+25" v-for="node in graph.nodes">{{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/2))}}...</text>
         <!-- {{node.title.slice(0,Math.min(node.title.length, computeRadius(node.citations.length)/4   ))}}... -->
       </template>
     </g>
@@ -51,14 +52,15 @@ export default {
     adjlist: Object,
     disp_titles: Boolean,
     gradient_links: Boolean,
-    draw_lines:Boolean,
+    draw_lines: Boolean,
   },
   components: {
 
   },
   mounted() {
+    console.log("mounted component", this.graph_original)
     this.graph = this.graph_original
-    this.init();
+    this.init()
   },
   data() {
     return {
@@ -79,6 +81,22 @@ export default {
     },
   },
   watch: {
+    graph_original() {
+      var self = this;
+      console.log("graph original changed");
+      // this.graph = this.copyNestedObject(this.graph_original)
+      // this.graphLayout.nodes(self.graph.nodes)
+      // this.graphLayout.alpha(0.3).restart()
+      // this.graph.links.forEach((link, i) => {
+      //   Vue.set(self.graph.links, i, Object.assign({}, link))
+      //   Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
+      //   Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
+      // })
+      // this.graph.nodes.forEach((node, i) => {
+      //   Vue.set(self.graph.nodes, i, Object.assign({}, node))
+      // })
+
+    },
     adjlist() {
       console.log("adjlist refreshed");
     },
@@ -90,22 +108,6 @@ export default {
     }
   },
   methods: {
-    computeThales(target_coord, source_coord, quote) {
-      var vector = [target_coord[0] - source_coord[0], target_coord[1] - source_coord[1]]
-      var d = Math.pow(Math.pow(vector[0], 2) + Math.pow(vector[1], 2), 1 / 2)
-      return {
-        d: d,
-        vector: vector
-      }
-    },
-    computeArrowX(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[0] - ((this.computeRadius(quotes) + 5) * res.vector[0] / res.d)
-    },
-    computeArrowY(target_coord, source_coord, quotes) {
-      let res = this.computeThales(target_coord, source_coord, quotes)
-      return target_coord[1] - ((this.computeRadius(quotes) + 5) * res.vector[1] / res.d)
-    },
     correctPos(pos) {
       if (pos < 0 || !isFinite(pos)) {
         return 800
@@ -189,53 +191,48 @@ export default {
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended)
-      );
+      )
     },
     init() {
       if (this.drawn) {
         return;
       }
-      // var nodes = this.computeEventual_nodes()
-      // var links = [...this.computeEventual_links(nodes)]
-      // this.graph = {
-      //   nodes: nodes,
-      //   links: links
-      // }
+      this.graph = (this.graph_original)
       this.drawn = true;
       var self = this;
       var svg = d3.select("svg"),
         width = 1920,
         height = 1080;
       var color = d3.scaleOrdinal(d3.schemeCategory10);
-      // var graph = Object.assign({}, this.graph)this.back
 
       var label = {
         'nodes': [],
         'links': []
       };
-      var graph = this.graph
-      var links = [...graph.links]
-      var nodes = [...graph.nodes]
 
-      this.graphLayout = d3.forceSimulation(nodes)
+      var graph = this.graph
+      this.graphLayout = d3.forceSimulation(graph.nodes)
         .force("charge", d3.forceManyBody().strength(self.node_charge))
         .force("x", d3.forceX(width / 2).strength(1))
         .force("y", d3.forceY(height / 2).strength(1))
         .force("collide", d3.forceCollide(self.distance_nodes))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("link", d3.forceLink(links).id(d => d.id).distance(self.distance_nodes).strength(1))
+        .force("link", d3.forceLink(graph.links).id(d => d.id).distance(self.distance_nodes).strength(1))
         .on("tick", self.ticked)
         .alpha(0.03)
         .alphaDecay(0.002)
 
-      // this.graph.links.forEach(function(d) {
-      //   self.adjlist[d.source.id + "-" + d.target.id] = true;
-      //   self.adjlist[d.target.id + "-" + d.source.id] = true;
-      // });
-
-
       var svg = d3.select("#viz");
       var container = d3.select("#container");
+
+      this.graph.links.forEach((link, i) => {
+        Vue.set(self.graph.links, i, Object.assign({}, link))
+        Vue.set(self.graph.links[i], "source", this.graph.nodes.find(node => node.paperId == link.source.paperId))
+        Vue.set(self.graph.links[i], "target", this.graph.nodes.find(node => node.paperId == link.target.paperId))
+      })
+      this.graph.nodes.forEach((node, i) => {
+        Vue.set(self.graph.nodes, i, Object.assign({}, node))
+      })
 
       svg.call(
         d3.zoom()
@@ -298,30 +295,30 @@ export default {
 </script>
 
 <style scoped>
-  text {
-    background-color: var(--main-color);
-    color: white;
-  }
+text {
+  background-color: var(--main-color);
+  color: white;
+}
 
-  svg {
-    /* background-color: var(--main-color); */
-    /* color: rgb(200, 200, 200); */
-  }
+svg {
+  /* background-color: var(--main-color); */
+  /* color: rgb(200, 200, 200); */
+}
 
-  circle {
-    transition: ease-in-out opacity .3s;
-  }
+circle {
+  transition: ease-in-out opacity .3s;
+}
 
-  line {
-    transition: ease-in-out opacity .3s;
-  }
+line {
+  transition: ease-in-out opacity .3s;
+}
 
-  text {
-    transition: ease-in-out opacity .3s;
-  }
+text {
+  transition: ease-in-out opacity .3s;
+}
 
-  #infoBoxHolder {
-    z-index: 300;
-    position: fixed;
-  }
+#infoBoxHolder {
+  z-index: 300;
+  position: fixed;
+}
 </style>

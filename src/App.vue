@@ -15,12 +15,11 @@
 <script>
 import CrashPage from './components/CrashPage.vue'
 import TreeV2 from './components/TreeV2.vue'
-import TreeD3 from './components/TreeD3.vue'
 import GraphOverlay from './components/GraphOverlay.vue'
 export default {
   name: 'app',
   components: {
-    CrashPage, TreeV2, GraphOverlay,TreeD3
+    CrashPage, TreeV2, GraphOverlay
   },
   data(){
     return{

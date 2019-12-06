@@ -50,7 +50,8 @@ export default {
     newSearch(request_data){
       var self = this;
       this.loading=true
-      let url = "http://vps758172.ovh.net:8080/"+request_data.request_type
+      let url = this.back_url+'/'+request_data.request_type
+      console.log(url);
       this.$.get(url, {
         params: {
           paper_id: request_data.request,

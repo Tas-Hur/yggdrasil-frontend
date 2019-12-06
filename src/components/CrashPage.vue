@@ -60,7 +60,9 @@ export default {
   },
   methods:{
     connect(){
-      this.socket = Vue.prototype.$socketIO.connect("http://vps758172.ovh.net:8080")
+      var self = this;
+      console.log(self.back_url)
+      this.socket = Vue.prototype.$socketIO.connect(this.back_url)
       this.socket.on('connect', () => {
         console.log("connected ", self.socket)
         this.$emit("socket_connected", self.socket)

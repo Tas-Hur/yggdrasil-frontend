@@ -56,45 +56,21 @@ export default {
       ]
     }
   },
-  components: {},
-  methods: {
-    connect() {
-      var self = this
-      this.socket = Vue.prototype.$socketIO.connect("http://localhost:3000")
+  components: {
+  },
+  methods:{
+    connect(){
+      var self = this;
+      console.log(self.back_url)
+      this.socket = Vue.prototype.$socketIO.connect(this.back_url)
       this.socket.on('connect', () => {
         console.log("connected ", self.socket)
         this.$emit("socket_connected", self.socket)
       })
     },
-
     search() {
       this.$emit('search',{request_type: this.query_type.code, request: this.request})
-      // var self = this;
-      // let url = "http://localhost:3000/" + this.query_type.code
-      // this.$.get(url, {
-      //     params: {
-      //       paper_id: self.request,
-      //       socket_id: self.socket.id
-      //     }
-      //   })
-      //   .then(res => {
-      //     console.log("success ? ", res.data)
-      //     this.loading = false;
-      //     if ('error' in res.data) {
-      //       this.$bvToast.toast(`Le papier n'a pas été trouvé`, {
-      //         title: 'Erreur',
-      //         autoHideDelay: 2000,
-      //       })
-      //       throw "Paper not found";
-      //     }
-      //     this.$emit("got_papers", {
-      //       socket: this.socket
-      //     })
-      //   })
-      //   .catch(err => {
-      //     console.log(err)
-      //     this.loading = false;
-      //   })
+
     }
   },
   mounted() {

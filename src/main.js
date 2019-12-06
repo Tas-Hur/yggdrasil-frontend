@@ -33,6 +33,8 @@ Vue.prototype.interestColor= '#FDDC17',
 Vue.prototype.lightColor= "rgb(150,150,150)",
 Vue.prototype.redColor= "#ff6a6a",
 Vue.prototype.greenColor= "#41B883",
+// Vue.prototype.back_url = "http://vps758172.ovh.net:8080"
+Vue.prototype.back_url = "http://localhost:8080"
 
 library.add(faSearch)
 library.add(faCog)
@@ -42,7 +44,6 @@ library.add(faBriefcase)
 library.add(faTrash)
 library.add(faSync)
 library.add(faPlayCircle)
-
 
 Vue.use(ToggleButton)
 Vue.component('vue-multiselect', VueMultiselect)

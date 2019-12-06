@@ -195,7 +195,6 @@ export default {
       var self = this
       node.id = node.paperId
       node.color = 'white'
-      console.log("Adding the node")
       node.references.forEach(ref => {
         if (self.total_nodes.map(node => node.id).includes(ref.paperId)) {
           let link = {
@@ -218,7 +217,6 @@ export default {
           if (!self.total_links.includes(link)) {
             self.total_links.push(link)
           }else{
-            console.log("node citations Already in ! ")
           }
         }
       })
@@ -228,7 +226,6 @@ export default {
         self.total_nodes.push(node);
         self.waiting_nodes.push(node);
       }else{
-        console.log("Node already in")
       }
     },
     deleteNode() {
@@ -274,9 +271,6 @@ export default {
         }
 
         if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
-          console.log(node.year)
-          console.log(self.dates_filter)
-          console.log("Dates are fitlersd")
           dates = false
         }
 
@@ -371,13 +365,11 @@ export default {
       this.disp_titles = disp_titles
     },
     setKeyWords(str) {
-      console.log("the" + str + "string")
       if (str === "") {
         this.key_words = [];
       } else {
         this.key_words = [...str.split(" ")]
       }
-      console.log(this.key_words)
       this.updateNodes();
     },
     setDates(dates) {
@@ -388,7 +380,6 @@ export default {
       this.updateNodes()
     },
     setGradientLinks(gradient_links) {
-      console.log("NOT GRADIENT")
       this.gradient_links = gradient_links;
     },
     setAlternative(choice) {
@@ -408,7 +399,7 @@ export default {
       console.log("RECEIVED ALL")
     })
     this.socket.on('new_node', (data) => {
-      console.log("receiving node : ")
+      console.log("receive node")
       this.addNode(data)
     })
   },

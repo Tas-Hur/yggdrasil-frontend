@@ -1,10 +1,15 @@
 <template>
   <div id="app">
 
-    <crash-page v-if="step==0" @got_papers="draw_graph" class="content">
+    <crash-page v-if="step==0" @got_papers="draw_graph" class="content" @search="newSearch" @socket_connected="sockectConnected">
     </crash-page>
 
-    <graph-overlay :socket="socket" :nodes="data" @search="search" v-if="step == 1">
+    <b-row v-if="loading" class="req_spinner" align-h="center">
+      <b-spinner></b-spinner>
+    </b-row>
+
+    <graph-overlay :socket="socket" :nodes="data" @search="search" v-if="step == 1"
+                  @new_search="newSearch">
     </graph-overlay>
     <!-- <tree-d3 :socket="socket" :nodes="data" @search="search" v-if="step == 1">
     </tree-d3> -->
@@ -24,6 +29,7 @@ export default {
   data(){
     return{
       step:0,
+      loading:false,
       socket:null,
       data:[],
     }
@@ -37,14 +43,46 @@ export default {
     search(){
       this.step=0
     },
-    draw_graph(session){
+    sockectConnected(socket){
+      console.log("connecting socket")
+      this.socket = socket
+    },
+    newSearch(request_data){
+      var self = this;
+      this.loading=true
+      let url = "http://vps758172.ovh.net:8080/"+request_data.request_type
+      this.$.get(url, {
+        params: {
+          paper_id: request_data.request,
+          socket_id: self.socket.id
+        }
+      })
+      .then(res => {
+        console.log("success ? ",res.data)
+        this.loading=false;
+        if('error' in res.data){
+          this.$bvToast.toast(`Le papier n'a pas été trouvé`, {
+            title: 'Erreur',
+            autoHideDelay:2000,
+          })
+          throw "Paper not found";
+        }
+        this.draw_graph();
+      })
+      .catch(err => {
+        console.log(err)
+        this.loading=false;
+      })
+    },
+    onUserLeave(){
+      this.socket.emit("userLeave")
+    },
+    draw_graph(){
+      window.removeEventListener("beforeunload", this.onUserLeave, false)
       this.step = 1
-      this.data=session.data
-      this.socket=session.socket
       var self =this;
       console.log("ici : ", this.socket)
-
-      window.addEventListener("beforeunload", function(){ self.socket.emit("userLeave")}, false);
+      window.addEventListener("beforeunload", this.onUserLeave, false);
     }
   },
 }

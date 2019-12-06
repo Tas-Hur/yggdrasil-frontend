@@ -222,7 +222,6 @@ export default {
             grad[d.index].addColorStop("1.0", self.mainColor);
             self.ctx.strokeStyle = grad[d.index];
           }catch(err){
-            console.log(err)
             self.ctx.strokeStyle = self.mainColor;
           }
         }

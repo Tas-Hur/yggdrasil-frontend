@@ -1,60 +1,57 @@
 <template>
-  <b-container>
-    <b-row class="title align-items-center">
-      <b-col>
-        <h3>
-          Yggdrasil
-        </h3>
-      </b-col>
-    </b-row>
-    <b-row align-h="center">
-      <b-col sm="7">
-        <b-row align-v="center" align-h="center">
-          <font-awesome-icon class="custom-btn" icon="search" @click="search"/>
-          <b-col cols="10">
-            <b-input @keyup.enter="search" placeholder="rechercher par DOI, mot-clés, auteur..." class="input-request" icon="search" label="mots-clés, DOI, auteur..." v-model="request" />
-          </b-col>
-        </b-row>
+<b-container>
+  <b-row class="title align-items-center">
+    <b-col>
+      <h3>
+        Yggdrasil
+      </h3>
+    </b-col>
+  </b-row>
+  <b-row align-h="center">
+    <b-col sm="7">
+      <b-row align-v="center" align-h="center">
+        <font-awesome-icon class="custom-btn" icon="search" @click="search" />
+        <b-col cols="10">
+          <b-input :disabled="socket === null" @keyup.enter="search" placeholder="rechercher par DOI, mot-clés, auteur..." class="input-request" icon="search" label="mots-clés, DOI, auteur..." v-model="request" />
+        </b-col>
+      </b-row>
 
-        <b-row align-h="center" align-v="center" class="query_type-select">
-          Je recherche
-          <b-col cols="7">
-            <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
-          </b-col>
-        </b-row>
-
-        <b-row v-if="loading" class="req_spinner" align-h="center">
-          <b-spinner></b-spinner>
-        </b-row>
-      </b-col>
-    </b-row>
-  </b-container>
+      <b-row align-h="center" align-v="center" class="query_type-select">
+        Je recherche
+        <b-col cols="7">
+          <vue-multiselect :allow-empty="false" v-model="query_type" label="name" track-by="code" :options="options"></vue-multiselect>
+        </b-col>
+      </b-row>
+    </b-col>
+  </b-row>
+</b-container>
 </template>
 
 <script>
 import Vue from 'vue'
-export default{
-  name:'crash-page',
-  data(){
-    return{
-      socket:null,
-      loading:false,
-      request:"",
-      author:false,
-      query_type:{code:'paper_id', name:"un papier spécifique "},
-      options:
-      [
-        {
-          code:'author',
-          name:'un auteur'
+export default {
+  name: 'crash-page',
+  data() {
+    return {
+      socket: null,
+      loading: false,
+      request: "",
+      author: false,
+      query_type: {
+        code: 'paper_id',
+        name: "un papier spécifique "
+      },
+      options: [{
+          code: 'author',
+          name: 'un auteur'
         },
         {
-          code:'key_words',
-          name:'des mot-clés'
+          code: 'key_words',
+          name: 'des mot-clés'
         },
         {
-          code:'paper_id',
-          name:'un papier spécifique'
+          code: 'paper_id',
+          name: 'un papier spécifique'
         }
       ]
     }
@@ -65,65 +62,42 @@ export default{
     connect(){
       this.socket = Vue.prototype.$socketIO.connect("http://vps758172.ovh.net:8080")
       this.socket.on('connect', () => {
-        console.log("connected")
+        console.log("connected ", self.socket)
+        this.$emit("socket_connected", self.socket)
       })
     },
+    search() {
+      this.$emit('search',{request_type: this.query_type.code, request: this.request})
 
-    search(){
-      var self = this;
-      this.loading=true
-      let url = "http://api.semanticscholar.org/v1/author/38087946"
-      url = "http://vps758172.ovh.net:8080/"+this.query_type.code
-      this.$.get(url, {
-        params: {
-          paper_id: self.request,
-          socket_id: self.socket.id
-        },
-      })
-      .then(res => {
-        console.log("success ? ",res.data)
-        this.loading=false;
-        if('error' in res.data){
-          this.$bvToast.toast(`Le papier n'a pas été trouvé`, {
-            title: 'Erreur',
-            autoHideDelay:2000,
-          })
-          throw "Paper not found";
-        }
-        this.$emit("got_papers", {socket: this.socket})
-      })
-      .catch(err => {
-        console.log(err)
-        this.loading=false;
-      })
     }
   },
-  mounted(){
+  mounted() {
     this.connect();
   }
 }
 </script>
 
 <style scoped>
-.req_spinner{
-  margin-top:2rem;
+.req_spinner {
+  margin-top: 2rem;
 }
 
-.checkbox{
-  margin-top:1rem;
+.checkbox {
+  margin-top: 1rem;
   padding: 0 2rem 0 2rem;
 }
 
-.query_type-select{
-  margin-top:1.5rem;
+.query_type-select {
+  margin-top: 1.5rem;
 }
 
-.title{
-  margin-top:17vh;
-  margin-bottom:13vh;
-  height:30%;
+.title {
+  margin-top: 17vh;
+  margin-bottom: 13vh;
+  height: 30%;
 }
-.input-request{
-  text-align:left;
+
+.input-request {
+  text-align: left;
 }
 </style>

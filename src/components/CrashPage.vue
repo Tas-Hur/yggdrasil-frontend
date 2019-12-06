@@ -63,7 +63,7 @@ export default{
   },
   methods:{
     connect(){
-      this.socket = Vue.prototype.$socketIO.connect("http://vps758172.ovh.net:3000")
+      this.socket = Vue.prototype.$socketIO.connect("http://vps758172.ovh.net:8080")
       this.socket.on('connect', () => {
         console.log("connected")
       })
@@ -73,7 +73,7 @@ export default{
       var self = this;
       this.loading=true
       let url = "http://api.semanticscholar.org/v1/author/38087946"
-      url = "http://vps758172.ovh.net:3000/"+this.query_type.code
+      url = "http://vps758172.ovh.net:8080/"+this.query_type.code
       this.$.get(url, {
         params: {
           paper_id: self.request,

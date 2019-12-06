@@ -4,9 +4,9 @@
     <crash-page v-if="step==0" @got_papers="draw_graph" class="content" @search="newSearch" @socket_connected="sockectConnected">
     </crash-page>
 
-    <b-row v-if="loading" class="req_spinner" align-h="center">
+    <b-col v-if="loading" class="req_spinner" align-h="center">
       <b-spinner></b-spinner>
-    </b-row>
+    </b-col>
 
     <graph-overlay :socket="socket" :nodes="data" @search="search" v-if="step == 1"
                   @new_search="newSearch">

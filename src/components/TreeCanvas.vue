@@ -179,7 +179,7 @@ export default {
             self.$emit('hover_node', node)
             node.x = self.transform.applyX(node.x);
             node.y = self.transform.applyY(node.y);
-
+            self.current_node = node;
             return node;
           }
         }
@@ -231,14 +231,18 @@ export default {
       });
 
       // Draw the nodes
+      self.ctx.beginPath()
       self.graph.nodes.forEach(function(d, i) {
         let radius = self.computeRadius(d.citations.length)
-        self.ctx.beginPath()
         self.ctx.lineWidth = 3
         self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor
 
         self.ctx.moveTo(d.x, d.y)
         self.ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+
+        if(self.current_node !== null && self.current_node.id === d.id){
+          self.ctx.arc(d.x, d.y, radius*0.8, 0, 2 * Math.PI, true);
+        }
 
         if (self.disp_titles) {
           self.ctx.font = "13px Arial";
@@ -247,9 +251,11 @@ export default {
           self.ctx.fillStyle = "white"
         }
 
-        self.ctx.stroke()
-        self.ctx.fill()
+
+
       });
+      self.ctx.stroke()
+      self.ctx.fill()
       self.graphLayout.force("link")
         .links(self.graph.links);
       self.ctx.restore();

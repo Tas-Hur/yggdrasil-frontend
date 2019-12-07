@@ -32,6 +32,11 @@
                      :color="mainColor"
                      @change="$emit('alternative', alternative)" />
       <br />
+      N'afficher que les voisins du noeud actif :
+      <br />
+      <toggle-button v-model="only_adj"
+                     :color="mainColor"
+                     @change="$emit('only_adj', only_adj)" />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -43,6 +48,11 @@
       <font-awesome-icon class="svg_icon" icon="filter" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
     <b-col class="sliders filters" cols="auto">
+      Nombre de citations minimal : {{citations_threshold}}
+      <vue-slider class="slider" v-model="citations_threshold"
+                  tooltipPlacement="bottom" :min="0" :max="1000" :contained="true"
+                  @drag-end="$emit('citations', citations_threshold)" />
+      <br />
       Cdp Score mini : {{cdpScore_threshold}}
       <vue-slider class="slider" v-model="cdpScore_threshold"
                   tooltipPlacement="bottom" :min="0" :max="50" :contained="true"
@@ -131,6 +141,8 @@ export default {
       distance_nodes: 150,
       dates_buffer: [],
       favorites: false,
+      citations_threshold:5,
+      only_adj:false,
       disp_titles: true,
       alternative: true,
       gradient_links: true,
@@ -262,17 +274,17 @@ export default {
 }
 
 .sliders.display:hover {
-  max-height: 22em;
+  max-height: 27em;
 }
 
 .sliders.filters:hover {
-  max-height: 15em;
+  max-height: 21em;
 }
 
 .custom-btn:hover+.sliders {
   opacity: 1;
   width: 260px;
-  max-height: 22em;
+  max-height: 27em;
   transition: all ease-in-out .2s;
 }
 

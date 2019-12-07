@@ -58,8 +58,8 @@
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
                           :new_nodes="waiting_nodes"
                           @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
-                          @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative"
-                          @cdp="setCdp" @favorites="setFavorites"
+                          @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"
+                          @cdp="setCdp" @favorites="setFavorites" @citations="setCitations"
                           @refresh_graph="updateNodes">
         </display-settings>
       </b-col>
@@ -110,10 +110,14 @@ export default {
       gradient_links: true,
       node_charge: -3000,
       distance_nodes: 100,
+
+      only_adj: false,
       key_words: [],
+      citations_threshold: 5,
       dates_filter: null,
       cdpScore_threshold: 5,
       favorites_only: false,
+
       hovered_node_location: {
         F: -25,
         G: 100
@@ -264,17 +268,34 @@ export default {
     },
     computeEventual_nodes() {
       var self = this
+      if(this.hovered_node !== null){
+        console.log(this.hovered_node)
+        console.log(this.hovered_node.citations)
+      }
       var nodes = this.total_nodes.filter(node => {
         var filt = true
         var kw = true
         var dates = true
         var score = false
+        var adj = true
+        var citations = false
+
+        if(self.only_adj){
+          if(self.hovered_node.id !== node.id && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)){
+            adj = false
+          }
+        }
+
         if (this.favorites_only && !node.favorite) {
           filt = false
         }
 
         if (self.dates_filter !== null && !(self.dates_filter.end >= node.year && self.dates_filter.start <= node.year)) {
           dates = false
+        }
+
+        if(node.citations.length >= self.citations_threshold){
+          citations = true
         }
 
         if (this.key_words.length > 0) {
@@ -295,7 +316,7 @@ export default {
           score = true
         }
 
-        return dates && kw && filt && score
+        return citations && adj && dates && kw && filt && score
       })
       return nodes
     },
@@ -388,6 +409,15 @@ export default {
     setAlternative(choice) {
       this.choice = choice
       this.updateNodes(true)
+    },
+    setOnlyAdj(choice) {
+      this.only_adj = choice
+      this.updateNodes()
+    },
+    setCitations(citations){
+      console.log("Citations threshold : ", citations)
+      this.citations_threshold = citations;
+      this.updateNodes()
     }
   },
   mounted() {

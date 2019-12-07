@@ -41,7 +41,7 @@ export default {
     console.log("mounted componentcanvas", this.graph_original)
     this.graph = this.graph_original
     this.init()
-
+    window.addEventListener('resize', this.resizeWindow);
   },
   data() {
     return {
@@ -60,6 +60,7 @@ export default {
       move_origin: null,
       current_node: null,
       center_x: 950,
+      graphCanvas: null,
       center_y: 500,
       drawn: false,
       graphLayout: null,
@@ -69,6 +70,14 @@ export default {
   },
   computed: {},
   methods: {
+    resizeWindow(){
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+      console.log("Window resized : ", this.width, this.height);
+      this.graphCanvas.width = this.width*1
+      this.graphCanvas.height = this.height*0.991
+
+    },
     copyNestedObject(obj) {
       var self = this;
       var ret
@@ -121,12 +130,12 @@ export default {
       this.height = window.innerHeight * 0.96;
       this.width = window.innerWidth;
 
-      var graphCanvas = d3.select('#viz')
+      self.graphCanvas = d3.select('#viz')
         .attr('width', this.width + 'px')
         .attr('height', this.height + 'px')
         .node();
 
-      self.ctx = graphCanvas.getContext('2d');
+      self.ctx = self.graphCanvas.getContext('2d');
       self.ctx.strokeStyle = this.mainColor;
       self.ctx.lineWidth = 1.5
       self.graph = this.graph_original
@@ -153,7 +162,7 @@ export default {
         self.simulationUpdate();
       }
 
-      d3.select(graphCanvas)
+      d3.select(self.graphCanvas)
         .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
         .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
 

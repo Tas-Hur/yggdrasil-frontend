@@ -244,12 +244,12 @@ export default {
           self.ctx.arc(d.x, d.y, radius*0.8, 0, 2 * Math.PI, false);
         }
 
-        // if (self.disp_titles) {
-        //   self.ctx.font = "13px Arial";
-        //   self.ctx.fillStyle = self.mainColor
-        //   self.ctx.fillText(d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2)), d.x - 1.5 * radius, d.y + radius + 20, radius * 4);
-        //   self.ctx.fillStyle = "white"
-        // }
+        if (self.disp_titles) {
+          self.ctx.font = "13px Arial";
+          self.ctx.fillStyle = self.mainColor
+          self.ctx.fillText(d.title.slice(0, Math.min(d.title.length, self.computeRadius(d.citations.length) / 2)), d.x - 1.5 * radius, d.y + radius + 20, radius * 4);
+          self.ctx.fillStyle = "white"
+        }
       });
       self.ctx.fill()
       self.ctx.stroke()

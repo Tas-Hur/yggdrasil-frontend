@@ -200,10 +200,12 @@ export default {
           let link = {
             source: ref.paperId,
             target: node.paperId,
-            value: 1
+            value: 1,
+            identifier: node.paperId+'-'+ref.paperId
           }
-          if (!self.total_links.includes(link)) {
+          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(ref.paperId+'-'+node.paperId)) ) {
             self.total_links.push(link)
+          }else{
           }
         }
       })
@@ -212,9 +214,10 @@ export default {
           let link = {
             source: node.paperId,
             target: cit.paperId,
-            value: 1
+            value: 1,
+            identifier: node.paperId+'-'+cit.paperId
           }
-          if (!self.total_links.includes(link)) {
+          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(cit.paperId+'-'+node.paperId)) ) {
             self.total_links.push(link)
           }else{
           }

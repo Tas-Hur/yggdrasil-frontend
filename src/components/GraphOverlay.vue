@@ -249,13 +249,10 @@ export default {
       })
       .then(value => {
         if (value) {
-          console.log("delete")
 
           self.trash.push(self.copyNestedObject(self.hovered_node))
-          console.log(self.total_nodes)
           let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
           self.total_nodes.splice(index, 1)
-          console.log("post thing", self.total_nodes)
           index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
           self.updateNodes();
           self.hovered_node = null
@@ -268,10 +265,6 @@ export default {
     },
     computeEventual_nodes() {
       var self = this
-      if(this.hovered_node !== null){
-        console.log(this.hovered_node)
-        console.log(this.hovered_node.citations)
-      }
       var nodes = this.total_nodes.filter(node => {
         var filt = true
         var kw = true
@@ -281,7 +274,7 @@ export default {
         var citations = false
 
         if(self.only_adj){
-          if(self.hovered_node.id !== node.id && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)){
+          if(self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)){
             adj = false
           }
         }
@@ -381,7 +374,6 @@ export default {
       this.distance_nodes = distance;
     },
     setFavorites(fav) {
-      console.log("Je veux set les favoris : ", fav)
       this.favorites_only = fav
       this.updateNodes();
     },
@@ -415,24 +407,23 @@ export default {
       this.updateNodes()
     },
     setCitations(citations){
-      console.log("Citations threshold : ", citations)
       this.citations_threshold = citations;
       this.updateNodes()
     }
   },
   mounted() {
     var self = this;
+    self.draw=true
     setTimeout(() => {
       self.updateNodes();
       self.draw = true
-    }, 3000)
+    }, 1000)
     var self = this;
     console.log("Launching stuff")
     this.socket.on('done', () => {
       console.log("RECEIVED ALL")
     })
     this.socket.on('new_node', (data) => {
-      console.log("receive node")
       this.addNode(data)
     })
   },

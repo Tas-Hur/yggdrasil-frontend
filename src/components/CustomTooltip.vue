@@ -38,7 +38,7 @@
     </template>
     <br />
     <b>
-      CdP Score :
+      Influence Score :
     </b>
     {{node.cdpScore}}
     <br />

@@ -53,7 +53,7 @@
                   tooltipPlacement="bottom" :min="0" :max="1000" :contained="true"
                   @drag-end="$emit('citations', citations_threshold)" />
       <br />
-      Cdp Score mini : {{cdpScore_threshold}}
+      Influence Score mini : {{cdpScore_threshold}}
       <vue-slider class="slider" v-model="cdpScore_threshold"
                   tooltipPlacement="bottom" :min="0" :max="50" :contained="true"
                   @drag-end="$emit('cdp', cdpScore_threshold)" />

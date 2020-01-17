@@ -25,12 +25,12 @@
       <toggle-button v-model="gradient_links"
                      :color="mainColor"
                      @change="$emit('gradient_links', gradient_links)" />
-      <br />
+      <!-- <br />
       Graph alternatif (plus rapide) :
       <br />
       <toggle-button v-model="alternative"
                      :color="mainColor"
-                     @change="$emit('alternative', alternative)" />
+                     @change="$emit('alternative', alternative)" /> -->
       <br />
       N'afficher que les voisins du noeud actif :
       <br />

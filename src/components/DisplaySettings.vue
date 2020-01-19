@@ -26,12 +26,12 @@
                      :color="mainColor"
                      @change="$emit('gradient_links', gradient_links)" />
       <br />
-      Graph alternatif (plus rapide) :
+      <!-- Graph alternatif (plus rapide) :
       <br />
       <toggle-button v-model="alternative"
                      :color="mainColor"
                      @change="$emit('alternative', alternative)" />
-      <br />
+      <br /> -->
       N'afficher que les voisins du noeud actif :
       <br />
       <toggle-button v-model="only_adj"
@@ -68,12 +68,15 @@
       <input type=" text" value=""
              @change="sendKeyWords" />
       <br />
+      <br  />
       Favoris seulement :
       <br />
       <toggle-button v-model="favorites"
                      :color="mainColor"
                      @change="$emit('favorites', favorites)" />
       <br />
+      Journaux :
+      <vue-multiselect selectLabel="select" :showLabels="true" deselectLabel="remove" :value="venues" :options="venues"></vue-multiselect>
     </b-col>
   </div>
 
@@ -121,6 +124,7 @@ import 'vue-slider-component/theme/antd.css'
 export default {
   name: 'display-settings',
   props: {
+    venues: Array,
     new_nodes: Array,
     dates_filter: Array,
     dates_extrem: Object,
@@ -278,7 +282,7 @@ export default {
 }
 
 .sliders.filters:hover {
-  max-height: 21em;
+  max-height: 26em;
 }
 
 .custom-btn:hover+.sliders {

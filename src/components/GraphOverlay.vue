@@ -1,7 +1,7 @@
 <template>
 <div>
   <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
-                  @favorite="makeFavorite" @trash="deleteNode" @new_search="newSearch">
+    @favorite="makeFavorite" @trash="deleteNode" @new_search="newSearch">
   </custom-tooltip>
 
 
@@ -14,17 +14,17 @@
   </tree-v3> -->
 
   <tree-v2 v-if="draw && !choice"
-           :node_charge="parseInt(node_charge)"
-           :cdpScore_threshold="parseInt(cdpScore_threshold)"
-           :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
-           :adjlist="adjlist" :graph_original="graph"
-           @hover_node="setHoveredNode">
+    :node_charge="parseInt(node_charge)"
+    :cdpScore_threshold="parseInt(cdpScore_threshold)"
+    :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
+    :adjlist="adjlist" :graph_original="graph"
+    @hover_node="setHoveredNode">
   </tree-v2>
 
   <tree-canvas v-if="draw && choice"
-               :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
-               :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="gradient_links"
-               @hover_node="setHoveredNode">
+    :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
+    :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="gradient_links"
+    @hover_node="setHoveredNode">
   </tree-canvas>
 
   <!-- <tree-d3 :socket="socket" :nodes="nodes"
@@ -37,8 +37,10 @@
       <b-col cols="auto">
         <template v-if="graph !== null">
           Le graph comporte <span class="imp_text">{{graph.nodes.length}}</span> noeuds et <span class="imp_text">{{graph.links.length}}</span> liens
-          <br  />
+          <br />
           Au total <span class="imp_text">{{total_nodes.length}}</span> noeuds et <span class="imp_text">{{total_links.length}}</span> sont chargés
+          <br />
+          {{venues.length}}
         </template>
       </b-col>
     </b-row>
@@ -56,11 +58,12 @@
       </b-col> -->
       <b-col cols="auto">
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
-                          :new_nodes="waiting_nodes"
-                          @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
-                          @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"
-                          @cdp="setCdp" @favorites="setFavorites" @citations="setCitations"
-                          @refresh_graph="updateNodes">
+          :new_nodes="waiting_nodes"
+          :venues="Array.from(venues)"
+          @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
+          @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"
+          @cdp="setCdp" @favorites="setFavorites" @citations="setCitations"
+          @refresh_graph="updateNodes">
         </display-settings>
       </b-col>
     </b-row>
@@ -128,6 +131,9 @@ export default {
     }
   },
   computed: {
+    venues() {
+      return [...new Set(this.graph.nodes.map(n => n.venue))]
+    },
     links_checker() {
       return this.total_links.filter(link => {
         return link.source.constructor === String && link.target.constructor === String
@@ -151,9 +157,12 @@ export default {
     }
   },
   methods: {
-    newSearch(paperId){
-      console.log("new search ",paperId)
-      this.$emit('new_search', {request_type:'paper_id', request:paperId})
+    newSearch(paperId) {
+      console.log("new search ", paperId)
+      this.$emit('new_search', {
+        request_type: 'paper_id',
+        request: paperId
+      })
     },
     copyNestedObject(obj) {
       var self = this;
@@ -205,12 +214,11 @@ export default {
             source: ref.paperId,
             target: node.paperId,
             value: 1,
-            identifier: node.paperId+'-'+ref.paperId
+            identifier: node.paperId + '-' + ref.paperId
           }
-          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(ref.paperId+'-'+node.paperId)) ) {
+          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(ref.paperId + '-' + node.paperId))) {
             self.total_links.push(link)
-          }else{
-          }
+          } else {}
         }
       })
       node.citations.forEach(cit => {
@@ -219,12 +227,11 @@ export default {
             source: node.paperId,
             target: cit.paperId,
             value: 1,
-            identifier: node.paperId+'-'+cit.paperId
+            identifier: node.paperId + '-' + cit.paperId
           }
-          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(cit.paperId+'-'+node.paperId)) ) {
+          if (!(self.total_links.map(l => l.identifier).includes(link.identifier) || self.total_links.map(l => l.identifier).includes(cit.paperId + '-' + node.paperId))) {
             self.total_links.push(link)
-          }else{
-          }
+          } else {}
         }
       })
       node.id = node.paperId
@@ -232,36 +239,35 @@ export default {
       if (!self.total_nodes.map(nod => nod.paperId).includes(node.paperId) && node.paperId != null && node.paperId !== undefined) {
         self.total_nodes.push(node);
         self.waiting_nodes.push(node);
-      }else{
-      }
+      } else {}
     },
     deleteNode() {
       var self = this
       this.$bvModal.msgBoxConfirm('Êtes vous sûrs de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
-        size: 'sm',
-        buttonSize: 'sm',
-        okVariant: 'danger',
-        okTitle: 'Supprmier',
-        cancelTitle: 'Annuler',
-        footerClass: 'p-2',
-        hideHeader: true,
-        centered: true
-      })
-      .then(value => {
-        if (value) {
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'Supprmier',
+          cancelTitle: 'Annuler',
+          footerClass: 'p-2',
+          hideHeader: true,
+          centered: true
+        })
+        .then(value => {
+          if (value) {
 
-          self.trash.push(self.copyNestedObject(self.hovered_node))
-          let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
-          self.total_nodes.splice(index, 1)
-          index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
-          self.updateNodes();
-          self.hovered_node = null
-        }
-      })
-      .catch(err => {
-        console.log(err)
-        // An error occurred
-      })
+            self.trash.push(self.copyNestedObject(self.hovered_node))
+            let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+            self.total_nodes.splice(index, 1)
+            index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+            self.updateNodes();
+            self.hovered_node = null
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          // An error occurred
+        })
     },
     computeEventual_nodes() {
       var self = this
@@ -273,8 +279,8 @@ export default {
         var adj = true
         var citations = false
 
-        if(self.only_adj){
-          if(self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)){
+        if (self.only_adj) {
+          if (self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)) {
             adj = false
           }
         }
@@ -287,7 +293,7 @@ export default {
           dates = false
         }
 
-        if(node.citations.length >= self.citations_threshold){
+        if (node.citations.length >= self.citations_threshold) {
           citations = true
         }
 
@@ -406,14 +412,14 @@ export default {
       this.only_adj = choice
       this.updateNodes()
     },
-    setCitations(citations){
+    setCitations(citations) {
       this.citations_threshold = citations;
       this.updateNodes()
     }
   },
   mounted() {
     var self = this;
-    self.draw=true
+    self.draw = true
     setTimeout(() => {
       self.updateNodes();
       self.draw = true

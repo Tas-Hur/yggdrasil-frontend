@@ -26,6 +26,14 @@
     </span>
     <br />
     <b>
+      Authors :
+    </b>
+      <ul>
+        <li v-for="author in node.authors">
+          {{author.name}}
+        </li>
+      </ul>
+    <b>
       Year :
     </b>
     {{node.year}}
@@ -58,6 +66,7 @@
       </b>
       <a :href="node.url">{{node.url}}</a>
     </p>
+    {{Object.keys(node)}}
   </div>
 </div>
 </template>

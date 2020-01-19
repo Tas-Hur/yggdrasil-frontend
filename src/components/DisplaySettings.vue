@@ -1,5 +1,12 @@
 <template>
 <div>
+  <b-modal id="journaux-modal" hide-header>
+    Journaux :
+    <vue-multiselect :showLabels="true" deselectLabel="remove" selectLabel="select" :multiple="true"
+      v-model="only_venues" :options="venues">
+    </vue-multiselect>
+  </b-modal>
+
   <div class="inputs_group">
     <b-col class="custom-btn text-right" cols="12">
       <font-awesome-icon class="svg_icon" icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
@@ -7,24 +14,24 @@
     <b-col class="sliders display" cols="auto">
       Charge : {{node_charge}}
       <vue-slider class="slider" v-model="node_charge"
-                  tooltipPlacement="bottom" direction="rtl"
-                  :min="-15000" :max="0" :contained="true" />
+        tooltipPlacement="bottom" direction="rtl"
+        :min="-15000" :max="0" :contained="true" />
       <br />
       Distance : {{distance_nodes}}
       <vue-slider class="slider" v-model="distance_nodes"
-                  :min="0" :max="1000" :contained="true" />
+        :min="0" :max="1000" :contained="true" />
       <br />
       Afficher les titres :
       <br />
       <toggle-button v-model="disp_titles"
-                     :color="mainColor"
-                     @change="$emit('disp_titles', disp_titles)" />
+        :color="mainColor"
+        @change="$emit('disp_titles', disp_titles)" />
       <br />
       Activer les dégradés pour les liens :
       <br />
       <toggle-button v-model="gradient_links"
-                     :color="mainColor"
-                     @change="$emit('gradient_links', gradient_links)" />
+        :color="mainColor"
+        @change="$emit('gradient_links', gradient_links)" />
       <br />
       <!-- Graph alternatif (plus rapide) :
       <br />
@@ -35,8 +42,8 @@
       N'afficher que les voisins du noeud actif :
       <br />
       <toggle-button v-model="only_adj"
-                     :color="mainColor"
-                     @change="$emit('only_adj', only_adj)" />
+        :color="mainColor"
+        @change="$emit('only_adj', only_adj)" />
       <!-- <b-button @click="addCircle">
         Add Node
       </b-button> -->
@@ -50,40 +57,42 @@
     <b-col class="sliders filters" cols="auto">
       Nombre de citations minimal : {{citations_threshold}}
       <vue-slider class="slider" v-model="citations_threshold"
-                  tooltipPlacement="bottom" :min="0" :max="1000" :contained="true"
-                  @drag-end="$emit('citations', citations_threshold)" />
+        tooltipPlacement="bottom" :min="0" :max="1000" :contained="true"
+        @drag-end="$emit('citations', citations_threshold)" />
       <br />
       Cdp Score mini : {{cdpScore_threshold}}
       <vue-slider class="slider" v-model="cdpScore_threshold"
-                  tooltipPlacement="bottom" :min="0" :max="50" :contained="true"
-                  @drag-end="$emit('cdp', cdpScore_threshold)" />
+        tooltipPlacement="bottom" :min="0" :max="50" :contained="true"
+        @drag-end="$emit('cdp', cdpScore_threshold)" />
       <br />
       Dates limites :
       <vue-slider v-if="dates_extrem.start < dates_extrem.end"
-                  :min="dates_extrem.start" :max="dates_extrem.end" :value="dates_filter" :contained="true"
-                  @drag-end="sendDates" @change="changeDates">
+        :min="dates_extrem.start" :max="dates_extrem.end" :value="dates_filter" :contained="true"
+        @drag-end="sendDates" @change="changeDates">
       </vue-slider>
       <br />
       Mots clés :
       <input type=" text" value=""
-             @change="sendKeyWords" />
+        @change="sendKeyWords" />
       <br />
-      <br  />
+      <br />
       Favoris seulement :
       <br />
       <toggle-button v-model="favorites"
-                     :color="mainColor"
-                     @change="$emit('favorites', favorites)" />
+        :color="mainColor"
+        @change="$emit('favorites', favorites)" />
       <br />
       Journaux :
-      <vue-multiselect selectLabel="select" :showLabels="true" deselectLabel="remove" :value="venues" :options="venues"></vue-multiselect>
+      <b-button  v-b-modal="'journaux-modal'">
+        Ouvrir outil
+      </b-button>
     </b-col>
   </div>
 
   <div class="inputs_group">
     <b-col class="custom-btn text-right" cols="12">
       <font-awesome-icon class="svg_icon" icon="briefcase"
-                         @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+        @mouseleave="reduceSettings" @mouseenter="displaySettings" />
     </b-col>
     <b-col class="sliders lists" cols="auto">
       <ul>
@@ -105,7 +114,7 @@
   <div class="inputs_group">
     <b-col class="custom-btn text-right" cols="12">
       <font-awesome-icon class="svg_icon" icon="sync"
-                         @click="refreshGraph" />
+        @click="refreshGraph" />
       <div class="new_nodes_notif" v-if="new_nodes.length != 0">
         {{new_nodes.length}}
       </div>
@@ -145,8 +154,9 @@ export default {
       distance_nodes: 150,
       dates_buffer: [],
       favorites: false,
-      citations_threshold:5,
-      only_adj:false,
+      citations_threshold: 5,
+      only_adj: false,
+      only_venues: [],
       disp_titles: true,
       alternative: true,
       gradient_links: true,
@@ -213,7 +223,7 @@ export default {
   border: 1px solid var(--main-color);
   border-radius: 100px;
   transition: color ease-in-out .2s;
-  cursor:normal;
+  cursor: normal;
 }
 
 .svg_icon:hover {
@@ -240,6 +250,10 @@ export default {
   transition: all ease-in-out .2s;
 }
 
+.modale {
+  width: 100vw;
+}
+
 .sliders:hover {
   /* background-color: white; */
   opacity: 1;
@@ -254,7 +268,7 @@ export default {
   font-size: 80%;
   text-align: center;
   font-weight: bold;
-  color:white;
+  color: white;
 
   border: 1px solid var(--green-color);
   border-radius: 100px;
@@ -282,7 +296,7 @@ export default {
 }
 
 .sliders.filters:hover {
-  max-height: 26em;
+  max-height: 27em;
 }
 
 .custom-btn:hover+.sliders {

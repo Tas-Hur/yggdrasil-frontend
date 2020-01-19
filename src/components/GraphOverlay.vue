@@ -457,14 +457,6 @@ export default {
   width: auto;
 }
 
-.custom-container {
-  position: fixed;
-  z-index: 500;
-  right: 50px;
-  top: 50px;
-  width: auto;
-}
-
 #infoBoxHolder {
   z-index: 300;
   position: fixed;

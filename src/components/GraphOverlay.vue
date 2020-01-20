@@ -63,6 +63,7 @@
           @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
           @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"
           @cdp="setCdp" @favorites="setFavorites" @citations="setCitations"
+          @venues="setVenues"
           @refresh_graph="updateNodes">
         </display-settings>
       </b-col>
@@ -120,6 +121,7 @@ export default {
       dates_filter: null,
       cdpScore_threshold: 5,
       favorites_only: false,
+      venues_filter: [],
 
       hovered_node_location: {
         F: -25,
@@ -132,7 +134,7 @@ export default {
   },
   computed: {
     venues() {
-      return [...new Set(this.graph.nodes.map(n => n.venue))]
+      return [...new Set(this.total_nodes.map(n => n.venue))]
     },
     links_checker() {
       return this.total_links.filter(link => {
@@ -278,6 +280,13 @@ export default {
         var score = false
         var adj = true
         var citations = false
+        var venue = true
+
+        if (self.venues_filter.length>0){
+          if (!self.venues_filter.includes(node.venue)){
+            venue = false
+          }
+        }
 
         if (self.only_adj) {
           if (self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)) {
@@ -315,7 +324,7 @@ export default {
           score = true
         }
 
-        return citations && adj && dates && kw && filt && score
+        return venue && citations && adj && dates && kw && filt && score
       })
       return nodes
     },
@@ -414,6 +423,10 @@ export default {
     },
     setCitations(citations) {
       this.citations_threshold = citations;
+      this.updateNodes()
+    },
+    setVenues(venues){
+      this.venues_filter = venues;
       this.updateNodes()
     }
   },

@@ -9,6 +9,7 @@
         <vue-multiselect :showLabels="true" deselectLabel="remove" :close-on-select="false" selectLabel="select" :multiple="true"
           @close="sendVenues"
           v-model="only_venues" :options="venues" />
+        <b-button @click="resetVenues">reset</b-button>
       </div>
     </transition>
   </b-col>
@@ -194,6 +195,10 @@ export default {
       // this.height = "30020vh";
       this.hovered = true;
     },
+    resetVenues(){
+      this.only_venues = [];
+      this.sendVenues();
+    },
     updateNodes() {},
     hover() {
       this.hovered = !this.hovered
@@ -209,6 +214,7 @@ export default {
     },
     sendVenues(){
       console.log("Venues ", this.only_venues);
+      this.$emit('venues', this.only_venues);
     }
   },
   watch: {
@@ -223,7 +229,6 @@ export default {
     distance_nodes() {
       this.$emit('distance', this.distance_nodes)
     },
-    dates_filter() {}
   }
 }
 </script>

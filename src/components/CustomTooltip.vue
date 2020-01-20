@@ -66,7 +66,6 @@
       </b>
       <a :href="node.url">{{node.url}}</a>
     </p>
-    {{Object.keys(node)}}
   </div>
 </div>
 </template>

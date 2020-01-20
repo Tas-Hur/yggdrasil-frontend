@@ -15,6 +15,13 @@
   font-weight: normal !important;
 }
 
+button{
+  background-color: white !important;
+  color: var(--main-color) !important;
+  border: 1px solid var(--main-color) !important;
+  border-radius: 1000px !important;
+}
+
 .b-toast button.close{
   color:white !important;
 }

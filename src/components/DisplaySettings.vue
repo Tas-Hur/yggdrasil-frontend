@@ -2,14 +2,15 @@
 <b-row class="filter_section">
 
   <b-col class="advanced_group" cols="auto">
-    <div v-show="display_venue_filter" class="venue_filter">
-      Journaux à afficher :
-      <vue-multiselect :showLabels="true" deselectLabel="remove" :close-on-select="false" selectLabel="select" :multiple="true"
-        v-model="only_venues" :options="venues">
-      </vue-multiselect>
-      <b-button>Valider</b-button>
-      <b-button @click="display_venue_filter=false">Replier</b-button>
-    </div>
+    <transition>
+      <div v-show="display_venue_filter" class="venue_filter">
+        <b-button @click="display_venue_filter=false">X</b-button>
+        Journaux à afficher
+        <vue-multiselect :showLabels="true" deselectLabel="remove" :close-on-select="false" selectLabel="select" :multiple="true"
+          @close="sendVenues"
+          v-model="only_venues" :options="venues" />
+      </div>
+    </transition>
   </b-col>
 
   <b-col class="input_groups" cols="auto">
@@ -156,7 +157,7 @@ export default {
     return {
       width: '2em',
       height: '2em',
-      display_venue_filter:false,
+      display_venue_filter: false,
       hovered: false,
       node_charge: -6000,
       cdpScore_threshold: 5,
@@ -205,6 +206,9 @@ export default {
     },
     sendDates() {
       this.$emit('dates', this.dates_buffer)
+    },
+    sendVenues(){
+      console.log("Venues ", this.only_venues);
     }
   },
   watch: {
@@ -225,9 +229,8 @@ export default {
 </script>
 
 <style scoped>
-
-.filter_section{
-  background-color: rgba(255,255,255,0.5);
+.filter_section {
+  background-color: rgba(255, 255, 255, 0.5);
 
 }
 

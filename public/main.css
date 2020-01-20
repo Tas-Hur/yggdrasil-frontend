@@ -20,6 +20,13 @@ button{
   color: var(--main-color) !important;
   border: 1px solid var(--main-color) !important;
   border-radius: 1000px !important;
+  transition: all ease-in-out 200ms;
+}
+
+button:hover{
+  color: var(--green-color) !important;
+  border-color: var(--green-color) !important;
+  transition: all ease-in-out 200ms;
 }
 
 .b-toast button.close{

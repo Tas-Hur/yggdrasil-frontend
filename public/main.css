@@ -1,21 +1,26 @@
-:root{
+:root {
   --main-color: #2c3e50;
-  --light-color: rgb(150,150,150);
+  --light-color: rgb(150, 150, 150);
   --red-color: #ff6a6a;
   --green-color: #41b883;
 }
 
-.b-toast{
+@font-face {
+  font-family: "Wilmina";
+  src: url("wilmina.ttf");
+}
+
+.b-toast {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
 }
 
-.toast-header{
-  background-color:var(--main-color) !important;
-  color:white !important;
+.toast-header {
+  background-color: var(--main-color) !important;
+  color: white !important;
   font-weight: normal !important;
 }
 
-button{
+button {
   background-color: white !important;
   color: var(--main-color) !important;
   border: 1px solid var(--main-color) !important;
@@ -23,90 +28,97 @@ button{
   transition: all ease-in-out 200ms;
 }
 
-button:hover{
+button:hover {
   color: var(--green-color) !important;
   border-color: var(--green-color) !important;
   transition: all ease-in-out 200ms;
 }
 
-.b-toast button.close{
-  color:white !important;
+.b-toast button.close {
+  color: white !important;
 }
 
-.container.max-container{
-  width:95vw;
+.container.max-container {
+  width: 95vw;
   max-width: none;
 }
 
-.form-control{
-  border:0;
-  border-radius:0;
-  border-bottom:1px solid var(--light-color);
+.form-control {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--light-color);
 }
 
-.form-control:focus{
+.form-control:focus {
   box-shadow: none;
   border-color: var(--main-color);
-  border-width:2px;
+  border-width: 2px;
 }
 
-.custom-btn:hover{
-  cursor:pointer;
+.custom-btn:hover {
+  cursor: pointer;
 }
 
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-  font-style: italic !important;
-}
-::-moz-placeholder { /* Firefox 19+ */
-  font-style: italic !important;
-}
-:-ms-input-placeholder { /* IE 10+ */
-  font-style: italic !important;
-}
-:-moz-placeholder { /* Firefox 18- */
+::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
   font-style: italic !important;
 }
 
-.multiselect__tags{
+::-moz-placeholder {
+  /* Firefox 19+ */
+  font-style: italic !important;
+}
+
+:-ms-input-placeholder {
+  /* IE 10+ */
+  font-style: italic !important;
+}
+
+:-moz-placeholder {
+  /* Firefox 18- */
+  font-style: italic !important;
+}
+
+.multiselect__tags {
   border-radius: 0 !important;
 }
 
-.multiselect__content-wrapper{
-  border-radius:0 !important;
+.multiselect__content-wrapper {
+  border-radius: 0 !important;
 }
 
-.link{
-  color:var(--main-color);
-  cursor:pointer;
+.link {
+  color: var(--main-color);
+  cursor: pointer;
   font-weight: bold;
   transition: all ease-in-out 200ms;
 }
 
-.link:hover{
-  color:var(--light-color);
+.link:hover {
+  color: var(--light-color);
   transition: all ease-in-out 200ms;
 }
 
-.vue-slider:hover .vue-slider-dot-handle:hover{
-  border-color:var(--green-color);
-}
-
-.vue-slider:hover .vue-slider-process{
-  background-color: var(--green-color);
-}
-
-.vue-slider:hover .vue-slider-dot-handle{
+.vue-slider:hover .vue-slider-dot-handle:hover {
   border-color: var(--green-color);
 }
 
-.vue-slider-dot-handle{
-  border-color:var(--main-color);
+.vue-slider:hover .vue-slider-process {
+  background-color: var(--green-color);
 }
 
-.vue-slider-dot-handle-focus{
-  box-shadow:0 0 0 5px rgba(65,184,131, 0.2);
+.vue-slider:hover .vue-slider-dot-handle {
+  border-color: var(--green-color);
 }
 
-.vue-slider-process{
+.vue-slider-dot-handle {
+  border-color: var(--main-color);
+}
+
+.vue-slider-dot-handle-focus {
+  box-shadow: 0 0 0 5px rgba(65, 184, 131, 0.2);
+}
+
+.vue-slider-process {
   background-color: var(--main-color);
 }

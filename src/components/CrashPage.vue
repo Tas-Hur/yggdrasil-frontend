@@ -2,9 +2,10 @@
 <b-container>
   <b-row class="title align-items-center">
     <b-col>
-      <h3>
+      <img width="30%" src="/yggdrasil_logo.png" />
+      <!-- <h3 class="logo">
         Yggdrasil
-      </h3>
+      </h3> -->
     </b-col>
   </b-row>
   <b-row align-h="center">
@@ -80,6 +81,11 @@ export default {
 </script>
 
 <style scoped>
+.logo{
+  font-size:4em;
+  font-family: Wilmina;
+}
+
 .req_spinner {
   margin-top: 2rem;
 }

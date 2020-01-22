@@ -130,6 +130,13 @@
       </b-col>
     </div>
 
+    <div class="inputs_group">
+      <b-col class="custom-btn text-right" cols="12">
+        <img src="small_icon.svg" class="png_icon"
+          @click="refreshGraph" />
+      </b-col>
+    </div>
+
   </b-col>
 
 
@@ -241,6 +248,24 @@ export default {
 
 .advanced_group {
   max-width: 300px;
+}
+
+.png_icon{
+  height: 2em;
+  width: 2em;
+  padding: 0.2em;
+  transition: color ease-in-out .2s;
+  cursor: normal;
+}
+
+.png_icon:hover{
+  height: 2em;
+  width: 2em;
+  padding: 0.2em;
+  background-color: var(--main-color);
+  color: white;
+  transition: color ease-in-out .2s;
+  cursor: normal;
 }
 
 .svg_icon {

@@ -18,6 +18,19 @@
 
     <div class="inputs_group">
       <b-col class="custom-btn text-right" cols="12">
+        <font-awesome-icon class="svg_icon" icon="info" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
+      </b-col>
+      <b-col class="sliders display" cols="auto">
+        Le graph comporte <span class="imp_text">{{total_nodes_loaded}}</span> noeuds et <span class="imp_text">{{total_links_loaded}}</span> liens
+        <br />
+        Au total <span class="imp_text">{{total_nodes}}</span> noeuds et <span class="imp_text">{{total_links}}</span> sont chargés
+        <br />
+
+      </b-col>
+    </div>
+
+    <div class="inputs_group">
+      <b-col class="custom-btn text-right" cols="12">
         <font-awesome-icon class="svg_icon" icon="cog" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
       </b-col>
       <b-col class="sliders display" cols="auto">
@@ -132,8 +145,8 @@
 
     <div class="inputs_group">
       <b-col class="custom-btn text-right" cols="12">
-        <img src="small_icon.svg" class="png_icon"
-          @click="refreshGraph" />
+        <img class="png_icon" src="icon_small_padded.png" />
+
       </b-col>
     </div>
 
@@ -150,6 +163,10 @@ import 'vue-slider-component/theme/antd.css'
 export default {
   name: 'display-settings',
   props: {
+    total_nodes: Number,
+    total_nodes_loaded: Number,
+    total_links: Number,
+    total_links_loaded: Number,
     venues: Array,
     new_nodes: Array,
     dates_filter: Array,
@@ -202,7 +219,7 @@ export default {
       // this.height = "30020vh";
       this.hovered = true;
     },
-    resetVenues(){
+    resetVenues() {
       this.only_venues = [];
       this.sendVenues();
     },
@@ -219,7 +236,7 @@ export default {
     sendDates() {
       this.$emit('dates', this.dates_buffer)
     },
-    sendVenues(){
+    sendVenues() {
       console.log("Venues ", this.only_venues);
       this.$emit('venues', this.only_venues);
     }
@@ -250,18 +267,17 @@ export default {
   max-width: 300px;
 }
 
-.png_icon{
+.png_icon {
   height: 2em;
   width: 2em;
-  padding: 0.2em;
   transition: color ease-in-out .2s;
+  border-radius: 1000px;
   cursor: normal;
 }
 
-.png_icon:hover{
+.png_icon:hover {
   height: 2em;
   width: 2em;
-  padding: 0.2em;
   background-color: var(--main-color);
   color: white;
   transition: color ease-in-out .2s;
@@ -356,5 +372,9 @@ export default {
 
 .inputs_group {
   margin-bottom: 2em;
+}
+
+.imp_text {
+  color: var(--green-color);
 }
 </style>

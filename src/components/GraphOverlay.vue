@@ -5,14 +5,6 @@
   </custom-tooltip>
 
 
-  <!-- <tree-v3 v-if="draw && choice"
-           :node_charge="parseInt(node_charge)"
-           :cdpScore_threshold="parseInt(cdpScore_threshold)"
-           :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
-           :adjlist="adjlist" :graph_original="graph"
-           @hover_node="setHoveredNode">
-  </tree-v3> -->
-
   <tree-v2 v-if="draw && !choice"
     :node_charge="parseInt(node_charge)"
     :cdpScore_threshold="parseInt(cdpScore_threshold)"
@@ -27,12 +19,7 @@
     @hover_node="setHoveredNode">
   </tree-canvas>
 
-  <!-- <tree-d3 :socket="socket" :nodes="nodes"
-           @hover_node="setHoveredNode">
-  </tree-d3> -->
-
-
-  <div class="full-container">
+  <!-- <div class="full-container">
     <b-row align-h="center">
       <b-col cols="auto">
         <template v-if="graph !== null">
@@ -44,21 +31,16 @@
         </template>
       </b-col>
     </b-row>
-  </div>
+  </div> -->
   <div class="custom-container">
     <b-row align-h="end">
-      <!-- <b-col cols="8">
-        Cliquer <span class="link" @click="search">ici</span> pour relancer une recherche
-        <br />
-        Cliquer <span class="link" @click="addNode">ici</span> pour ajouter un noeud
-        <br />
-        <template v-if="graph !== null">
-          Il y a {{graph.nodes.length}} noeuds et {{graph.links.length}} liens
-        </template>
-      </b-col> -->
       <b-col cols="auto">
         <display-settings :dates_extrem="dates_extrem" :dates_filter="dates_filter_array" :fav_nodes="favorites" :trash_nodes="trash"
           :new_nodes="waiting_nodes"
+          :total_links_loaded="graph.links.length"
+          :total_links="total_links.length"
+          :total_nodes_loaded="graph.nodes.length"
+          :total_nodes="total_nodes.length"
           :venues="Array.from(venues)"
           @charge="setCharge" @disp_titles="setDispTitles" @distance="setDistance" @gradient_links="setGradientLinks"
           @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"

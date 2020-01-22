@@ -39,8 +39,8 @@ export default {
       request: "",
       author: false,
       query_type: {
-        code: 'paper_id',
-        name: "un papier spécifique "
+        code: 'key_words',
+        name: "des mots-clés"
       },
       options: [{
           code: 'author',

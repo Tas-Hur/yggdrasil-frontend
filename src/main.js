@@ -16,6 +16,7 @@ import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faSearch,
   faCog,
+  faInfo,
   faFilter,
   faPlayCircle,
   faStar,
@@ -40,6 +41,7 @@ library.add(faSearch)
 library.add(faCog)
 library.add(faFilter)
 library.add(faStar)
+library.add(faInfo)
 library.add(faBriefcase)
 library.add(faTrash)
 library.add(faSync)

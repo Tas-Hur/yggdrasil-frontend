@@ -228,14 +228,15 @@ export default {
     },
     deleteNode() {
       var self = this
-      this.$bvModal.msgBoxConfirm('Êtes vous sûrs de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
-          size: 'sm',
+      this.$bvModal.msgBoxConfirm('Êtes vous sûr·e de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
+          size: 'md',
+          title: 'Êtes vous sûr·e ?',
           buttonSize: 'sm',
           okVariant: 'danger',
           okTitle: 'Supprmier',
           cancelTitle: 'Annuler',
           footerClass: 'p-2',
-          hideHeader: true,
+          hideHeader: false,
           centered: true
         })
         .then(value => {

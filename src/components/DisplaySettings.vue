@@ -18,7 +18,7 @@
 
     <div class="inputs_group">
       <b-col @click="resetSearch" class="custom-btn text-right" cols="12">
-        <object  class="png_icon" height="40px" width="40px" data="animated_logo_over.svg" />
+        <img class="png_icon" src="animated_logo_load.svg" />
       </b-col>
     </div>
 
@@ -112,7 +112,7 @@
         <br />
         <br />
         <b-button v-b-modal="'journaux-modal'" @click="display_venue_filter=true">
-          Journaux
+          Journaux (dev)
         </b-button>
       </b-col>
     </div>
@@ -241,7 +241,27 @@ export default {
     },
     resetSearch(){
       console.log("Called")
-      this.$emit('reset_search')
+      var self = this
+      this.$bvModal.msgBoxConfirm('Êtes vous sûr·e de vouloir relancer une recherche ?\n Ce graph sera perdu.', {
+          size: 'md',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          title: 'Êtes vous sûr·e ?',
+          okTitle: 'Relancer',
+          cancelTitle: 'Annuler',
+          footerClass: 'p-2',
+          hideHeader: false,
+          centered: true
+        })
+        .then(value => {
+          if (value) {
+            this.$emit('reset_search')
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          // An error occurred
+        })
     }
   },
   watch: {
@@ -271,8 +291,8 @@ export default {
 }
 
 .png_icon {
-  height: 3em;
-  width: 3em;
+  height: 2.4em;
+  width: 2.4em;
   transition: color ease-in-out .2s;
   border-radius: 1000px;
   cursor: normal;

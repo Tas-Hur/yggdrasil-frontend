@@ -25,6 +25,8 @@ button {
   color: var(--main-color) !important;
   border: 1px solid var(--main-color) !important;
   border-radius: 1000px !important;
+  font-weight: normal !important;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   transition: all ease-in-out 200ms;
 }
 
@@ -121,6 +123,28 @@ button:hover {
 
 .vue-slider-process {
   background-color: var(--main-color);
+}
+
+.modal-content{
+  /* border-radius:0px; */
+  padding:1em;
+  text-align: center;
+  border: 0px;
+}
+
+.modal-body{
+  opacity: 0.5;
+}
+
+.modal-header{
+  justify-content: center;
+  border:0 !important;
+}
+
+.modal-footer{
+  margin-top:1em;
+  border:0 !important;
+  justify-content: center;
 }
 
 .modal-body{

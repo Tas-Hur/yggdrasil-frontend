@@ -46,7 +46,8 @@
           @dates="setDates" @key_words="setKeyWords" @alternative="setAlternative" @only_adj="setOnlyAdj"
           @cdp="setCdp" @favorites="setFavorites" @citations="setCitations"
           @venues="setVenues"
-          @refresh_graph="updateNodes">
+          @refresh_graph="updateNodes"
+          @reset_search="resetSearch">
         </display-settings>
       </b-col>
     </b-row>
@@ -354,8 +355,8 @@ export default {
       index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
       this.graph.nodes[index].favorite = bool
     },
-    search() {
-      this.$emit('search')
+    resetSearch() {
+      this.$emit('reset_search')
     },
     setHoveredNode(d) {
       this.hovered_node = d;

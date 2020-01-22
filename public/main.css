@@ -122,3 +122,7 @@ button:hover {
 .vue-slider-process {
   background-color: var(--main-color);
 }
+
+.modal-body{
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+}

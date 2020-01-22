@@ -1,7 +1,7 @@
 <template>
-<b-container>
-  <b-row class="title align-items-center">
-    <b-col>
+<b-container class="crash_container">
+  <b-row align-h="center" class="title align-items-center">
+    <b-col sm="6">
       <img width="30%" src="/yggdrasil_logo.png" />
       <!-- <h3 class="logo">
         Yggdrasil
@@ -9,7 +9,7 @@
     </b-col>
   </b-row>
   <b-row align-h="center">
-    <b-col sm="7">
+    <b-col sm="6">
       <b-row align-v="center" align-h="center">
         <font-awesome-icon class="custom-btn" icon="search" @click="search" />
         <b-col cols="10">
@@ -81,13 +81,11 @@ export default {
 </script>
 
 <style scoped>
+
+
 .logo{
   font-size:4em;
   font-family: Wilmina;
-}
-
-.req_spinner {
-  margin-top: 2rem;
 }
 
 .checkbox {
@@ -101,11 +99,19 @@ export default {
 
 .title {
   margin-top: 17vh;
-  margin-bottom: 13vh;
+  margin-bottom: 5vh;
   height: 30%;
 }
 
 .input-request {
   text-align: left;
+}
+
+.crash_container{
+  position:fixed;
+  max-width: 100vw;
+  width:100vw;
+  height:100vh;
+  background-color: rgba(255,255,255,0.6)
 }
 </style>

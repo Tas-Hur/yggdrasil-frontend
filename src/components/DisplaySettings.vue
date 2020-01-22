@@ -17,10 +17,16 @@
   <b-col class="input_groups" cols="auto">
 
     <div class="inputs_group">
+      <b-col @click="resetSearch" class="custom-btn text-right" cols="12">
+        <object  class="png_icon" height="40px" width="40px" data="animated_logo_over.svg" />
+      </b-col>
+    </div>
+
+    <div class="inputs_group">
       <b-col class="custom-btn text-right" cols="12">
         <font-awesome-icon class="svg_icon" icon="info" @mouseleave="reduceSettings" @mouseenter="displaySettings" />
       </b-col>
-      <b-col class="sliders display" cols="auto">
+      <b-col class="sliders infos" cols="auto">
         Le graph comporte <span class="imp_text">{{total_nodes_loaded}}</span> noeuds et <span class="imp_text">{{total_links_loaded}}</span> liens
         <br />
         Au total <span class="imp_text">{{total_nodes}}</span> noeuds et <span class="imp_text">{{total_links}}</span> sont chargés
@@ -143,13 +149,6 @@
       </b-col>
     </div>
 
-    <div class="inputs_group">
-      <b-col class="custom-btn text-right" cols="12">
-        <img class="png_icon" src="icon_small_padded.png" />
-
-      </b-col>
-    </div>
-
   </b-col>
 
 
@@ -239,6 +238,10 @@ export default {
     sendVenues() {
       console.log("Venues ", this.only_venues);
       this.$emit('venues', this.only_venues);
+    },
+    resetSearch(){
+      console.log("Called")
+      this.$emit('reset_search')
     }
   },
   watch: {
@@ -268,20 +271,16 @@ export default {
 }
 
 .png_icon {
-  height: 2em;
-  width: 2em;
+  height: 3em;
+  width: 3em;
   transition: color ease-in-out .2s;
   border-radius: 1000px;
   cursor: normal;
+  transition: all ease-in-out .2s;
 }
 
 .png_icon:hover {
-  height: 2em;
-  width: 2em;
-  background-color: var(--main-color);
-  color: white;
-  transition: color ease-in-out .2s;
-  cursor: normal;
+  cursor: pointer;
 }
 
 .svg_icon {
@@ -308,7 +307,6 @@ export default {
 }
 
 .sliders {
-  /* background-color: white; */
   opacity: 0;
   width: 0;
   padding-left: 30px;
@@ -353,6 +351,10 @@ export default {
 
 .green_text {
   color: var(--green-color);
+}
+
+.sliders.infos:hover{
+  max-height: 8em;
 }
 
 .sliders.display:hover {

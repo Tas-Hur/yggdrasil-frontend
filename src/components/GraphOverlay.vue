@@ -5,17 +5,18 @@
   </custom-tooltip>
 
 
-  <tree-v2 v-if="draw && !choice"
+  <!-- <tree-v2 v-if="draw && !choice"
     :node_charge="parseInt(node_charge)"
     :cdpScore_threshold="parseInt(cdpScore_threshold)"
     :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)" :gradient_links="gradient_links" :draw_lines="true"
     :adjlist="adjlist" :graph_original="graph"
     @hover_node="setHoveredNode">
-  </tree-v2>
+  </tree-v2> -->
 
   <tree-canvas v-if="draw && choice"
     :node_charge="parseInt(node_charge)" :disp_titles="disp_titles" :distance_nodes="parseInt(distance_nodes)"
     :adjlist="adjlist" :graph_original="graph" :cdpScore_threshold="parseInt(cdpScore_threshold)" :gradient_links="gradient_links"
+    :multi_select="multi_select"
     @hover_node="setHoveredNode">
   </tree-canvas>
 
@@ -415,18 +416,28 @@ export default {
       this.venues_filter = venues;
       this.updateNodes()
     },
-    pressSuppr(e){
+    keyDown(e){
       console.log("key pressed : ", e)
       if(e.keyCode === 46){
         this.deleteNode();
       }
+      if(e.keyCode === 16){
+        this.multi_select = true;
+      }
     },
+    keyUp(e){
+      if(e.keyCode === 16){
+        this.multi_select = false;
+      }
+    }
   },
   created(){
-    document.addEventListener('keydown', this.pressSuppr);
+    document.addEventListener('keydown', this.keyDown);
+    document.addEventListener('keyup', this.keyUp);
   },
   destroyed(){
-    document.removeEventListener('keydown', this.pressSuppr);
+    document.removeEventListener('keydown', this.keyDown);
+    document.removeEventListener('keyup', this.keyUp);
   },
   mounted() {
     var self = this;

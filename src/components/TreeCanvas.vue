@@ -16,6 +16,10 @@ import Vue from 'vue'
 export default {
   name: "tree-canvas",
   props: {
+    multi_select: {
+      type:Boolean,
+      default:false
+    },
     cdpScore_threshold: {
       type: Number,
       default: 5,
@@ -58,7 +62,7 @@ export default {
       height: null,
       origin: [0, 0],
       move_origin: null,
-      current_node: null,
+      current_node: [],
       center_x: 950,
       graphCanvas: null,
       center_y: 500,
@@ -188,7 +192,11 @@ export default {
             self.$emit('hover_node', node)
             node.x = self.transform.applyX(node.x);
             node.y = self.transform.applyY(node.y);
-            self.current_node = node;
+            if(self.multi_select){
+              self.current_node.push(node.paperId);
+            }else{
+              self.current_node = [node.paperId];
+            }
             return node;
           }
         }
@@ -248,7 +256,7 @@ export default {
         self.ctx.moveTo(d.x, d.y)
         self.ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI, false);
 
-        if(self.current_node !== null && self.current_node.paperId === d.paperId){
+        if(self.current_node.includes(d.paperId)){
           self.ctx.lineWidth = 5
         }
         self.ctx.strokeStyle = d.favorite ? self.greenColor : self.mainColor

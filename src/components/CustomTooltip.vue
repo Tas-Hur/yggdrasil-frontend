@@ -194,10 +194,6 @@ export default {
   visibility: visible;
 }
 
-.additional_infos {
-  background-color: white;
-}
-
 /* .arrow-tooltip {
   z-index: 350;
   transform: rotate(45deg);
@@ -223,6 +219,7 @@ export default {
   font-size: 90%;
   /* box-shadow: 0 0 10px 1px rgba(10,10,10,0.1); */
   overflow-y: scroll;
+  background-color: rgba(255,255,255,0.8);
 }
 
 /* this is known as the "clearfix" hack to allow

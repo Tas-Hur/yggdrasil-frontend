@@ -81,6 +81,7 @@ export default {
   data() {
     return {
       trash: [],
+      multi_select:false,
       choice: !false,
       favorites: [],
       draw: false,
@@ -233,7 +234,7 @@ export default {
           title: 'Êtes vous sûr·e ?',
           buttonSize: 'sm',
           okVariant: 'danger',
-          okTitle: 'Supprmier',
+          okTitle: 'Supprimer',
           cancelTitle: 'Annuler',
           footerClass: 'p-2',
           hideHeader: false,
@@ -241,13 +242,14 @@ export default {
         })
         .then(value => {
           if (value) {
-
-            self.trash.push(self.copyNestedObject(self.hovered_node))
-            let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
-            self.total_nodes.splice(index, 1)
-            index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
-            self.updateNodes();
-            self.hovered_node = null
+            if(self.hovered_node !== null){
+              self.trash.push(self.copyNestedObject(self.hovered_node))
+              let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+              self.total_nodes.splice(index, 1)
+              index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+              self.updateNodes();
+              self.hovered_node = null
+            }
           }
         })
         .catch(err => {
@@ -412,7 +414,19 @@ export default {
     setVenues(venues){
       this.venues_filter = venues;
       this.updateNodes()
-    }
+    },
+    pressSuppr(e){
+      console.log("key pressed : ", e)
+      if(e.keyCode === 46){
+        this.deleteNode();
+      }
+    },
+  },
+  created(){
+    document.addEventListener('keydown', this.pressSuppr);
+  },
+  destroyed(){
+    document.removeEventListener('keydown', this.pressSuppr);
   },
   mounted() {
     var self = this;
@@ -429,6 +443,7 @@ export default {
     this.socket.on('new_node', (data) => {
       this.addNode(data)
     })
+
   },
 
 }

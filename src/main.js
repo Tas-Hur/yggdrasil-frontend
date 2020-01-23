@@ -20,9 +20,14 @@ import {
   faFilter,
   faPlayCircle,
   faStar,
+  faTimesCircle,
   faBriefcase,
   faTrash,
-  faSync
+  faSync,
+  faEye,
+  faEyeSlash,
+  faCaretRight,
+  faCaretDown
 } from '@fortawesome/free-solid-svg-icons'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -46,7 +51,11 @@ library.add(faBriefcase)
 library.add(faTrash)
 library.add(faSync)
 library.add(faPlayCircle)
-
+library.add(faTimesCircle)
+library.add(faEye)
+library.add(faEyeSlash)
+library.add(faCaretDown)
+library.add(faCaretRight)
 Vue.use(ToggleButton)
 Vue.component('vue-multiselect', VueMultiselect)
 Vue.use(VueAxios, axios)

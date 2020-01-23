@@ -2,70 +2,76 @@
 <div v-if="node !== null" :style="positionStyleCursor">
   <!-- <div class="arrow-tooltip" :style="arrowStyle">
     </div> -->
+
+
   <div id="infoBox" :style="sizingStyle">
     <h5>
-      <font-awesome-icon @click="setFavorite" class="svg_icon star" :style="star_style" icon="star" />
+      <font-awesome-icon @click="setFavorite" class="svg_icon" :style="star_style" icon="star" />
       {{node.title}}
     </h5>
-    <font-awesome-icon @click="trashNode" class="svg_icon star" :color="redColor" icon="trash" />
+    <font-awesome-icon @click="trashNode" class="svg_icon" :color="redColor" icon="trash" />
     supprimer ce noeud du graph
     <br />
-    <font-awesome-icon @click="newSearch" class="svg_icon star" :color="greenColor" icon="play-circle" />
+    <font-awesome-icon @click="newSearch" class="svg_icon" :color="greenColor" icon="play-circle" />
     relancer une recherche à partir de ce noeud
     <br />
-    <b>
-      DOI :
-    </b>
-    {{node.doi}}
-    <br />
-    <span class="full_text">
+    <font-awesome-icon @click="display_infos=!display_infos" size="2x" class="svg_icon toggle_display"
+      :icon="display_infos ? 'caret-down' : 'caret-right'" :color="mainColor" />
+    <div v-if="display_infos" class="additional_infos">
       <b>
-        Abstract :
+        DOI :
       </b>
-      {{node.abstract}}
-    </span>
-    <br />
-    <b>
-      Authors :
-    </b>
+      {{node.doi}}
+      <br />
+      <span class="full_text">
+        <b>
+          Abstract :
+        </b>
+        {{node.abstract}}
+      </span>
+      <br />
+      <b>
+        Authors :
+      </b>
       <ul>
         <li v-for="author in node.authors">
           {{author.name}}
         </li>
       </ul>
-    <b>
-      Year :
-    </b>
-    {{node.year}}
-    <br />
-    <b>
-      Cited by :
-    </b>
-    <template v-if="'citations' in node">
-      {{node.citations.length}}
-    </template>
-    <br />
-    <b>
-      Influence Score :
-    </b>
-    {{node.cdpScore}}
-    <br />
-    <b>
-      Appeared in :
-    </b>
-    <template v-if="node.venue !== ''">
-      {{node.venue}}
-    </template>
-    <template v-else>
-      N/A
-    </template>
-    <br />
-    <p class="url">
       <b>
-        URL :
+        Year :setFavorite
       </b>
-      <a :href="node.url">{{node.url}}</a>
-    </p>
+      {{node.year}}
+      <br />
+      <b>
+        Cited by :
+      </b>
+      <template v-if="'citations' in node">
+        {{node.citations.length}}
+      </template>
+      <br />
+      <b>
+        Influence Score :
+      </b>
+      {{node.cdpScore}}
+      <br />
+      <b>
+        Appeared in :
+      </b>
+      <template v-if="node.venue !== ''">
+        {{node.venue}}
+      </template>
+      <template v-else>
+        N/A
+      </template>
+      <br />
+      <p class="url">
+        <b>
+          URL :
+        </b>
+        <a :href="node.url">{{node.url}}</a>
+      </p>
+    </div>
   </div>
 </div>
 </template>
@@ -96,6 +102,7 @@ export default {
   },
   data() {
     return {
+      display_infos: true,
       total_width: 0,
     }
   },
@@ -161,7 +168,7 @@ export default {
     },
     newSearch() {
       console.log("node : ", this.node)
-      this.$emit('new_search',this.node.id)
+      this.$emit('new_search', this.node.id)
     },
     setFavorite() {
       this.$emit('favorite', !this.node.favorite)
@@ -183,7 +190,15 @@ export default {
 </script>
 
 <style scoped>
-.arrow-tooltip {
+.toggleDisplay {
+  visibility: visible;
+}
+
+.additional_infos {
+  background-color: white;
+}
+
+/* .arrow-tooltip {
   z-index: 350;
   transform: rotate(45deg);
   background-color: white;
@@ -191,13 +206,12 @@ export default {
   top: 50px;
   height: 20px;
   width: 20px;
-}
+} */
 
 #infoBox {
   z-index: 300;
   padding: 15px;
   border-radius: 5px;
-  background-color: white;
   text-align: justify;
   position: fixed;
   max-height: 90vh;
@@ -226,7 +240,7 @@ floated objects to add to the height of a div */
   text-align: left;
 }
 
-.svg_icon.star {
+.svg_icon {
   cursor: pointer;
 }
 

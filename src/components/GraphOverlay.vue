@@ -1,6 +1,7 @@
 <template>
 <div>
-  <custom-tooltip id="infoBoxHolder" v-show="hovered_node !== null" :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node"
+  <custom-tooltip id="infoBoxHolder" v-if="hovered_node.length > 0"
+    :node_settings="node_settings" :position="hovered_node_location" :node="this.hovered_node[(this.hovered_node.length-1)]"
     @favorite="makeFavorite" @trash="deleteNode" @new_search="newSearch">
   </custom-tooltip>
 
@@ -82,7 +83,7 @@ export default {
   data() {
     return {
       trash: [],
-      multi_select:false,
+      multi_select: false,
       choice: !false,
       favorites: [],
       draw: false,
@@ -94,7 +95,7 @@ export default {
         nodes: [],
         links: []
       },
-      hovered_node: null,
+      hovered_node: [],
       disp_titles: true,
       gradient_links: true,
       node_charge: -3000,
@@ -229,6 +230,7 @@ export default {
       } else {}
     },
     deleteNode() {
+      console.log(this.hovered_node)
       var self = this
       this.$bvModal.msgBoxConfirm('Êtes vous sûr·e de vouloir supprimer ce noeud ?\n Il sera déplacé dans la corbeille et pourra être restauré à tout moment.', {
           size: 'md',
@@ -243,14 +245,14 @@ export default {
         })
         .then(value => {
           if (value) {
-            if(self.hovered_node !== null){
-              self.trash.push(self.copyNestedObject(self.hovered_node))
-              let index = self.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+            self.hovered_node.forEach(d => {
+              self.trash.push(self.copyNestedObject(d))
+              let index = self.total_nodes.findIndex(n => n.id == d.id)
               self.total_nodes.splice(index, 1)
-              index = self.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+              index = self.graph.nodes.findIndex(n => n.id == d.id)
               self.updateNodes();
-              self.hovered_node = null
-            }
+              self.hovered_node = []
+            })
           }
         })
         .catch(err => {
@@ -269,17 +271,17 @@ export default {
         var citations = false
         var venue = true
 
-        if (self.venues_filter.length>0){
-          if (!self.venues_filter.includes(node.venue)){
+        if (self.venues_filter.length > 0) {
+          if (!self.venues_filter.includes(node.venue)) {
             venue = false
           }
         }
 
-        if (self.only_adj) {
-          if (self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)) {
-            adj = false
-          }
-        }
+        // if (self.only_adj) {
+        //   if (self.hovered_node.id !== node.id && !self.hovered_node.references.map(ref => ref.paperId).includes(node.id) && !self.hovered_node.citations.map(cit => cit.paperId).includes(node.id)) {
+        //     adj = false
+        //   }
+        // }
 
         if (this.favorites_only && !node.favorite) {
           filt = false
@@ -345,25 +347,29 @@ export default {
     },
     makeFavorite(bool) {
       var self = this;
+      var node = this.hovered_node[this.hovered_node.length - 1]
       if (bool) {
-        this.favorites.push(this.hovered_node)
+        this.favorites.push(node)
       } else {
-        let i = this.favorites.findIndex(n => this.hovered_node.id == n.id)
+        let i = this.favorites.findIndex(n => node.id == n.id)
         this.favorites.splice(i, 1)
       }
-      this.hovered_node.favorite = bool;
+      node.favorite = bool;
 
-      this.hovered_node = Object.assign({}, this.hovered_node)
-      let index = this.total_nodes.findIndex(n => n.id == self.hovered_node.id)
+      let index = this.total_nodes.findIndex(n => n.id == node.id)
       this.total_nodes[index].favorite = bool;
-      index = this.graph.nodes.findIndex(n => n.id == self.hovered_node.id)
+      index = this.graph.nodes.findIndex(n => n.id == node.id)
       this.graph.nodes[index].favorite = bool
     },
     resetSearch() {
       this.$emit('reset_search')
     },
     setHoveredNode(d) {
-      this.hovered_node = d;
+      if(this.multi_select){
+        this.hovered_node.push(d)
+      }else{
+        this.hovered_node = [d];
+      }
     },
     setCharge(charge) {
       this.node_charge = charge;
@@ -412,30 +418,30 @@ export default {
       this.citations_threshold = citations;
       this.updateNodes()
     },
-    setVenues(venues){
+    setVenues(venues) {
       this.venues_filter = venues;
       this.updateNodes()
     },
-    keyDown(e){
+    keyDown(e) {
       console.log("key pressed : ", e)
-      if(e.keyCode === 46){
+      if (e.keyCode === 46) {
         this.deleteNode();
       }
-      if(e.keyCode === 16){
+      if (e.keyCode === 16) {
         this.multi_select = true;
       }
     },
-    keyUp(e){
-      if(e.keyCode === 16){
+    keyUp(e) {
+      if (e.keyCode === 16) {
         this.multi_select = false;
       }
     }
   },
-  created(){
+  created() {
     document.addEventListener('keydown', this.keyDown);
     document.addEventListener('keyup', this.keyUp);
   },
-  destroyed(){
+  destroyed() {
     document.removeEventListener('keydown', this.keyDown);
     document.removeEventListener('keyup', this.keyUp);
   },

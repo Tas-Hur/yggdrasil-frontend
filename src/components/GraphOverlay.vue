@@ -100,9 +100,9 @@ export default {
 
       only_adj: false,
       key_words: [],
-      citations_threshold: 5,
+      citations_threshold: 0,
       dates_filter: null,
-      cdpScore_threshold: 5,
+      cdpScore_threshold: 0,
       favorites_only: false,
       venues_filter: [],
 
